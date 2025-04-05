@@ -24,7 +24,7 @@ mv .gitconfig ./.config-backup/.gitconfig
 brew install aerospace # window tiling manager
 ```
 
-4. Install Zsh plugin manager (Oh My Zsh)
+4. Install Zsh plugin manager (Oh My Zsh), as the .zshrc uses that.
 
 [https://ohmyz.sh/#install](https://ohmyz.sh/#install)
 
@@ -34,6 +34,5 @@ brew install aerospace # window tiling manager
 stow git
 stow zsh
 stow aerospace
+stow nvim # may need to delete .DS_Store files if error appears
 ```
-
-4.
