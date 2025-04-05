@@ -16,7 +16,10 @@ cd ~; mkdir -p .config-backup && \
 mv .aerospace.toml ./.config-backup/.aerospace.toml && \
 mv .zshrc ./.config-backup/.zshrc && \
 mv .gitconfig ./.config-backup/.gitconfig && \
+mv .tmux.conf ./.config-backup/.tmux.conf && \
+mv .config/sketchbar/  ./.config-backup/sketchybar/ && \
 mv .config/nvim/  ./.config-backup/nvim/
+
 ```
 
 3. Install Aerospace Window Tiling Manager
@@ -32,9 +35,10 @@ brew install aerospace # window tiling manager
 5. Stow specific dotfile directories
 
 ```bash
-stow git
-stow zsh
 stow aerospace
+stow zsh
+stow git
+stow tmux
 stow sketchybar # with aerospace specific config
 stow nvim # may need to delete .DS_Store files if error appears
 ```
