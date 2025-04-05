@@ -6,10 +6,10 @@ Inspired by [https://www.jakewiesler.com/blog/managing-dotfiles](https://www.jak
 1. Clone repo
 
 ```bash
-cd ~; git clone [THIS REPO]
+cd ~; git clone [THIS REPO] .dotfiles
 ```
 
-2. Backup existing dotfiles that will be overwritten
+2. Backup existing dotfiles that will be overwritten (inside HOME directory)
 
 ```bash
 cd ~; mkdir -p .config-backup && \
@@ -32,9 +32,10 @@ brew install aerospace # window tiling manager
 
 [https://ohmyz.sh/#install](https://ohmyz.sh/#install)
 
-5. Stow specific dotfile directories
+5. Stow specific dotfile directories (inside ~/.dotfiles)
 
 ```bash
+cd ~/.dotfiles/
 stow aerospace
 stow zsh
 stow git
