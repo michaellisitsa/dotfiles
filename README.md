@@ -15,7 +15,8 @@ cd ~; git clone [THIS REPO]
 cd ~; mkdir -p .config-backup && \
 mv .aerospace.toml ./.config-backup/.aerospace.toml && \
 mv .zshrc ./.config-backup/.zshrc && \
-mv .gitconfig ./.config-backup/.gitconfig
+mv .gitconfig ./.config-backup/.gitconfig && \
+mv .config/nvim/  ./.config-backup/nvim/
 ```
 
 3. Install Aerospace Window Tiling Manager
@@ -34,5 +35,6 @@ brew install aerospace # window tiling manager
 stow git
 stow zsh
 stow aerospace
+stow sketchybar # with aerospace specific config
 stow nvim # may need to delete .DS_Store files if error appears
 ```
