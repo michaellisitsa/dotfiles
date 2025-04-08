@@ -36,10 +36,19 @@ brew install aerospace # window tiling manager
 
 ```bash
 cd ~/.dotfiles/
-stow aerospace
+stow aerospace # mac only
 stow zsh
 stow git
 stow tmux
-stow sketchybar # with aerospace specific config
+stow sketchybar # mac only (with aerospace specific config)
 stow nvim # may need to delete .DS_Store files if error appears
 ```
+
+6. Iterm settings sync (mac only)
+
+Per guide in:
+https://shyr.io/blog/sync-iterm2-configs
+
+- Click General => Settings
+  - Load Preferences from a custom subfolder
+  - Save Changes to when quitting
