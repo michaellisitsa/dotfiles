@@ -102,3 +102,7 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# Add neovim to path
+# Only for linux
+export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin"

@@ -17,3 +17,5 @@
 
 [mergetool "nvimdiff"]
     layout = "LOCAL,BASE,REMOTE / MERGED"
+[core]
+	editor = nvim -f
