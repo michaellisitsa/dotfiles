@@ -105,4 +105,4 @@ source $ZSH/oh-my-zsh.sh
 
 # Add neovim to path
 # Only for linux
-export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin"
+export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin"
