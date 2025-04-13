@@ -1,6 +1,8 @@
 return {
   -- Too much magic with the command line
   { "folke/noice.nvim", enabled = false },
+  -- For now disable flash as it takes over the whole display and sometimes gets stuck
+  { "folke/flash.nvim", enabled = false },
   -- Re-enabling for white-space languages (Python)
   -- { "echasnovski/mini.ai", enabled = false },
   -- Pairs often cause problems particularly on command line when doing searches and substitutions
