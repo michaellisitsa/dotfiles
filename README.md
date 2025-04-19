@@ -22,7 +22,7 @@ mv .config/nvim/  ./.config-backup/nvim/
 
 ```
 
-3. Install Aerospace Window Tiling Manager
+3. Install Aerospace Window Tiling Manager (OSX Only)
 
 ```bash
 brew install aerospace # window tiling manager
@@ -36,12 +36,19 @@ brew install aerospace # window tiling manager
 
 ```bash
 cd ~/.dotfiles/
-stow aerospace # mac only
+
+# Any unix
 stow zsh
 stow git
 stow tmux
-stow sketchybar # mac only (with aerospace specific config)
 stow nvim # may need to delete .DS_Store files if error appears
+
+# OSX only
+stow aerospace
+stow sketchybar # (with aerospace specific config)
+
+# Linux only
+stow i3
 ```
 
 6. Iterm settings sync (mac only)
@@ -52,3 +59,9 @@ https://shyr.io/blog/sync-iterm2-configs
 - Click General => Settings
   - Load Preferences from a custom subfolder
   - Save Changes to when quitting
+
+## Adding a new config
+
+1. Create a folder at the top-level with the name of what you're configuring e.g. nvim, i3, etc.
+2. Create all sub-directories that would be included under root
+3. Run `stow [name]` from the `~/.dotfiles` directory
