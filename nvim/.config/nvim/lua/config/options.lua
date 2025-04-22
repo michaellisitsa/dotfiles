@@ -6,9 +6,3 @@
 
 vim.opt.fixeol = false
 vim.opt.eol = false
-
--- LSP's will format on save, but tab and Enter are handled by treesitter which ishould also show the correct
--- e.g. run :set indentexpr? will show nvim_treesitter#indent()
--- Note this was insufficient alone for Ruby which uses the FileType plugin to override the options here
--- An autocmd has been added to init.lua to override those ruby's settings
-vim.opt.shiftwidth = 4
