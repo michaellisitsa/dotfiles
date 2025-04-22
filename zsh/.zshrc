@@ -103,6 +103,6 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Add neovim to path
-# Only for linux
-export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin"
+# Add neovim to path only for linux
+# Add sbin for things like swapon on linux
+export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin:"
