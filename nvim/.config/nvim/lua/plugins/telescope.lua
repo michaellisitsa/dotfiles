@@ -8,6 +8,12 @@ return {
     dependencies = {
       {
         "nvim-telescope/telescope-live-grep-args.nvim",
+        {
+          "nvim-telescope/telescope-frecency.nvim",
+          keys = {
+            { "<leader><space>", "<cmd>Telescope frecency workspace=CWD<cr>", mode = "n", desc = "Recent (cwd)" },
+          },
+        },
       },
     },
     opts = function(_, opts)
@@ -52,6 +58,7 @@ return {
       local tele = require("telescope")
       tele.setup(opts)
       tele.load_extension("live_grep_args")
+      tele.load_extension("frecency")
     end,
   },
 }

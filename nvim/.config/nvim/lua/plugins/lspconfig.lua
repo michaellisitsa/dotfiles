@@ -5,6 +5,8 @@ return {
     opts = {
       diagnostics = {
         virtual_text = true,
+        -- Underline problematic text
+        underline = true,
         -- virtual_lines = {
         --   current_line = true,
         -- },
