@@ -222,7 +222,52 @@ require('lazy').setup({
   --
   -- Then, because we use the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
-
+  {
+    'mbbill/undotree',
+    lazy = false,
+    keys = {
+      { '<leader>tu', '<cmd>UndotreeToggle<CR>', desc = 'Toggle Undotree' },
+    },
+    config = function()
+      vim.g.undotree_SetFocusWhenToggle = 1
+    end,
+  },
+  {
+    'Goose97/timber.nvim',
+    version = '*', -- Use for stability; omit to use `main` branch for the latest features
+    event = 'VeryLazy',
+    config = function()
+      require('timber').setup {
+        log_templates = {
+          default = {
+            javascript = [[console.log("%log_marker %line_number: %log_target", %log_target)]],
+            typescript = [[console.log("%log_marker %filename %line_number: %log_target", %log_target)]],
+            tsx = [[console.log("%log_marker %filename %line_number: %log_target", %log_target)]],
+            python = [[print(f"%log_marker %filename %line_number: {%log_target=}")]],
+          },
+          plain = {
+            javascript = [[console.log("%log_marker %filename %line_number: %insert_cursor")]],
+            typescript = [[console.log("%log_marker %filename %line_number: %insert_cursor")]],
+            tsx = [[console.log("%log_marker %filename %line_number: %insert_cursor")]],
+            python = [[print(f"%log_marker %filename %line_number: %insert_cursor")]],
+          },
+        },
+        log_marker = 'Log →',
+      }
+    end,
+    keys = {
+      {
+        'gld',
+        "<cmd>lua require('timber.actions').clear_log_statements({ global = false })<cr>",
+        mode = 'n',
+        desc = 'Clear Log Statements Current File',
+      },
+    },
+  },
+  {
+    'sindrets/diffview.nvim',
+    cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
+  },
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -837,21 +882,6 @@ require('lazy').setup({
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
-      -- Better Around/Inside textobjects
-      --
-      -- Examples:
-      --  - va)  - [V]isually select [A]round [)]paren
-      --  - yinq - [Y]ank [I]nside [N]ext [Q]uote
-      --  - ci'  - [C]hange [I]nside [']quote
-      require('mini.ai').setup { n_lines = 500 }
-
-      -- Add/delete/replace surroundings (brackets, quotes, etc.)
-      --
-      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-      -- - sd'   - [S]urround [D]elete [']quotes
-      -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
-
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
