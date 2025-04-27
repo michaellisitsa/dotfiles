@@ -186,7 +186,14 @@ require('lazy').setup({
       },
     },
   },
-
+  {
+    'folke/snacks.nvim',
+    ---@type snacks.Config
+    opts = {
+      scroll = {},
+      indent = {},
+    },
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -320,10 +327,24 @@ require('lazy').setup({
         --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
         --   },
         -- },
-        -- pickers = {}
+        pickers = {
+          file_ignore_patterns = { 'node_modules', '.git', '.venv' },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
+          },
+        },
+        defaults = {
+          vimgrep_arguments = {
+            'rg',
+            '--color=never',
+            '--no-heading',
+            '--with-filename',
+            '--hidden',
+            '--line-number',
+            '--column',
+            '--smart-case',
           },
         },
       }
