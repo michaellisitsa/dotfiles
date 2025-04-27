@@ -194,6 +194,21 @@ require('lazy').setup({
       indent = {},
     },
   },
+  {
+    'stevearc/oil.nvim',
+    ---@module 'oil'
+    -- Optional dependencies
+    dependencies = { { 'echasnovski/mini.icons', opts = {} } },
+    -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+    -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+    config = function()
+      require('oil').setup { keymaps = { ['<Esc>'] = 'actions.close' } }
+    end,
+    keys = {
+      { '<leader>fm', '<cmd>Oil<cr>', mode = 'n', desc = 'Open Filesystem' },
+    },
+    lazy = false,
+  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -609,7 +624,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
