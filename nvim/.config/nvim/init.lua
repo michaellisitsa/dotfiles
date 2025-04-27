@@ -310,15 +310,14 @@ require('lazy').setup({
           function()
             require('harpoon'):list():add()
           end,
-          desc = 'Harpoon File',
         },
         {
-          '<leader>h',
+          '<leader>ha',
           function()
             local harpoon = require 'harpoon'
             harpoon.ui:toggle_quick_menu(harpoon:list())
           end,
-          desc = 'Harpoon Quick Menu',
+          desc = '[h]arpoon [l]ist',
         },
       }
 
@@ -328,7 +327,6 @@ require('lazy').setup({
           function()
             require('harpoon'):list():select(i)
           end,
-          desc = 'Harpoon to File ' .. i,
         })
       end
       return keys
@@ -377,7 +375,10 @@ require('lazy').setup({
           F12 = '<F12>',
         },
       },
-
+      filter = function(mapping)
+        -- Exclude mappings without a description
+        return mapping.desc and mapping.desc ~= ''
+      end,
       -- Document existing key chains
       spec = {
         { '<leader>s', group = '[S]earch' },
@@ -1022,8 +1023,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
-  -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
+  require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --    This is the easiest way to modularize your config.
