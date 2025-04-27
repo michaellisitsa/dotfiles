@@ -192,12 +192,36 @@ require('lazy').setup({
     opts = {
       scroll = {},
       indent = {},
+      -- Snacks Explorer
+      explorer = {
+        -- your explorer configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      },
+      picker = {
+        sources = {
+          explorer = {
+            -- your explorer picker configuration comes here
+            -- or leave it empty to use the default settings
+          },
+        },
+      },
+    },
+    keys = {
+      {
+        '<leader>fe',
+        function()
+          require('snacks').explorer {}
+        end,
+        desc = 'Explorer Snacks (root dir)',
+      },
     },
   },
   {
     'stevearc/oil.nvim',
     ---@module 'oil'
     -- Optional dependencies
+    desc = 'Oil File System',
     dependencies = { { 'echasnovski/mini.icons', opts = {} } },
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
     -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
@@ -358,6 +382,7 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle Options' },
+        { '<leader>f', group = '[F]ile managers' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -799,10 +824,10 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
