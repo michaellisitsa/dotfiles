@@ -22,6 +22,7 @@ return {
     'jay-babu/mason-nvim-dap.nvim',
 
     -- Add your own debuggers here
+    'mfussenegger/nvim-dap-python',
   },
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
@@ -87,12 +88,19 @@ return {
 
       -- You can provide additional configuration to the handlers,
       -- see mason-nvim-dap README for more information
-      handlers = {},
+      handlers = {
+        -- NOTE: Only config provided to 'dap' i.e. `require("dap").configurations.python` work,
+        -- although it seems you should be able to also pass them in here as well
+        -- From https://github.com/SamPosh/PyDevbox/blob/aaf3fd5b45166d304166d68320c4f3a3f2220ee1/lua/kickstart/plugins/dap/handler/python.lua
+        -- LazyVim just has an empty function 'python = function() end,'
+        python = function() end,
+      },
 
       -- You'll need to check that you have the required things installed
       -- online, please don't ask me how to install them :)
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
+        'python',
       },
     }
 
@@ -133,5 +141,30 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
+    -- Install python specific config
+
+    require('dap-python').setup() -- Debug with default settings.
+    -- We can set additional custom config by below mechanism as well
+    table.insert(require('dap').configurations.python, {
+      type = 'python',
+      request = 'launch',
+      name = 'My custom launch configuration',
+      program = '${file}',
+      cwd = vim.fn.getcwd(),
+      console = 'integratedTerminal',
+    })
+    table.insert(require('dap').configurations.python, {
+      name = 'Pytest: Current File',
+      type = 'python',
+      request = 'launch',
+      module = 'pytest',
+      args = {
+        '${file}',
+        '-sv',
+        '--log-cli-level=INFO',
+        '--log-file=pytest_logfile.log',
+      },
+      console = 'integratedTerminal',
+    })
   end,
 }
