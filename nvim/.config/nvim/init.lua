@@ -617,8 +617,7 @@ require('lazy').setup({
           --  To jump back, press <C-t>.
           map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
-          -- WARN: This is not Goto Definition, this is Goto Declaration.
-          --  For example, in C this would take you to the header.
+          --  In C this would take you to the header.
           map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- Fuzzy find all the symbols in your current document.
@@ -703,6 +702,17 @@ require('lazy').setup({
           end,
         },
       }
+
+      -- Toggle diagnostics so they are not as distracting
+      -- https://samuellawrentz.com/hacks/neovim/disable-annoying-eslint-lsp-server-and-hide-virtual-text/
+      local isLspDiagnosticsVisible = true
+      vim.keymap.set('n', '<leader>lx', function()
+        isLspDiagnosticsVisible = not isLspDiagnosticsVisible
+        vim.diagnostic.config {
+          virtual_text = isLspDiagnosticsVisible,
+          underline = isLspDiagnosticsVisible,
+        }
+      end)
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -869,9 +879,6 @@ require('lazy').setup({
         --   <c-y> to accept ([y]es) the completion.
         --    This will auto-import if your LSP supports it.
         --    This will expand snippets if the LSP sent a snippet.
-        -- 'super-tab' for tab to accept
-        -- 'enter' for enter to accept
-        -- 'none' for no mappings
         --
         -- For an understanding of why the 'default' preset is recommended,
         -- you will need to read `:help ins-completion`
@@ -902,6 +909,13 @@ require('lazy').setup({
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
         documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        menu = {
+          auto_show = false,
+        },
+        ghost_text = {
+          enabled = true,
+          show_with_menu = false, -- only show when menu is closed
+        },
       },
 
       sources = {
@@ -949,6 +963,12 @@ require('lazy').setup({
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
       local statusline = require 'mini.statusline'
+      -- Add/delete/replace surroundings (brackets, quotes, etc.)
+      --
+      -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
+      -- - sd'   - [S]urround [D]elete [']quotes
+      -- - sr)'  - [S]urround [R]eplace [)] [']
+      require('mini.surround').setup()
       -- set use_icons to true if you have a Nerd Font
       statusline.setup { use_icons = vim.g.have_nerd_font }
 
@@ -969,8 +989,8 @@ require('lazy').setup({
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     keys = {
-      { '<c-space>', desc = 'Increment Selection' },
-      { '<bs>', desc = 'Decrement Selection', mode = 'x' },
+      { '<C-n>', desc = 'Increment Selection' },
+      { '<C-p>', desc = 'Decrement Selection', mode = 'x' },
     },
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
@@ -1004,10 +1024,10 @@ require('lazy').setup({
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = '<C-space>',
-          node_incremental = '<C-space>',
+          init_selection = '<C-n>',
+          node_incremental = '<C-n>',
           scope_incremental = false,
-          node_decremental = '<bs>',
+          node_decremental = '<C-p>',
         },
       },
       textobjects = {
