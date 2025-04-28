@@ -277,7 +277,7 @@ require('lazy').setup({
           end,
         },
         {
-          '<leader>ha',
+          '<leader>hl',
           function()
             local harpoon = require 'harpoon'
             harpoon.ui:toggle_quick_menu(harpoon:list())
@@ -363,6 +363,7 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle Options' },
         { '<leader>f', group = '[F]ile managers' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>d', group = '[D]ebug', mode = { 'n', 'v' } },
       },
     },
   },
