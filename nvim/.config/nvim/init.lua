@@ -147,18 +147,9 @@ vim.opt.rtp:prepend(lazypath)
 --  To update plugins you can run
 --    :Lazy update
 --
--- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
-  -- NOTE: Plugins can also be added by using a table,
-  -- with the first argument being the link and the following
-  -- keys can be used to configure plugin behavior/loading/etc.
-  --
-  -- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
-
-  -- See `:help gitsigns` to understand what the configuration keys do
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
@@ -173,10 +164,12 @@ require('lazy').setup({
   },
   {
     'folke/snacks.nvim',
+    priority = 900, -- a couple of plugins require snacks to be set up early
+    lazy = false,
     ---@type snacks.Config
     opts = {
-      scroll = {},
-      indent = {},
+      scroll = { enabled = true },
+      indent = { enabled = true },
       -- Snacks Explorer
       explorer = {},
       picker = {
@@ -197,7 +190,6 @@ require('lazy').setup({
   },
   {
     'stevearc/oil.nvim',
-    ---@module 'oil'
     -- Optional dependencies
     desc = 'Oil File System',
     dependencies = { { 'echasnovski/mini.icons', opts = {} } },
