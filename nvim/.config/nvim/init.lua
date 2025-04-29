@@ -125,6 +125,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Import custom plugin for showing marks on sidebar
+-- Approximate priority order (Highest to Lowest)
+-- 1. Breakpoints
+-- 2. Diagnostics
+-- 3. Marks
+-- 4. Gitsigns
+require 'marks'
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -688,28 +696,28 @@ require('lazy').setup({
             [vim.diagnostic.severity.HINT] = '󰌶 ',
           },
         } or {},
-        virtual_text = {
-          source = 'if_many',
-          spacing = 2,
-          format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
-          end,
-        },
+      }
+      local virtual_text_settings = {
+        source = 'if_many',
+        spacing = 2,
+        format = function(diagnostic)
+          local diagnostic_message = {
+            [vim.diagnostic.severity.ERROR] = diagnostic.message,
+            [vim.diagnostic.severity.WARN] = diagnostic.message,
+            [vim.diagnostic.severity.INFO] = diagnostic.message,
+            [vim.diagnostic.severity.HINT] = diagnostic.message,
+          }
+          return diagnostic_message[diagnostic.severity]
+        end,
       }
 
       -- Toggle diagnostics so they are not as distracting
       -- https://samuellawrentz.com/hacks/neovim/disable-annoying-eslint-lsp-server-and-hide-virtual-text/
-      local isLspDiagnosticsVisible = true
+      local isLspDiagnosticsVisible = false
       vim.keymap.set('n', '<leader>lx', function()
         isLspDiagnosticsVisible = not isLspDiagnosticsVisible
         vim.diagnostic.config {
-          virtual_text = isLspDiagnosticsVisible,
+          virtual_text = isLspDiagnosticsVisible and virtual_text_settings or false,
           underline = isLspDiagnosticsVisible,
         }
       end)
