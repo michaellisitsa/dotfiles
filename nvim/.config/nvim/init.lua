@@ -160,6 +160,9 @@ require('lazy').setup({
 
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     opts = {
       signs = {
         add = { text = '+' },
@@ -172,6 +175,10 @@ require('lazy').setup({
   },
   {
     'folke/snacks.nvim',
+    -- We only use snacks scrolling/indent & picker which are not functional in VS code
+    cond = function()
+      return not vim.g.vscode
+    end,
     priority = 900, -- a couple of plugins require snacks to be set up early
     lazy = false,
     ---@type snacks.Config
@@ -198,6 +205,9 @@ require('lazy').setup({
   },
   {
     'stevearc/oil.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     -- Optional dependencies
     desc = 'Oil File System',
     dependencies = { { 'echasnovski/mini.icons', opts = {} } },
@@ -213,6 +223,9 @@ require('lazy').setup({
   },
   {
     'mbbill/undotree',
+    cond = function()
+      return not vim.g.vscode
+    end,
     lazy = false,
     keys = {
       { '<leader>tu', '<cmd>UndotreeToggle<CR>', desc = 'Toggle Undotree' },
@@ -255,10 +268,16 @@ require('lazy').setup({
   },
   {
     'sindrets/diffview.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
   },
   {
     'ThePrimeagen/harpoon',
+    cond = function()
+      return not vim.g.vscode
+    end,
     branch = 'harpoon2',
     opts = {
       menu = {
@@ -366,6 +385,9 @@ require('lazy').setup({
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
       -- delay between pressing a key and opening which-key (milliseconds)
@@ -423,17 +445,14 @@ require('lazy').setup({
   },
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     event = 'VimEnter',
     dependencies = {
       'nvim-lua/plenary.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
-        {
-          'nvim-telescope/telescope-frecency.nvim',
-          keys = {
-            { '<leader>sc', '<cmd>Telescope frecency workspace=CWD<cr>', mode = 'n', desc = '[S]earch [C]ount Recency' },
-          },
-        },
         -- `build` is used to run some command when the plugin is installed/updated.
         -- This is only run then, not every time Neovim starts up.
         build = 'make',
@@ -445,7 +464,7 @@ require('lazy').setup({
         end,
       },
       { 'nvim-telescope/telescope-ui-select.nvim' },
-
+      { 'nvim-telescope/telescope-frecency.nvim' },
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
@@ -470,8 +489,28 @@ require('lazy').setup({
         extensions = {
           -- By default frecency will not used fuzzy finding
           -- see https://github.com/nvim-telescope/telescope-frecency.nvim/issues/165
+          -- config keys see example https://github.com/gaetanfox/kickstart.nvim/blob/beb79337952b592a181b7cb8b886927e80affcf5/lua/custom/plugins/telescope-frecency.lua#L23
           frecency = {
+            db_version = 'v2', -- Will be default in v2 of plugin
             matcher = 'fuzzy',
+            -- show scores is very noisy as also shows fuzzy matcher scores. TMI
+            -- show_scores = true, -- Default: false
+            -- If `true`, it shows confirmation dialog before any entries are removed from the DB
+            -- If you want not to be bothered with such things and to remove stale results silently
+            -- set db_safe_mode=false and auto_validate=true
+            --
+            -- This fixes an issue I had in which I couldn't close the floating
+            -- window because I couldn't focus it
+            db_safe_mode = false, -- Default: true
+            -- If `true`, it removes stale entries count over than db_validate_threshold
+            auto_validate = true, -- Default: true
+            -- It will remove entries when stale ones exist more than this count
+            db_validate_threshold = 10, -- Default: 10
+            hide_current_buffer = true,
+            default_workspace = 'CWD',
+            path_display = { 'filename_first' },
+            -- Show the path of the active filter before file paths.
+            show_filter_column = false,
           },
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -508,6 +547,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sc', function()
+        require('telescope').extensions.frecency.frecency()
+      end, { desc = '[S]earch [C]ount Recency' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
@@ -539,12 +581,14 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
-
   -- LSP Plugins
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
     -- used for completion, annotations and signatures of Neovim apis
     'folke/lazydev.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     ft = 'lua',
     opts = {
       library = {
@@ -556,6 +600,10 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    -- VS code handles all LSPs
+    cond = function()
+      return not vim.g.vscode
+    end,
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
@@ -803,6 +851,9 @@ require('lazy').setup({
   },
   { -- Autoformat
     'stevearc/conform.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     keys = {
@@ -842,9 +893,11 @@ require('lazy').setup({
       },
     },
   },
-
   { -- Autocompletion
     'saghen/blink.cmp',
+    cond = function()
+      return not vim.g.vscode
+    end,
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
@@ -945,21 +998,32 @@ require('lazy').setup({
       signature = { enabled = true },
     },
   },
-
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'Mofiqul/vscode.nvim',
+    -- Both namespace clash and theme unnecessary in vscode
+    cond = function()
+      return not vim.g.vscode
+    end,
     priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       vim.o.background = 'dark'
       vim.cmd.colorscheme 'vscode'
     end,
   },
-  -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    -- Highlight todo, notes, etc in comments
+    'folke/todo-comments.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = false },
+  },
   {
     'folke/flash.nvim',
     event = 'VeryLazy',
@@ -990,6 +1054,10 @@ require('lazy').setup({
   },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
+    -- Currently we only use status line which is not necessary
+    cond = function()
+      return not vim.g.vscode
+    end,
     config = function()
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
