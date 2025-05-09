@@ -247,5 +247,27 @@ return {
       },
       console = 'integratedTerminal',
     })
+    table.insert(require('dap').configurations.python, {
+      name = 'Python: Remote attach',
+      type = 'python',
+      request = 'attach',
+      mode = 'remote',
+      -- program = "${file}", -- This configuration will launch the current file if used.
+      connect = {
+        host = 'localhost',
+        port = 9292,
+      },
+      cwd = vim.fn.getcwd(),
+      pathMappings = {
+        {
+          localRoot = function()
+            return vim.fn.input('Local code folder > ', vim.fn.getcwd(), 'file')
+          end,
+          remoteRoot = function()
+            return vim.fn.input('Container code folder > ', '/code', 'file')
+          end,
+        },
+      },
+    })
   end,
 }

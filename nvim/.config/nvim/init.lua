@@ -183,7 +183,8 @@ require('lazy').setup({
     lazy = false,
     ---@type snacks.Config
     opts = {
-      scroll = { enabled = true },
+      -- Performance issue
+      -- scroll = { enabled = true },
       indent = { enabled = true },
       -- Snacks Explorer
       explorer = {},

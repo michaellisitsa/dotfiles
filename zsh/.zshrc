@@ -105,4 +105,16 @@ fi
 
 # Add neovim to path only for linux
 # Add sbin for things like swapon on linux
+
+
+# nvm
+export NVM_DIR=~/.nvm
+source $(brew --prefix nvm)/nvm.sh
+
 export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin:"
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
