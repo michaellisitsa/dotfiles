@@ -205,6 +205,12 @@ return {
           disconnect = '⏏',
         },
       },
+      element_mappings = {
+        stacks = {
+          open = '<CR>',
+          expand = 'o',
+        },
+      },
     }
 
     -- Change breakpoint icons
