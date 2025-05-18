@@ -215,7 +215,7 @@ require('lazy').setup({
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
     -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
     config = function()
-      require('oil').setup { keymaps = { ['<Esc>'] = 'actions.close' } }
+      require('oil').setup { keymaps = { ['<Esc>'] = 'actions.close' }, view_options = { show_hidden = true } }
     end,
     keys = {
       { '<leader>fm', '<cmd>Oil<cr>', mode = 'n', desc = 'Open Filesystem' },
@@ -794,7 +794,32 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        pyright = {},
+        pyright = {
+          --[[
+          -- Pyright will preference pyproject.toml so you may need to override
+          [tool.pyright]
+          -- Reduce unused code
+          exclude = ["**/node_modules", "**/__pycache__", "**/migrations", "**/tests/", "**/.venv/"]
+          -- LSP recognises dependencies
+          venvPath = "."
+          venv = ".venv"
+          ]]
+          settings = {
+            python = {
+              -- venvPath = '.',
+              -- venv = '.venv',
+              -- pythonPath = nil,
+              analysis = {
+                autoSearchPaths = true,
+                typeCheckingMode = 'standard',
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'openFilesOnly',
+                -- as above this may be overridden by pyproject.toml config
+                exclude = { '**/node_modules', '**/__pycache__', '**/migrations/', '**/.venv/', '**/tests/' },
+              },
+            },
+          },
+        },
         ruff = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
