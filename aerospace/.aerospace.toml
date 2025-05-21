@@ -224,29 +224,14 @@ if.during-aerospace-startup = true
 run = ['move-node-to-workspace W']
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.VSCode'
-if.during-aerospace-startup = true
-run = ['move-node-to-workspace C']
-
-[[on-window-detected]]
 if.app-id = 'com.googlecode.iterm2'
 if.during-aerospace-startup = true
-run = ['move-node-to-workspace T']
+run = ['move-node-to-workspace C']
 
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 if.during-aerospace-startup = true
 run = ['move-node-to-workspace S']
-
-[[on-window-detected]]
-if.app-id = 'com.spotify.client'
-if.during-aerospace-startup = true
-run = ['move-node-to-workspace M']
-
-[[on-window-detected]]
-if.app-id = 'com.apple.mail'
-if.during-aerospace-startup = true
-run = ['move-node-to-workspace M']
 
 [[on-window-detected]]
 if.app-id = 'com.1password.1password'
