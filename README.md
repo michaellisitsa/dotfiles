@@ -14,7 +14,6 @@ cd ~; git clone [THIS REPO] .dotfiles
 ```bash
 cd ~; mkdir -p .config-backup && \
 mv .aerospace.toml ./.config-backup/.aerospace.toml && \
-mv .zshrc ./.config-backup/.zshrc && \
 mv .gitconfig ./.config-backup/.gitconfig && \
 mv .tmux.conf ./.config-backup/.tmux.conf && \
 mv .config/sketchbar/  ./.config-backup/sketchybar/ && \
@@ -22,15 +21,22 @@ mv .config/nvim/  ./.config-backup/nvim/
 
 ```
 
-3. Install Aerospace Window Tiling Manager (OSX Only)
+3. Install some dependencies
 
 ```bash
-brew install aerospace # window tiling manager
+# For linux replace brew with relevant package manager
+brew install --cask nikitabobko/tap/aerospace
+brew install stow tmux ripgrep fzf fd
 ```
 
 4. Install Zsh plugin manager (Oh My Zsh), as the .zshrc uses that.
 
 [https://ohmyz.sh/#install](https://ohmyz.sh/#install)
+```bash
+# oh my zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+mv .zshrc ./.config-backup/.zshrc # as above will create one
+```
 
 5. Stow specific dotfile directories (inside ~/.dotfiles)
 
@@ -45,7 +51,6 @@ stow nvim # may need to delete .DS_Store files if error appears
 
 # OSX only
 stow aerospace
-stow sketchybar # (with aerospace specific config)
 
 # Linux only
 stow i3
