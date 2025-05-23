@@ -107,15 +107,16 @@ alias python=python3
 # Add neovim to path only for linux
 # Add sbin for things like swapon on linux
 
+# NVM can significantly slow down shell startup time.
+# Select --no-use so it doesn't enable specific node.
+# Make sure the path is updated with correct version below
+# https://www.ioannispoulakas.com/2020/02/22/how-to-speed-up-shell-load-while-using-nvm/
+export PATH=~/.nvm/versions/node/v18.20.8/bin:$PATH
 
-# nvm
 export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh
+source $(brew --prefix nvm)/nvm.sh --no-use
 
-export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin:"
-# export PYENV_ROOT="$HOME/.pyenv"
-# [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-# eval "$(pyenv init - zsh)"
+export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin"
 
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
