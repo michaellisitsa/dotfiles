@@ -21,6 +21,10 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
+-- Use treesitter folding, already built into neovim
+vim.wo.foldmethod = 'expr'
+vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -447,6 +451,15 @@ require('lazy').setup({
         { '<leader>d', group = '[D]ebug', mode = { 'n', 'v' } },
       },
     },
+  },
+  {
+    'ptdewey/pendulum-nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
+    config = function()
+      require('pendulum').setup()
+    end,
   },
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
@@ -1085,6 +1098,9 @@ require('lazy').setup({
   {
     {
       'Bekaboo/dropbar.nvim',
+      cond = function()
+        return not vim.g.vscode
+      end,
       -- optional, but required for fuzzy finder support
       dependencies = {
         'nvim-telescope/telescope-fzf-native.nvim',
