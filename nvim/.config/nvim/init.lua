@@ -24,6 +24,8 @@ vim.opt.showmode = false
 -- Use treesitter folding, already built into neovim
 vim.wo.foldmethod = 'expr'
 vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+-- Folds all start closed if you don't set this
+vim.o.foldlevelstart = 99
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
