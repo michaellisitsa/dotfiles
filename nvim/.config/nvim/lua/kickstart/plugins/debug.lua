@@ -182,6 +182,8 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'python',
+        'debugpy',
+        'js',
       },
     }
 
@@ -228,18 +230,53 @@ return {
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
-    -- Install python specific config
 
+    -- Configure specific adapters
+    -- Install python specific config
     require('dap-python').setup() -- Debug with default settings.
+
+    -- Javascript adapter can be configured manually.
+    -- We use the one installed by Mason.
+    -- FYI the nvim-dap-vscode-js package is unnecessary, see nvim-dap maintainer post:
+    -- https://github.com/mfussenegger/nvim-dap/issues/1411#issuecomment-2566396879
+    local js_debugger_path = vim.fn.stdpath 'data' .. '/mason/packages/js-debug-adapter' -- Path to vscode-js-debug installation
     -- We can set additional custom config by below mechanism as well
-    table.insert(require('dap').configurations.python, {
-      type = 'python',
-      request = 'launch',
-      name = 'My custom launch configuration',
-      program = '${file}',
-      cwd = vim.fn.getcwd(),
-      console = 'integratedTerminal',
-    })
+    require('dap').adapters['pwa-node'] = {
+      type = 'server',
+      host = 'localhost',
+      port = '${port}',
+      executable = {
+        command = 'node',
+        -- 💀 Make sure to update this path to point to your installation
+        args = { js_debugger_path .. '/js-debug/src/dapDebugServer.js', '${port}' },
+      },
+    }
+    for _, language in ipairs { 'typescript', 'javascript' } do
+      -- Configurations from comment, go there to find some more. Tested with Javascript only
+      -- see https://www.reddit.com/r/neovim/comments/y7dvva/comment/iswqdz7/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
+      require('dap').configurations[language] = {
+        {
+          name = 'Launch',
+          type = 'pwa-node',
+          request = 'launch',
+          program = '${file}',
+          rootPath = '${workspaceFolder}',
+          cwd = '${workspaceFolder}',
+          sourceMaps = true,
+          skipFiles = { '<node_internals>/**' },
+          protocol = 'inspector',
+          console = 'integratedTerminal',
+        },
+        {
+          name = 'Attach to node process',
+          type = 'pwa-node',
+          request = 'attach',
+          rootPath = '${workspaceFolder}',
+          -- Interactive visualisation of processes to attach to
+          processId = require('dap.utils').pick_process,
+        },
+      }
+    end
     table.insert(require('dap').configurations.python, {
       name = 'Pytest: Current File',
       type = 'python',
