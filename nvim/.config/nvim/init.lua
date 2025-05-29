@@ -5,7 +5,6 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 vim.g.have_nerd_font = true
-
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
@@ -15,6 +14,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 vim.opt.relativenumber = true
 
+vim.opt.wildmenu = true
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
 
@@ -483,6 +483,7 @@ require('lazy').setup({
           return vim.fn.executable 'make' == 1
         end,
       },
+      { 'nvim-telescope/telescope-live-grep-args.nvim' },
       { 'nvim-telescope/telescope-ui-select.nvim' },
       { 'nvim-telescope/telescope-frecency.nvim' },
       -- Useful for getting pretty icons, but requires a Nerd Font.
@@ -510,6 +511,23 @@ require('lazy').setup({
           -- By default frecency will not used fuzzy finding
           -- see https://github.com/nvim-telescope/telescope-frecency.nvim/issues/165
           -- config keys see example https://github.com/gaetanfox/kickstart.nvim/blob/beb79337952b592a181b7cb8b886927e80affcf5/lua/custom/plugins/telescope-frecency.lua#L23
+          live_grep_args = {
+            auto_quoting = true, -- enable/disable auto-quoting
+            -- define mappings, e.g.
+            -- NOT WORKING
+            -- mappings = { -- extend mappings
+            --   i = {
+            --     ['<C-k>'] = require('telescope').extensions.live_grep_args.actions.quote_prompt(),
+            --     ['<C-i>'] = require('telescope').extensions.live_grep_args.actions.quote_prompt { postfix = ' --iglob ' },
+            --     -- freeze the current list and start a fuzzy search in the frozen list
+            --     ['<C-g>'] = require('telescope').extensions.live_grep_args.actions.to_fuzzy_refine,
+            --   },
+            -- },
+            -- ... also accepts theme settings, for example:
+            -- theme = "dropdown", -- use dropdown theme
+            -- theme = { }, -- use own theme spec
+            -- layout_config = { mirror=true }, -- mirror preview pane
+          },
           frecency = {
             db_version = 'v2', -- Will be default in v2 of plugin
             matcher = 'fuzzy',
@@ -541,24 +559,12 @@ require('lazy').setup({
         -- Alternatively, we could use Live Grep with Arguments extension to dynamically modify these settings
         pickers = {
           ['buffers'] = { sort_mru = true, ignore_current_buffer = true, sort_lastused = true, initial_mode = 'normal' },
-          file_ignore_patterns = { 'node_modules', '.git', '.venv' },
-        },
-        defaults = {
-          vimgrep_arguments = {
-            'rg',
-            '--color=never',
-            '--no-heading',
-            '--with-filename',
-            '--hidden',
-            '--line-number',
-            '--column',
-            '--smart-case',
-          },
         },
       }
 
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
+      pcall(require('telescope').load_extension, 'live_grep_args')
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension, 'frecency')
       -- See `:help telescope.builtin`
@@ -571,7 +577,10 @@ require('lazy').setup({
         require('telescope').extensions.frecency.frecency()
       end, { desc = '[S]earch [C]ount Recency' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+      vim.keymap.set('n', '<leader>sg', function()
+        require('telescope').extensions.live_grep_args.live_grep_args()
+      end, { desc = '[S]earch by [G]rep' })
+      -- vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -893,6 +902,17 @@ require('lazy').setup({
         },
       }
     end,
+  },
+  {
+    'luckasRanarison/tailwind-tools.nvim',
+    name = 'tailwind-tools',
+    build = ':UpdateRemotePlugins',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-telescope/telescope.nvim', -- optional
+      'neovim/nvim-lspconfig', -- optional
+    },
+    opts = {},
   },
   { -- Autoformat
     'stevearc/conform.nvim',

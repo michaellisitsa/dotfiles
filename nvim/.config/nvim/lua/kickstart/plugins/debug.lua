@@ -251,7 +251,7 @@ return {
         args = { js_debugger_path .. '/js-debug/src/dapDebugServer.js', '${port}' },
       },
     }
-    for _, language in ipairs { 'typescript', 'javascript' } do
+    for _, language in ipairs { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' } do
       -- Configurations from comment, go there to find some more. Tested with Javascript only
       -- see https://www.reddit.com/r/neovim/comments/y7dvva/comment/iswqdz7/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
       require('dap').configurations[language] = {
@@ -270,6 +270,8 @@ return {
         {
           name = 'Attach to node process',
           type = 'pwa-node',
+          sourceMaps = true,
+          skipFiles = { '<node_internals>/**' },
           request = 'attach',
           rootPath = '${workspaceFolder}',
           -- Interactive visualisation of processes to attach to
