@@ -139,6 +139,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- 4. Gitsigns
 require 'marks'
 
+vim.api.nvim_create_user_command('Zen', function()
+  vim.api.nvim_command "execute 'topleft' ((&columns - &textwidth) / 4 - 1) . 'vsplit _padding_' | wincmd p "
+end, {})
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
