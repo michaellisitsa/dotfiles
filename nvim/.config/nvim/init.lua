@@ -345,8 +345,8 @@ require('lazy').setup({
               -- You can use the capture groups defined in textobjects.scm
               ['al'] = '@loop.outer',
               ['il'] = '@loop.inner',
-              ['ac'] = '@conditional.outer',
-              ['ic'] = '@conditional.inner',
+              ['ac'] = '@call.outer',
+              ['ic'] = '@call.inner',
               ['af'] = '@function.outer',
               ['if'] = '@function.inner',
               ['aC'] = '@class.outer',
@@ -454,6 +454,7 @@ require('lazy').setup({
         { '<leader>f', group = '[F]ile managers' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>d', group = '[D]ebug', mode = { 'n', 'v' } },
+        { '<leader>i', group = '[I]ron Repl', mode = { 'n' } },
       },
     },
   },
@@ -1121,6 +1122,15 @@ require('lazy').setup({
     end,
   },
   {
+    'hedyhli/outline.nvim',
+    config = function()
+      -- Example mapping to toggle outline
+      vim.keymap.set('n', '<leader>fo', '<cmd>Outline<CR>', { desc = '[F]ile [O]utline' })
+
+      require('outline').setup {}
+    end,
+  },
+  {
     {
       'Bekaboo/dropbar.nvim',
       cond = function()
@@ -1163,6 +1173,61 @@ require('lazy').setup({
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
+    end,
+  },
+  {
+    'hkupty/iron.nvim',
+    config = function()
+      local iron = require 'iron.core'
+
+      iron.setup {
+        config = {
+          -- Whether a repl should be discarded or not
+          scratch_repl = true,
+          -- Your repl definitions come here
+          repl_definition = {
+            python = {
+              command = { './shortcuts.sh', 'shell' },
+            },
+            sh = {
+              -- Can be a table or a function that
+              -- returns a table (see below)
+              command = { 'zsh' },
+            },
+          },
+          -- How the repl window will be displayed
+          -- See below for more information
+          repl_open_cmd = require('iron.view').bottom(40),
+        },
+        -- Iron doesn't set keymaps by default anymore.
+        -- You can set them here or manually add keymaps to the functions in iron.core
+        keymaps = {
+          send_motion = '<space>isc',
+          visual_send = '<space>isc',
+          send_file = '<space>isf',
+          send_line = '<space>isl',
+          send_mark = '<space>ism',
+          mark_motion = '<space>imc',
+          mark_visual = '<space>imc',
+          remove_mark = '<space>imd',
+          cr = '<space>ise',
+          interrupt = '<space>isi',
+          exit = '<space>isq',
+          clear = '<space>icl',
+        },
+        -- If the highlight is on, you can change how it looks
+        -- For the available options, check nvim_set_hl
+        highlight = {
+          italic = true,
+        },
+        ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
+      }
+
+      -- iron also has a list of commands, see :h iron-commands for all available commands
+      vim.keymap.set('n', '<space>irs', '<cmd>IronRepl<cr>')
+      vim.keymap.set('n', '<space>irr', '<cmd>IronRestart<cr>')
+      vim.keymap.set('n', '<space>irf', '<cmd>IronFocus<cr>')
+      vim.keymap.set('n', '<space>irh', '<cmd>IronHide<cr>')
     end,
   },
   { -- Highlight, edit, and navigate code
