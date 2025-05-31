@@ -501,7 +501,6 @@ require('lazy').setup({
       -- This opens a window that shows you all of the keymaps for the current
       -- Telescope picker. This is really useful to discover what Telescope can
       -- do as well as how to actually do it!
-
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
@@ -518,15 +517,13 @@ require('lazy').setup({
           live_grep_args = {
             auto_quoting = true, -- enable/disable auto-quoting
             -- define mappings, e.g.
-            -- NOT WORKING
-            -- mappings = { -- extend mappings
-            --   i = {
-            --     ['<C-k>'] = require('telescope').extensions.live_grep_args.actions.quote_prompt(),
-            --     ['<C-i>'] = require('telescope').extensions.live_grep_args.actions.quote_prompt { postfix = ' --iglob ' },
-            --     -- freeze the current list and start a fuzzy search in the frozen list
-            --     ['<C-g>'] = require('telescope').extensions.live_grep_args.actions.to_fuzzy_refine,
-            --   },
-            -- },
+            mappings = { -- extend mappings
+              i = {
+                ['<C-k>'] = require('telescope-live-grep-args.actions').quote_prompt(),
+                ['<C-i>'] = require('telescope-live-grep-args.actions').quote_prompt { postfix = ' --iglob ' },
+                ['<C-space>'] = require('telescope.actions').to_fuzzy_refine,
+              },
+            },
             -- ... also accepts theme settings, for example:
             -- theme = "dropdown", -- use dropdown theme
             -- theme = { }, -- use own theme spec
@@ -563,6 +560,18 @@ require('lazy').setup({
         -- Alternatively, we could use Live Grep with Arguments extension to dynamically modify these settings
         pickers = {
           ['buffers'] = { sort_mru = true, ignore_current_buffer = true, sort_lastused = true, initial_mode = 'normal' },
+          lsp_dynamic_workspace_symbols = {
+            -- By default Telescope will let the LSP define the order of results
+            -- however some LSPs like Pyright don't return in a useful order
+            -- Override so that the fuzzy sorting is done based on the native fzf sorter
+            -- see https://github.com/nvim-telescope/telescope.nvim/issues/2104
+            sorter = require('telescope').extensions.fzf.native_fzf_sorter {
+              fuzzy = true, -- false will only do exact matching
+              override_generic_sorter = true, -- override the generic sorter
+              override_file_sorter = true, -- override the file sorter
+              case_mode = 'smart_case', -- or "ignore_case" or "respect_case"
+            },
+          },
         },
       }
 
@@ -1197,7 +1206,7 @@ require('lazy').setup({
           },
           -- How the repl window will be displayed
           -- See below for more information
-          repl_open_cmd = require('iron.view').bottom(40),
+          repl_open_cmd = require('iron.view').split.vertical.botright(50),
         },
         -- Iron doesn't set keymaps by default anymore.
         -- You can set them here or manually add keymaps to the functions in iron.core
