@@ -455,6 +455,9 @@ require('lazy').setup({
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>d', group = '[D]ebug', mode = { 'n', 'v' } },
         { '<leader>i', group = '[I]ron Repl', mode = { 'n' } },
+        { '<leader>is', group = '[I]ron Repl [S]end', mode = { 'n' } },
+        { '<leader>im', group = '[I]ron Repl [M]ark', mode = { 'n' } },
+        { '<leader>ir', group = '[I]ron Repl [R]estart', mode = { 'n' } },
       },
     },
   },
@@ -1132,6 +1135,9 @@ require('lazy').setup({
   },
   {
     'hedyhli/outline.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
     config = function()
       -- Example mapping to toggle outline
       vim.keymap.set('n', '<leader>fo', '<cmd>Outline<CR>', { desc = '[F]ile [O]utline' })
@@ -1171,7 +1177,6 @@ require('lazy').setup({
       local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
       statusline.setup { use_icons = vim.g.have_nerd_font }
-
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
