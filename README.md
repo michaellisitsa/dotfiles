@@ -26,7 +26,7 @@ mv .config/nvim/  ./.config-backup/nvim/
 ```bash
 # For linux replace brew with relevant package manager
 brew install --cask nikitabobko/tap/aerospace
-brew install stow tmux ripgrep fzf fd
+brew install stow tmux ripgrep fzf fd tpm
 ```
 
 4. Install Zsh plugin manager (Oh My Zsh), as the .zshrc uses that.

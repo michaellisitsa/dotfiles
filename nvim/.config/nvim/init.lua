@@ -919,17 +919,6 @@ require('lazy').setup({
       }
     end,
   },
-  {
-    'luckasRanarison/tailwind-tools.nvim',
-    name = 'tailwind-tools',
-    build = ':UpdateRemotePlugins',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter',
-      'nvim-telescope/telescope.nvim', -- optional
-      'neovim/nvim-lspconfig', -- optional
-    },
-    opts = {},
-  },
   { -- Autoformat
     'stevearc/conform.nvim',
     cond = function()
@@ -1201,6 +1190,9 @@ require('lazy').setup({
           -- Your repl definitions come here
           repl_definition = {
             python = {
+              -- Pasting indent blocks like functions doesn't work
+              -- see https://github.com/Vigemus/iron.nvim/issues/378
+              format = require('iron.fts.common').bracketed_paste,
               command = { './shortcuts.sh', 'shell' },
             },
             sh = {
