@@ -1179,7 +1179,7 @@ require('lazy').setup({
     end,
   },
   {
-    'hkupty/iron.nvim',
+    'Vigemus/iron.nvim',
     config = function()
       local iron = require 'iron.core'
 
@@ -1208,18 +1208,18 @@ require('lazy').setup({
         -- Iron doesn't set keymaps by default anymore.
         -- You can set them here or manually add keymaps to the functions in iron.core
         keymaps = {
-          send_motion = '<space>isc',
-          visual_send = '<space>isc',
-          send_file = '<space>isf',
-          send_line = '<space>isl',
-          send_mark = '<space>ism',
-          mark_motion = '<space>imc',
-          mark_visual = '<space>imc',
-          remove_mark = '<space>imd',
-          cr = '<space>ise',
-          interrupt = '<space>isi',
-          exit = '<space>isq',
-          clear = '<space>icl',
+          send_motion = '<leader>isc',
+          visual_send = '<leader>isc',
+          send_file = '<leader>isf',
+          send_line = '<leader>isl',
+          send_mark = '<leader>ism',
+          mark_motion = '<leader>imc',
+          mark_visual = '<leader>imc',
+          remove_mark = '<leader>imd',
+          cr = '<leader>ise',
+          interrupt = '<leader>isi',
+          exit = '<leader>isq',
+          clear = '<leader>icl',
         },
         -- If the highlight is on, you can change how it looks
         -- For the available options, check nvim_set_hl
@@ -1228,13 +1228,13 @@ require('lazy').setup({
         },
         ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
       }
-
-      -- iron also has a list of commands, see :h iron-commands for all available commands
-      vim.keymap.set('n', '<space>irs', '<cmd>IronRepl<cr>')
-      vim.keymap.set('n', '<space>irr', '<cmd>IronRestart<cr>')
-      vim.keymap.set('n', '<space>irf', '<cmd>IronFocus<cr>')
-      vim.keymap.set('n', '<space>irh', '<cmd>IronHide<cr>')
     end,
+    keys = {
+      { '<leader>irs', '<cmd>IronRepl<cr>', mode = 'n', desc = 'Repl' },
+      { '<leader>irr', '<cmd>IronRestart<cr>', mode = 'n', desc = 'Restart' },
+      { '<leader>irf', '<cmd>IronFocus<cr>', mode = 'n', desc = 'Focus' },
+      { '<leader>irh', '<cmd>IronHide<cr>', mode = 'n', desc = 'Hide' },
+    },
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
