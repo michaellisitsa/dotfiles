@@ -78,6 +78,20 @@ vim.opt.scrolloff = 10
 -- See `:help 'confirm'`
 vim.opt.confirm = true
 
+-- Better diff syntax
+--
+vim.opt.fillchars = {
+  fold = ' ',
+  diff = '╱',
+  wbr = '─',
+  msgsep = '─',
+  horiz = ' ',
+  horizup = '│',
+  horizdown = '│',
+  vertright = '│',
+  vertleft = '│',
+  verthoriz = '│',
+}
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -282,6 +296,21 @@ require('lazy').setup({
       return not vim.g.vscode
     end,
     cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
+    -- Inspired from https://lyz-code.github.io/blue-book/diffview/
+    keys = {
+      { '<leader>hf', '<cmd>DiffviewOpen develop...<cr>', mode = 'n', desc = 'Diffview [F]orkpoint' },
+      {
+        '<leader>hv',
+        function()
+          if next(require('diffview.lib').views) == nil then
+            vim.cmd 'DiffviewOpen'
+          else
+            vim.cmd 'DiffviewClose'
+          end
+        end,
+        desc = 'Toggle Diffview window',
+      },
+    },
   },
   {
     'ThePrimeagen/harpoon',
@@ -834,6 +863,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
+        html = {},
         pyright = {
           --[[
           -- Pyright will preference pyproject.toml so you may need to override
@@ -960,6 +990,9 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
