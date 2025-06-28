@@ -313,6 +313,27 @@ require('lazy').setup({
     },
   },
   {
+    'max397574/better-escape.nvim',
+    config = function()
+      require('better_escape').setup {
+        mappings = {
+          -- i for insert, other modes are the first letter too
+          i = {
+            -- map kj to exit insert mode
+            k = {
+              j = '<Esc>',
+            },
+            -- map jk and jj  to exit insert mode
+            j = {
+              k = '<Esc>',
+              j = '<Esc>',
+            },
+          },
+        },
+      }
+    end,
+  },
+  {
     'ThePrimeagen/harpoon',
     cond = function()
       return not vim.g.vscode
@@ -489,15 +510,6 @@ require('lazy').setup({
         { '<leader>ir', group = '[I]ron Repl [R]estart', mode = { 'n' } },
       },
     },
-  },
-  {
-    'ptdewey/pendulum-nvim',
-    cond = function()
-      return not vim.g.vscode
-    end,
-    config = function()
-      require('pendulum').setup()
-    end,
   },
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
@@ -844,7 +856,7 @@ require('lazy').setup({
           underline = isLspDiagnosticsVisible,
         }
       end)
-
+      vim.keymap.set('n', '<leader>ct', '<cmd>lua vim.lsp.buf.incoming_calls()<cr>', { desc = 'LiteeCalltree' })
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
@@ -1168,23 +1180,21 @@ require('lazy').setup({
     end,
   },
   {
-    {
-      'Bekaboo/dropbar.nvim',
-      cond = function()
-        return not vim.g.vscode
-      end,
-      -- optional, but required for fuzzy finder support
-      dependencies = {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make',
-      },
-      config = function()
-        local dropbar_api = require 'dropbar.api'
-        vim.keymap.set('n', '<Leader>;', dropbar_api.pick, { desc = 'Pick symbols in winbar' })
-        vim.keymap.set('n', '[;', dropbar_api.goto_context_start, { desc = 'Go to start of current context' })
-        vim.keymap.set('n', '];', dropbar_api.select_next_context, { desc = 'Select next context' })
-      end,
+    'Bekaboo/dropbar.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
+    -- optional, but required for fuzzy finder support
+    dependencies = {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      build = 'make',
     },
+    config = function()
+      local dropbar_api = require 'dropbar.api'
+      vim.keymap.set('n', '<Leader>;', dropbar_api.pick, { desc = 'Pick symbols in winbar' })
+      vim.keymap.set('n', '[;', dropbar_api.goto_context_start, { desc = 'Go to start of current context' })
+      vim.keymap.set('n', '];', dropbar_api.select_next_context, { desc = 'Select next context' })
+    end,
   },
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1268,6 +1278,35 @@ require('lazy').setup({
       { '<leader>irf', '<cmd>IronFocus<cr>', mode = 'n', desc = 'Focus' },
       { '<leader>irh', '<cmd>IronHide<cr>', mode = 'n', desc = 'Hide' },
     },
+  },
+  {
+    'ldelossa/litee.nvim',
+    event = 'VeryLazy',
+    opts = {
+      -- notify = { enabled = false },
+      panel = {
+        orientation = 'right',
+        panel_size = 70,
+      },
+    },
+    config = function(_, opts)
+      require('litee.lib').setup(opts)
+    end,
+  },
+  {
+    'ldelossa/litee-calltree.nvim',
+    dependencies = 'ldelossa/litee.nvim',
+    event = 'VeryLazy',
+    opts = {
+      on_open = 'panel',
+      map_resize_keys = false,
+      -- Does not work reliably with symbol resolution particular expand.
+      -- see https://github.com/LazyVim/LazyVim/discussions/1137#discussioncomment-6457002
+      resolve_symbols = false,
+    },
+    config = function(_, opts)
+      require('litee.calltree').setup(opts)
+    end,
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',

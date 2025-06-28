@@ -293,6 +293,7 @@ return {
       console = 'integratedTerminal',
     })
     table.insert(require('dap').configurations.python, {
+      justMyCode = false,
       name = 'Python: Remote attach',
       type = 'python',
       request = 'attach',
