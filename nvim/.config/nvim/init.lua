@@ -534,6 +534,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-live-grep-args.nvim' },
       { 'nvim-telescope/telescope-ui-select.nvim' },
       { 'nvim-telescope/telescope-frecency.nvim' },
+      { 'jmacadie/telescope-hierarchy.nvim' },
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
@@ -549,11 +550,15 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = {
+              ['<C-l>'] = require('telescope.actions').cycle_history_next,
+              ['<C-h>'] = require('telescope.actions').cycle_history_prev,
+              ['<C-space>'] = require('telescope.actions').to_fuzzy_refine,
+            },
+          },
+        },
         extensions = {
           -- By default frecency will not used fuzzy finding
           -- see https://github.com/nvim-telescope/telescope-frecency.nvim/issues/165
@@ -598,6 +603,11 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          hierarchy = {
+            -- telescope-hierarchy.nvim config
+            initial_multi_expand = true, -- Run a multi-expand on open? If false, will only expand one layer deep by default
+            multi_depth = 2, -- How many layers deep should a multi-expand go?
+          },
         },
         -- We want to search through all hidden files, vimgrep_arguments
         -- but ignore dependency folders.
@@ -624,9 +634,13 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'live_grep_args')
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension, 'frecency')
+      pcall(require('telescope').load_extension, 'hierarchy')
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
+      vim.keymap.set('n', '<leader>si', function()
+        require('telescope').extensions.hierarchy.incoming_calls()
+      end, { desc = 'LSP: [S]earch [I]ncoming Calls' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
