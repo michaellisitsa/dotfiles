@@ -197,37 +197,6 @@ require('lazy').setup({
     },
   },
   {
-    'folke/snacks.nvim',
-    -- We only use snacks scrolling/indent & picker which are not functional in VS code
-    cond = function()
-      return not vim.g.vscode
-    end,
-    priority = 900, -- a couple of plugins require snacks to be set up early
-    lazy = false,
-    ---@type snacks.Config
-    opts = {
-      -- Performance issue
-      -- scroll = { enabled = true },
-      indent = { enabled = true },
-      -- Snacks Explorer
-      explorer = {},
-      picker = {
-        sources = {
-          explorer = {},
-        },
-      },
-    },
-    keys = {
-      {
-        '<leader>fe',
-        function()
-          require('snacks').explorer {}
-        end,
-        desc = 'Explorer Snacks (root dir)',
-      },
-    },
-  },
-  {
     'stevearc/oil.nvim',
     cond = function()
       return not vim.g.vscode
@@ -657,14 +626,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
-      -- Slightly advanced example of overriding default behavior and theme
-      vim.keymap.set('n', '<leader>/', function()
-        -- You can pass additional configuration to Telescope to change the theme, layout, etc.
-        builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
-          previewer = false,
-        })
-      end, { desc = '[/] Fuzzily search in current buffer' })
+      vim.keymap.set('n', '<leader>/', builtin.current_buffer_fuzzy_find, { desc = '[/] Fuzzily search in current buffer' })
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
@@ -1190,7 +1152,13 @@ require('lazy').setup({
       -- Example mapping to toggle outline
       vim.keymap.set('n', '<leader>fo', '<cmd>Outline<CR>', { desc = '[F]ile [O]utline' })
 
-      require('outline').setup {}
+      require('outline').setup {
+        -- Filter by kinds (string) for symbols in the outline.
+        -- Possible kinds are the Keys in the icons table below.  symbols = {
+        symbols = {
+          filter = { 'String', 'Constant', exclude = true },
+        },
+      }
     end,
   },
   {
@@ -1217,6 +1185,7 @@ require('lazy').setup({
       return not vim.g.vscode
     end,
     config = function()
+      require('mini.indentscope').setup()
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
