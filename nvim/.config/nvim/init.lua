@@ -810,6 +810,7 @@ require('lazy').setup({
         -- clangd = {},
         -- gopls = {},
         html = {},
+        sqlfluff = {},
         pyright = {
           --[[
           -- Pyright will preference pyproject.toml so you may need to override
@@ -913,6 +914,7 @@ require('lazy').setup({
         desc = '[F]ile [F]ormat',
       },
     },
+    -- https://github.com/stevearc/conform.nvim?tab=readme-ov-file#options
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
@@ -929,10 +931,27 @@ require('lazy').setup({
           }
         end
       end,
+      formatters = {
+        injected = {
+          options = {
+            ignore_errors = false,
+            lang_to_formatters = {
+              sql = { 'sqlfluff' },
+            },
+            lang_to_ext = {
+              sql = 'sql',
+            },
+          },
+        },
+        sqlfluff = {
+          args = { 'format', '--dialect=postgres', '-' },
+        },
+      },
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
+        sql = { 'sqlfluff' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
