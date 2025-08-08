@@ -1,6 +1,6 @@
 [user]
-	name = Michael Lisitsa
-	email = michael@lisitsa.dev
+    name = Michael Lisitsa
+    email = michael@lisitsa.dev
 
 [difftool]
     prompt = true
@@ -10,6 +10,7 @@
 
 [merge]
     tool = nvimdiff
+    conflictStyle = zdiff3
 
 [mergetool]
     prompt = false
@@ -18,4 +19,13 @@
 [mergetool "nvimdiff"]
     layout = "LOCAL,BASE,REMOTE / MERGED"
 [core]
-	editor = nvim -f
+    editor = nvim -f
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+; brew install git-delta
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    dark = true      # or light = true, or omit for auto-detection
