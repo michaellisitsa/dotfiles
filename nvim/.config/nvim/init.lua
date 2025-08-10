@@ -273,38 +273,16 @@ require('lazy').setup({
         function()
           if next(require('diffview.lib').views) == nil then
             vim.cmd 'DiffviewOpen'
-            vim.cmd.colorscheme 'github_dark_dimmed'
+            -- vim.cmd.colorscheme 'github_dark_default'
           else
             vim.cmd 'DiffviewClose'
-            vim.cmd.colorscheme 'vscode'
+            -- vim.cmd.colorscheme 'vscode'
           end
         end,
         desc = 'Toggle Diffview window',
       },
     },
   },
-  {
-    'max397574/better-escape.nvim',
-    config = function()
-      require('better_escape').setup {
-        mappings = {
-          -- i for insert, other modes are the first letter too
-          i = {
-            -- map kj to exit insert mode
-            k = {
-              j = '<Esc>',
-            },
-            -- map jk and jj  to exit insert mode
-            j = {
-              k = '<Esc>',
-              j = '<Esc>',
-            },
-          },
-        },
-      }
-    end,
-  },
-
   {
     'nvim-treesitter/nvim-treesitter-textobjects',
     event = 'VeryLazy',
@@ -1074,7 +1052,7 @@ require('lazy').setup({
     priority = 1000, -- make sure to load this before all the other start plugins
     -- Taken from https://github.com/a-barjo/dots/commit/4f620a4b8667baa106942786f42a30ea41947601#diff-2ffb01bb11910b65c47999af310bd3590640e032e74f94e15e2d298d144d665f
     config = function()
-      local palette = require('github-theme.palette').load 'github_dark'
+      local palette = require('github-theme.palette').load 'github_dark_default'
       require('github-theme').setup {
         options = {
           hide_end_of_buffer = false,
@@ -1089,14 +1067,15 @@ require('lazy').setup({
             DiffAdd = { bg = palette.scale.green[10], fg = 'none' },
             DiffChange = { bg = palette.scale.yellow[10], fg = 'none' },
             DiffText = { bg = palette.scale.yellow[8], fg = 'none' },
+            DiffDelete = { bg = palette.scale.red[8], fg = 'none' },
           },
         },
       }
+      -- vim.cmd.colorscheme 'github_dark_default'
     end,
   },
   {
     'Mofiqul/dracula.nvim',
-    lazy = false,
     priority = 1000,
     cond = function()
       return not vim.g.vscode
@@ -1139,7 +1118,7 @@ require('lazy').setup({
     priority = 1000, -- make sure to load this before all the other start plugins
     config = function()
       require('onedark').setup {
-        style = 'warmer',
+        style = 'darker',
       }
       -- -- Enable theme
       -- require('onedark').load()
