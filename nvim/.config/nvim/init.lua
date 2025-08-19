@@ -99,6 +99,36 @@ vim.opt.fillchars = {
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Print the full file path of the current file and line number
+-- Useful for bookmarking in a separate markdown file
+-- gf because that's usually the shortcut used to navigate (or gF) to a file string
+-- Also add breadcrumbs
+vim.keymap.set('n', '<leader>gf', function()
+  local buf = vim.api.nvim_get_current_buf()
+  local win = vim.api.nvim_get_current_win()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(win))
+  local cursor = { row - 1, col } -- dropbar uses 0-indexed position (verify if true)
+
+  -- Dropbar.nvim has a get_symbols function that concatenates all the document symbols up the treesitter tree.
+  -- https://github.com/Bekaboo/dropbar.nvim/blob/418897fe7828b2749ca78056ec8d8ad43136b695/lua/dropbar/utils/source.lua#L7
+  local sources = require 'dropbar.sources'
+  -- Fallback chain: LSP first, then Treesitter
+  local src = require('dropbar.utils').source.fallback { sources.lsp, sources.treesitter }
+  local symbols = src.get_symbols(buf, win, cursor)
+
+  -- Apply our own to string conversion.
+  local names = {}
+  for _, sym in ipairs(symbols) do
+    table.insert(names, sym.name)
+  end
+  local breadcrumb = table.concat(names, ' > ')
+
+  local str = string.format('%s:%d | %s', vim.fn.expand '%:p', row, breadcrumb)
+  vim.fn.setreg('"', str)
+  vim.fn.setreg('+', str)
+  print('Yanked location: ' .. str)
+end)
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
