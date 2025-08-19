@@ -99,6 +99,30 @@ vim.opt.fillchars = {
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+local function yank_pytest(debug)
+  local ts_utils = require 'nvim-treesitter.ts_utils'
+  local node = ts_utils.get_node_at_cursor()
+  local buf = vim.api.nvim_get_current_buf()
+  local rel_filepath = vim.fn.expand '%:.'
+
+  local symbol = ''
+  if node then
+    symbol = vim.treesitter.get_node_text(node, buf):gsub('\n', ' ')
+  end
+  local str = string.format('./shortcuts.sh %s "%s" -k "%s"', debug and 'vscode_tests' or 'test', rel_filepath, symbol)
+  vim.fn.setreg('"', str)
+  vim.fn.setreg('+', str)
+  print('Pytest: ' .. str)
+end
+
+vim.keymap.set('n', '<leader>gt', function()
+  yank_pytest(false)
+end)
+
+vim.keymap.set('n', '<leader>gd', function()
+  yank_pytest(true)
+end)
+
 -- Print the full file path of the current file and line number
 -- Useful for bookmarking in a separate markdown file
 -- gf because that's usually the shortcut used to navigate (or gF) to a file string
@@ -490,8 +514,9 @@ require('lazy').setup({
         defaults = {
           mappings = {
             i = {
-              ['<C-l>'] = require('telescope.actions').cycle_history_next,
-              ['<C-h>'] = require('telescope.actions').cycle_history_prev,
+              -- These interfere with backspace char code. Think of better keys
+              -- ['<C-l>'] = require('telescope.actions').cycle_history_next,
+              -- ['<C-h>'] = require('telescope.actions').cycle_history_prev,
               ['<C-space>'] = require('telescope.actions').to_fuzzy_refine,
             },
           },
