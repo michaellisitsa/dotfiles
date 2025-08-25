@@ -99,8 +99,6 @@ vim.opt.fillchars = {
   vertleft = '│',
   verthoriz = '│',
 }
--- [[ Basic Keymaps ]]
---  See `:help vim.keymap.set()`
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -208,14 +206,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
     vim.highlight.on_yank()
   end,
 })
-
--- Import custom plugin for showing marks on sidebar
--- Approximate priority order (Highest to Lowest)
--- 1. Breakpoints
--- 2. Diagnostics
--- 3. Marks
--- 4. Gitsigns
-require 'marks'
 
 vim.api.nvim_create_user_command('Zen', function()
   vim.api.nvim_command "execute 'topleft' ((&columns - &textwidth) / 4 - 1) . 'vsplit _padding_' | wincmd p "
@@ -640,6 +630,29 @@ require('lazy').setup({
         }
       end, { desc = '[S]earch [/] in Open Files' })
 
+      vim.keymap.set('n', '<leader>sm', function()
+        local cmd = {
+          'rg',
+          '--glob',
+          '**/models.py',
+          '--glob',
+          '!.venv/**',
+          '--no-heading',
+          '--line-number',
+          '--column',
+          'class\\s+\\w+\\(',
+        }
+        local finders = require 'telescope.finders'
+        local conf = require('telescope.config').values
+        require('telescope.pickers')
+          .new({}, {
+            prompt_title = 'Django Models',
+            finder = finders.new_oneshot_job(cmd, {}),
+            sorter = conf.generic_sorter {},
+            previewer = conf.grep_previewer {},
+          })
+          :find()
+      end, { desc = 'Search Django models' })
       -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
@@ -910,6 +923,16 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         ts_ls = {},
         --
+        jsonls = {
+          settings = {
+            json = {
+              format = {
+                enable = true,
+              },
+            },
+            validate = { enable = true },
+          },
+        },
 
         lua_ls = {
           -- cmd = { ... },
