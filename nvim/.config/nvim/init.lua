@@ -10,6 +10,13 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- https://www.reddit.com/r/neovim/comments/1myfvla/comment/nad22ts/
+if vim.fn.has 'nvim-0.12' == 1 then
+  vim.o.diffopt = 'internal,filler,closeoff,inline:word,linematch:40'
+elseif vim.fn.has 'nvim-0.11' == 1 then
+  vim.o.diffopt = 'internal,filler,closeoff,linematch:40'
+end
+
 -- current line show number
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -104,6 +111,9 @@ local function yank_pytest(debug)
   local node = ts_utils.get_node_at_cursor()
   local buf = vim.api.nvim_get_current_buf()
   local rel_filepath = vim.fn.expand '%:.'
+  if rel_filepath:find 'kogan3/' ~= nil then
+    rel_filepath = string.sub(rel_filepath, 8)
+  end
 
   local symbol = ''
   if node then
@@ -653,6 +663,24 @@ require('lazy').setup({
     },
   },
   {
+    -- Same as upstream but with new 0.11 syntax
+    -- ie. return vim.lsp.completion._lsp_to_complete_items(result, prefix)
+    'michaellisitsa/nvim-lspimport',
+    cond = function()
+      return not vim.g.vscode
+    end,
+    keys = {
+      {
+        'gri',
+        function()
+          require('lspimport').import()
+        end,
+        mode = '',
+        desc = 'Auto import',
+      },
+    },
+  },
+  {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     -- VS code handles all LSPs
@@ -722,7 +750,7 @@ require('lazy').setup({
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          -- map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.

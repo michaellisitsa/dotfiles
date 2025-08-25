@@ -447,6 +447,8 @@
 			<string>/Users/michaellisitsa</string>
 		</dict>
 	</array>
+	<key>PMPrintingPanelSize</key>
+	<string>{791, 1055}</string>
 	<key>PasteTabToStringTabStopSize</key>
 	<integer>4</integer>
 	<key>PointerActions</key>
