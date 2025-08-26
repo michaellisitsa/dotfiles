@@ -644,10 +644,36 @@ require('lazy').setup({
         }
         local finders = require 'telescope.finders'
         local conf = require('telescope.config').values
-        require('telescope.pickers')
+        local make_entry = require 'telescope.make_entry'
+        local pickers = require 'telescope.pickers'
+
+        local custom_maker = function(entry)
+          local original = make_entry.gen_from_vimgrep {
+            -- keep path display minimal (we’ll handle display ourselves)
+            path_display = { 'tail' },
+          }(entry)
+          if not original then
+            return nil
+          end
+
+          -- extract "class Foo(" from the line
+          local match = original.text:match 'class%s+%w+%s*%(' or original.text
+          match = string.sub(match, 6, -2)
+
+          -- overwrite display
+          original.display = function()
+            return string.format('%-30s %s:%d', match, original.filename, original.lnum)
+          end
+
+          return original
+        end
+
+        pickers
           .new({}, {
             prompt_title = 'Django Models',
-            finder = finders.new_oneshot_job(cmd, {}),
+            finder = finders.new_oneshot_job(cmd, {
+              entry_maker = custom_maker,
+            }),
             sorter = conf.generic_sorter {},
             previewer = conf.grep_previewer {},
           })
