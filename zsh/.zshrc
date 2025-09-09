@@ -104,6 +104,13 @@ alias python=python3
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+alias devsession='tmux \
+  new-window "./shortcuts.sh start_k3" \; \
+  rename-window "daem" \; \
+  split-window "./dev_setup.sh service_up ; read" \; \
+  split-window "cd k4; npm run dev:au ; read" \; \
+  select-layout even-vertical'
+
 # Add neovim to path only for linux
 # Add sbin for things like swapon on linux
 

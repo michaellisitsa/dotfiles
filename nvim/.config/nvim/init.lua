@@ -155,7 +155,7 @@ vim.keymap.set('n', '<leader>gf', function()
   end
   local breadcrumb = table.concat(names, ' > ')
 
-  local str = string.format('%s:%d | %s', vim.fn.expand '%:p', row, breadcrumb)
+  local str = string.format('%s|%d | %s', vim.fn.expand '%:p', row, breadcrumb)
   vim.fn.setreg('"', str)
   vim.fn.setreg('+', str)
   print('Yanked location: ' .. str)
@@ -606,6 +606,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch [J]umps' })
       vim.keymap.set('n', '<leader>sc', function()
         require('telescope').extensions.frecency.frecency()
       end, { desc = '[S]earch [C]ount Recency' })
@@ -656,7 +657,7 @@ require('lazy').setup({
             return nil
           end
 
-          -- extract "class Foo(" from the line
+          -- extract "class Foo()" from the line
           local match = original.text:match 'class%s+%w+%s*%(' or original.text
           match = string.sub(match, 6, -2)
 
@@ -974,6 +975,7 @@ require('lazy').setup({
             },
           },
         },
+        bashls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -1058,12 +1060,16 @@ require('lazy').setup({
         sqlfluff = {
           args = { 'format', '--dialect=postgres', '-' },
         },
+        shfmt = {
+          prepend_args = { '-i', '2', '-ci', '-bn' },
+        },
       },
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
         sql = { 'sqlfluff' },
+        sh = { 'shfmt' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
