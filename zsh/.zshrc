@@ -105,9 +105,8 @@ alias python=python3
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 alias devsession='tmux \
-  new-window "./shortcuts.sh start_k3" \; \
+  new-window "./dev_setup.sh service_up; ./shortcuts.sh start_k3" \; \
   rename-window "daem" \; \
-  split-window "./dev_setup.sh service_up ; read" \; \
   split-window "cd k4; npm run dev:au ; read" \; \
   select-layout even-vertical'
 
