@@ -498,6 +498,7 @@ require('lazy').setup({
       { 'jmacadie/telescope-hierarchy.nvim' },
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+      { 'aaronhallaert/advanced-git-search.nvim', cmd = { 'AdvancedGitSearch' } },
     },
     config = function()
       -- Two important keymaps to use to see what keymaps are available depend on which mode you're in:
@@ -597,6 +598,7 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension, 'frecency')
       pcall(require('telescope').load_extension, 'hierarchy')
+      pcall(require('telescope').load_extension, 'advanced_git_search')
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
