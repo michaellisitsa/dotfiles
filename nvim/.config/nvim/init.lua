@@ -232,6 +232,27 @@ vim.opt.rtp:prepend(lazypath)
 --  To update plugins you can run
 --    :Lazy update
 --
+
+-- Function to handle both blink.cmp and default <C-n> behavior
+function C_n_handler()
+  local blink = require 'blink.cmp'
+  if blink.is_menu_visible() then
+    blink.select_next()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-n>', true, true, true), 'n', true)
+  end
+end
+
+-- Function to handle both blink.cmp and default <C-p> behavior
+function C_p_handler()
+  local blink = require 'blink.cmp'
+  if blink.is_menu_visible() then
+    blink.select_prev()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-p>', true, true, true), 'n', true)
+  end
+end
+
 require('lazy').setup({
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
@@ -1095,12 +1116,6 @@ require('lazy').setup({
         'L3MON4D3/LuaSnip',
         version = '2.*',
         build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
-          if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
-            return
-          end
           return 'make install_jsregexp'
         end)(),
         dependencies = {
@@ -1141,6 +1156,9 @@ require('lazy').setup({
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
         preset = 'default',
+
+        ['<C-n>'] = false,
+        ['<C-p>'] = false,
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -1186,6 +1204,13 @@ require('lazy').setup({
       -- Shows a signature help window while you type arguments for a function
       signature = { enabled = true },
     },
+    -- Blink overrides default word completions https://neovim.io/doc/user/insert.html#i_CTRL-N
+    -- Fix so we can still use this, solution per
+    -- https://github.com/Saghen/blink.cmp/discussions/2149
+    init = function()
+      vim.keymap.set('i', '<C-n>', C_n_handler, { noremap = true, silent = true })
+      vim.keymap.set('i', '<C-p>', C_p_handler, { noremap = true, silent = true })
+    end,
   },
   {
     'projekt0n/github-nvim-theme',
