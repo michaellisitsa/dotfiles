@@ -104,13 +104,6 @@ alias python=python3
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-function devsession() {
-  tmux \
-    new-window "./dev_setup.sh service_up; ./shortcuts.sh start_k3" \; \
-    rename-window "daem" \; \
-    split-window "cd k4; nvm use; npm run dev:${1:-au} ; read" \; \
-    select-layout even-vertical
-}
 # alias devsession='tmux \
 #   new-window "./dev_setup.sh service_up; ./shortcuts.sh start_k3" \; \
 #   rename-window "daem" \; \
@@ -130,6 +123,16 @@ export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh --no-use
 
 export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin"
+
+# Define this function once path is already prefilled
+function devsession() {
+  local nvm_cmd='export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+  tmux \
+    new-window "./dev_setup.sh service_up; ./shortcuts.sh start_k3" \; \
+    rename-window "daem" \; \
+    split-window "cd k4; ${nvm_cmd}; nvm use; npm run dev:${1:-au} ; read" \; \
+    select-layout even-vertical
+}
 
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
