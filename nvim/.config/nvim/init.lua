@@ -936,7 +936,7 @@ require('lazy').setup({
         clangd = {},
         -- gopls = {},
         html = {},
-        sqlfluff = {},
+        pgformatter = {},
         pyright = {
           --[[
           -- Pyright will preference pyproject.toml so you may need to override
@@ -1073,15 +1073,16 @@ require('lazy').setup({
           options = {
             ignore_errors = false,
             lang_to_formatters = {
-              sql = { 'sqlfluff' },
+              sql = { 'pgformatter' },
             },
             lang_to_ext = {
               sql = 'sql',
             },
           },
         },
-        sqlfluff = {
-          args = { 'format', '--dialect=postgres', '-' },
+        pgformatter = {
+          command = 'pg_format',
+          args = { '--no-extra-line' },
         },
         shfmt = {
           prepend_args = { '-i', '2', '-ci', '-bn' },
@@ -1091,7 +1092,7 @@ require('lazy').setup({
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
-        sql = { 'sqlfluff' },
+        sql = { 'pgformatter' },
         sh = { 'shfmt' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
