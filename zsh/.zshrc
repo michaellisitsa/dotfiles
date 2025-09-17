@@ -124,7 +124,6 @@ source $(brew --prefix nvm)/nvm.sh --no-use
 
 export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin"
 
-# Define this function once path is already prefilled
 function devsession() {
   local nvm_cmd='export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
   tmux \
