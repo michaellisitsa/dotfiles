@@ -126,8 +126,10 @@ export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin
 
 function devsession() {
   local nvm_cmd='export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+  # Wait for Docker to start and be ready before running commands
+  local docker_cmd="(open -a Docker && while ! docker info >/dev/null 2>&1; do sleep 2; done) && ./dev_setup.sh service_up"
   tmux \
-    new-window "./dev_setup.sh service_up; ./shortcuts.sh start_k3" \; \
+    new-window "${docker_cmd}; ./shortcuts.sh start_k3" \; \
     rename-window "daem" \; \
     split-window "cd k4; ${nvm_cmd}; nvm use; npm run dev:${1:-au} ; read" \; \
     select-layout even-vertical
