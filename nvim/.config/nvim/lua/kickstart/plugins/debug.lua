@@ -185,6 +185,7 @@ return {
           'python',
           'debugpy',
           'js',
+          'codelldb',
         },
       }
 
@@ -241,6 +242,11 @@ return {
       -- https://github.com/mfussenegger/nvim-dap/issues/1411#issuecomment-2566396879
       local js_debugger_path = vim.fn.stdpath 'data' .. '/mason/packages/js-debug-adapter' -- Path to vscode-js-debug installation
       -- We can set additional custom config by below mechanism as well
+      -- https://github.com/mfussenegger/nvim-dap/wiki/C-C---Rust-(via--codelldb)#start-codelldb-automatically
+      require('dap').adapters['codelldb'] = {
+        type = 'executable',
+        command = 'codelldb', -- or if not in $PATH: "/absolute/path/to/codelldb"
+      }
       require('dap').adapters['pwa-node'] = {
         type = 'server',
         host = 'localhost',
@@ -251,6 +257,19 @@ return {
           args = { js_debugger_path .. '/js-debug/src/dapDebugServer.js', '${port}' },
         },
       }
+      require('dap').configurations.cpp = {
+        {
+          name = 'Launch file',
+          type = 'codelldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+        },
+      }
+      require('dap').configurations.c = require('dap').configurations.cpp
       for _, language in ipairs { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' } do
         -- Configurations from comment, go there to find some more. Tested with Javascript only
         -- see https://www.reddit.com/r/neovim/comments/y7dvva/comment/iswqdz7/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button

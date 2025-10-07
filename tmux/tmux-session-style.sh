@@ -11,9 +11,12 @@ if [[ "$PWD" = /Users/michael.lisitsa/Documents/web ]]; then
   tmux set status-bg colour0
   echo "Web"
 elif [[ "$PWD" = /Users/michael.lisitsa/Documents/diary ]]; then
-  tmux set status-bg colour236 # grey
+  tmux set status-bg colour20 # dark blue
   echo "Diary"
 elif [[ "$PWD" = /Users/michael.lisitsa/.dotfiles ]]; then
   tmux set status-bg colour95 # dark brown
+  echo "Dotfiles"
+else
+  tmux set status-bg colour22 # dark green
   echo "Dotfiles"
 fi
