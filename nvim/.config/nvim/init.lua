@@ -261,6 +261,8 @@ require('lazy').setup({
     cond = function()
       return not vim.g.vscode
     end,
+    -- Gitsigns blame toggled off will be added in
+    -- https://github.com/lewis6991/gitsigns.nvim/pull/1397
     opts = {
       signs = {
         add = { text = '+' },
@@ -598,6 +600,9 @@ require('lazy').setup({
         -- Alternatively, we could use Live Grep with Arguments extension to dynamically modify these settings
         pickers = {
           ['buffers'] = { sort_mru = true, ignore_current_buffer = true, sort_lastused = true, initial_mode = 'normal' },
+          colorscheme = {
+            enable_preview = true,
+          },
           lsp_dynamic_workspace_symbols = {
             -- By default Telescope will let the LSP define the order of results
             -- however some LSPs like Pyright don't return in a useful order
