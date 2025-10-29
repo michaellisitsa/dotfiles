@@ -743,14 +743,31 @@ require('lazy').setup({
             local Location = require 'bookmarks.domain.location'
             local order_prefix = (node.order or 0) .. ': '
             local linked_icon = #node.linked_bookmarks > 0 and '🔗' or ''
-            local filename = Location.get_file_name(node.location)
 
             local name = node.name
             if node.name == '' then
               name = '[Untitled]'
             end
 
-            return order_prefix .. name .. ' ' .. linked_icon .. ' | ' .. filename
+            local abs_path = node.location.path
+            if abs_path == '' then
+              return '[No Name]'
+            end
+
+            local cwd = vim.loop.cwd()
+            -- Normalize both with a trailing slash for proper prefix check
+            if not cwd:match '/$' then
+              cwd = cwd .. '/'
+            end
+
+            if abs_path:sub(1, #cwd) == cwd then
+              -- Path is inside cwd → show relative form
+              path = vim.fn.fnamemodify(abs_path, ':.')
+            else
+              -- Path is outside cwd → use fallback
+              path = Location.get_file_name(node.location)
+            end
+            return order_prefix .. name .. ' ' .. linked_icon .. ': ' .. path .. '|' .. node.location.line
           end,
           -- Dimension of the window spawned for Treeview
           window_split_dimension = 90,
