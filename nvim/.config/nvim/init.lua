@@ -139,7 +139,7 @@ vim.keymap.set('n', '<leader>gf', function()
   local buf = vim.api.nvim_get_current_buf()
   local win = vim.api.nvim_get_current_win()
   local row, col = unpack(vim.api.nvim_win_get_cursor(win))
-  local cursor = { row - 1, col } -- dropbar uses 0-indexed position (verify if true)
+  local cursor = { row, col }
 
   -- Dropbar.nvim has a get_symbols function that concatenates all the document symbols up the treesitter tree.
   -- https://github.com/Bekaboo/dropbar.nvim/blob/418897fe7828b2749ca78056ec8d8ad43136b695/lua/dropbar/utils/source.lua#L7
@@ -274,6 +274,17 @@ require('lazy').setup({
     },
   },
   {
+    {
+      'linrongbin16/gitlinker.nvim',
+      cmd = 'GitLink',
+      opts = {},
+      keys = {
+        { '<leader>hy', '<cmd>GitLink default_branch<cr>', mode = { 'n', 'v' }, desc = 'Yank git link' },
+        { '<leader>hY', '<cmd>GitLink! default_branch<cr>', mode = { 'n', 'v' }, desc = 'Open git link' },
+      },
+    },
+  },
+  {
     'stevearc/oil.nvim',
     cond = function()
       return not vim.g.vscode
@@ -341,10 +352,11 @@ require('lazy').setup({
     cond = function()
       return not vim.g.vscode
     end,
+    -- Review diff config https://github.com/calops/nix/blob/9b9d31bf8dc3afb8695db37602d6bd4f972b49c9/modules/home/programs/neovim/config/lua/plugins/git.lua#L5-L25
     cmd = { 'DiffviewOpen', 'DiffviewClose', 'DiffviewToggleFiles', 'DiffviewFocusFiles' },
     -- Inspired from https://lyz-code.github.io/blue-book/diffview/
     keys = {
-      { '<leader>hf', '<cmd>DiffviewOpen develop...<cr>', mode = 'n', desc = 'Diffview [F]orkpoint' },
+      { '<leader>hf', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', desc = 'Review branch changes' },
       {
         '<leader>hv',
         function()
@@ -712,6 +724,157 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+    end,
+  },
+  {
+    'LintaoAmons/bookmarks.nvim',
+    -- pin the plugin at specific version for stability
+    -- backup your bookmark sqlite db when there are breaking changes (major version change)
+    tag = 'v4.0.0',
+    dependencies = {
+      { 'kkharji/sqlite.lua' },
+      { 'nvim-telescope/telescope.nvim' }, -- currently has only telescopes supported, but PRs for other pickers are welcome
+      { 'stevearc/dressing.nvim' }, -- optional: better UI
+    },
+    config = function()
+      local opts = {
+        treeview = {
+          render_bookmark = function(node)
+            local Location = require 'bookmarks.domain.location'
+            local order_prefix = (node.order or 0) .. ': '
+            local linked_icon = #node.linked_bookmarks > 0 and '🔗' or ''
+            local filename = Location.get_file_name(node.location)
+
+            local name = node.name
+            if node.name == '' then
+              name = '[Untitled]'
+            end
+
+            return order_prefix .. name .. ' ' .. linked_icon .. ' | ' .. filename
+          end,
+          -- Dimension of the window spawned for Treeview
+          window_split_dimension = 90,
+          -- stylua: ignore end
+        },
+      } -- check the "./lua/bookmarks/default-config.lua" file for all the options
+      require('bookmarks').setup(opts) -- you must call setup to init sqlite db
+
+      -- Example config https://github.com/LintaoAmons/VimEverywhere/blob/main/nvim/lua/plugins/editor-enhance/bookmarks.lua
+      -- where the keymaps were borrowed from
+      vim.keymap.set('n', '<leader>mt', '<cmd>' .. 'BookmarksTree' .. '<cr>')
+      vim.keymap.set('n', '<leader>mg', '<cmd>' .. 'BookmarksGotoRecent' .. '<cr>')
+      vim.keymap.set('n', '<leader>mm', '<cmd>' .. 'BookmarksMark' .. '<cr>')
+      vim.keymap.set('n', '<leader>ma', '<cmd>' .. 'BookmarksCommands' .. '<cr>')
+      vim.keymap.set('n', '<leader>ms', '<cmd>' .. 'BookmarksInfoCurrentBookmark' .. '<cr>')
+      vim.keymap.set('n', '<leader>mo', '<cmd>' .. 'BookmarksGoto' .. '<cr>')
+      vim.keymap.set('n', '<leader>ml', '<cmd>' .. 'BookmarksLists' .. '<cr>')
+    end,
+  },
+  {
+    'nvimtools/hydra.nvim',
+    config = function()
+      local Hydra = require 'hydra'
+      local cmd = require('hydra.keymap-util').cmd
+      local pcmd = require('hydra.keymap-util').pcmd
+      -- Official example window and buffer management
+      -- https://github.com/anuvyklack/hydra.nvim/wiki/Windows-and-buffers-management
+      -- excludes:
+      --   WinShift for re-arranging windows
+      --   SmartSplits
+      --   Windows
+      Hydra {
+        name = 'Windows',
+        hint = window_hint,
+        config = {
+          invoke_on_body = true,
+          hint = {
+            offset = -1,
+          },
+        },
+        mode = 'n',
+        body = '<C-w>',
+        heads = {
+          { 'h', '<C-w>h' },
+          { 'j', '<C-w>j' },
+          { 'k', pcmd('wincmd k', 'E11', 'close') },
+          { 'l', '<C-w>l' },
+
+          { '=', '<C-w>=', { desc = 'equalize' } },
+
+          -- Vertical and horizontal resizing
+          { '-', '<C-w>-', { desc = 'plus' } },
+          { '+', '<C-w>+', { desc = 'minus' } },
+          { '<', '<C-w><', { desc = 'left' } },
+          { '>', '<C-w>>', { desc = 'right' } },
+
+          { 's', pcmd('split', 'E36') },
+          { '<C-s>', pcmd('split', 'E36'), { desc = false } },
+          { 'v', pcmd('vsplit', 'E36') },
+          { '<C-v>', pcmd('vsplit', 'E36'), { desc = false } },
+
+          { 'w', '<C-w>w', { exit = true, desc = false } },
+          { '<C-w>', '<C-w>w', { exit = true, desc = false } },
+
+          { 'o', '<C-w>o', { exit = true, desc = 'remain only' } },
+          { '<C-o>', '<C-w>o', { exit = true, desc = false } },
+
+          { 'c', pcmd('close', 'E444') },
+          { 'q', pcmd('close', 'E444'), { desc = 'close window' } },
+          { '<C-c>', pcmd('close', 'E444'), { desc = false } },
+          { '<C-q>', pcmd('close', 'E444'), { desc = false } },
+
+          { '<Esc>', nil, { exit = true, desc = false } },
+        },
+      }
+      local dap = require 'dap'
+
+      local hint = [[
+ _n_: step over   _c_: Continue/Start   _b_: Breakpoint     _K_: Eval
+ _i_: step into   _t_: Terminate             ^ ^                 ^ ^
+ _o_: step out                               ^ ^
+ _m_: to cursor   _j_: Down             _k_: Up
+ ^
+]]
+      -- Debugging
+      -- https://github.com/anuvyklack/hydra.nvim/issues/3#issuecomment-1162988750
+      Hydra {
+        -- hint = hint,
+        config = {
+          color = 'pink',
+          invoke_on_body = true,
+          hint = {
+            position = 'bottom',
+          },
+        },
+        name = 'dap',
+        mode = { 'n', 'x' },
+        -- body = '<leader>d',
+        -- heads = {
+        --   { 'n', '<leader>dn', { silent = true } },
+        --   { 'i', '<leader>di', { silent = true } },
+        --   { 'o', '<leader>do', { silent = true } },
+        --   { 'r', '<leader>dr', { silent = true } },
+        --   { 'c', '<leader>dc', { silent = true } },
+        --   { 't', '<leader>dt', { silent = true } },
+        --   { 'b', '<leader>db', { silent = true } },
+        --   { 'h', '<leader>dh', { silent = true } },
+        --   { 'j', '<leader>dj', { silent = true } },
+        --   { 'k', '<leader>dk', { silent = true } },
+        -- },
+        body = '<leader>dh',
+        heads = {
+          { 'n', dap.step_over, { silent = true } },
+          { 'i', dap.step_into, { silent = true } },
+          { 'o', dap.step_out, { silent = true } },
+          { 'm', dap.run_to_cursor, { silent = true } },
+          { 'c', dap.continue, { silent = true } },
+          { 't', ":lua require'dap'.disconnect({ terminateDebuggee = false })<CR>", { exit = true, silent = true } },
+          { 'C', ":lua require('dapui').close()<cr>:DapVirtualTextForceRefresh<CR>", { silent = true } },
+          { 'b', dap.toggle_breakpoint, { silent = true } },
+          { 'K', ":lua require('dap.ui.widgets').hover()<CR>", { silent = true } },
+          { 'q', nil, { exit = true, nowait = true } },
+        },
+      } -- create hydras in here
     end,
   },
   -- LSP Plugins
@@ -1320,7 +1483,12 @@ require('lazy').setup({
       -- vim.cmd.colorscheme 'vscode'
     end,
   },
-
+  {
+    'p00f/alabaster.nvim',
+    cond = function()
+      return not vim.g.vscode
+    end,
+  },
   {
     -- Highlight todo, notes, etc in comments
     'folke/todo-comments.nvim',
@@ -1344,14 +1512,10 @@ require('lazy').setup({
     -- stylua: ignore
     keys = {
       { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", false, mode = { "v" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
     },
   },
   {
     'kylechui/nvim-surround',
-    version = '^3.0.0', -- Use for stability; omit to use `main` branch for the latest features
     event = 'VeryLazy',
     config = function()
       require('nvim-surround').setup {
@@ -1375,49 +1539,6 @@ require('lazy').setup({
           filter = { 'String', 'Constant', exclude = true },
         },
       }
-    end,
-  },
-  {
-    'ThePrimeagen/harpoon',
-    cond = function()
-      return not vim.g.vscode
-    end,
-    branch = 'harpoon2',
-    opts = {
-      menu = {
-        width = vim.api.nvim_win_get_width(0) - 4,
-      },
-      settings = {
-        save_on_toggle = true,
-      },
-    },
-    keys = function()
-      local keys = {
-        {
-          '<leader>H',
-          function()
-            require('harpoon'):list():add()
-          end,
-        },
-        {
-          '<leader>hl',
-          function()
-            local harpoon = require 'harpoon'
-            harpoon.ui:toggle_quick_menu(harpoon:list())
-          end,
-          desc = '[h]arpoon [l]ist',
-        },
-      }
-
-      for i = 1, 5 do
-        table.insert(keys, {
-          '<leader>' .. i,
-          function()
-            require('harpoon'):list():select(i)
-          end,
-        })
-      end
-      return keys
     end,
   },
   {
@@ -1462,64 +1583,6 @@ require('lazy').setup({
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
-  },
-  {
-    'Vigemus/iron.nvim',
-    config = function()
-      local iron = require 'iron.core'
-
-      iron.setup {
-        config = {
-          -- Whether a repl should be discarded or not
-          scratch_repl = true,
-          -- Your repl definitions come here
-          repl_definition = {
-            python = {
-              -- Pasting indent blocks like functions doesn't work
-              -- see https://github.com/Vigemus/iron.nvim/issues/378
-              format = require('iron.fts.common').bracketed_paste,
-              command = { './shortcuts.sh', 'shell' },
-            },
-            sh = {
-              -- Can be a table or a function that
-              -- returns a table (see below)
-              command = { 'zsh' },
-            },
-          },
-          -- How the repl window will be displayed
-          -- See below for more information
-          repl_open_cmd = require('iron.view').split.vertical.botright(50),
-        },
-        -- Iron doesn't set keymaps by default anymore.
-        -- You can set them here or manually add keymaps to the functions in iron.core
-        keymaps = {
-          send_motion = '<leader>isc',
-          visual_send = '<leader>isc',
-          send_file = '<leader>isf',
-          send_line = '<leader>isl',
-          send_mark = '<leader>ism',
-          mark_motion = '<leader>imc',
-          mark_visual = '<leader>imc',
-          remove_mark = '<leader>imd',
-          cr = '<leader>ise',
-          interrupt = '<leader>isi',
-          exit = '<leader>isq',
-          clear = '<leader>icl',
-        },
-        -- If the highlight is on, you can change how it looks
-        -- For the available options, check nvim_set_hl
-        highlight = {
-          italic = true,
-        },
-        ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
-      }
-    end,
-    keys = {
-      { '<leader>irs', '<cmd>IronRepl<cr>', mode = 'n', desc = 'Repl' },
-      { '<leader>irr', '<cmd>IronRestart<cr>', mode = 'n', desc = 'Restart' },
-      { '<leader>irf', '<cmd>IronFocus<cr>', mode = 'n', desc = 'Focus' },
-      { '<leader>irh', '<cmd>IronHide<cr>', mode = 'n', desc = 'Hide' },
-    },
   },
   {
     'ldelossa/litee.nvim',
@@ -1599,10 +1662,10 @@ require('lazy').setup({
       textobjects = {
         move = {
           enable = true,
-          goto_next_start = { [']f'] = '@function.outer', [']c'] = '@class.outer', [']a'] = '@parameter.inner' },
-          goto_next_end = { [']F'] = '@function.outer', [']C'] = '@class.outer', [']A'] = '@parameter.inner' },
-          goto_previous_start = { ['[f'] = '@function.outer', ['[c'] = '@class.outer', ['[a'] = '@parameter.inner' },
-          goto_previous_end = { ['[F'] = '@function.outer', ['[C'] = '@class.outer', ['[A'] = '@parameter.inner' },
+          goto_next_start = { [']f'] = '@function.outer', [']a'] = '@parameter.inner' },
+          goto_next_end = { [']F'] = '@function.outer', [']A'] = '@parameter.inner' },
+          goto_previous_start = { ['[f'] = '@function.outer', ['[a'] = '@parameter.inner' },
+          goto_previous_end = { ['[F'] = '@function.outer', ['[A'] = '@parameter.inner' },
         },
       },
       auto_install = true,

@@ -60,7 +60,7 @@ return {
         desc = 'Run with Args',
       },
       {
-        '<leader>dC',
+        '<leader>dr',
         function()
           require('dap').run_to_cursor()
         end,
@@ -109,7 +109,7 @@ return {
         desc = 'Step Out',
       },
       {
-        '<leader>dO',
+        '<leader>dn',
         function()
           require('dap').step_over()
         end,
@@ -152,7 +152,7 @@ return {
       },
       -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
       {
-        '<leader>dh',
+        '<leader>du',
         function()
           require('dapui').toggle()
         end,
