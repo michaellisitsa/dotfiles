@@ -833,16 +833,25 @@ require('lazy').setup({
             if not cwd:match '/$' then
               cwd = cwd .. '/'
             end
-
+            filename = Location.get_file_name(node.location)
             if abs_path:sub(1, #cwd) == cwd then
               -- Path is inside cwd → show relative form
-              path = vim.fn.fnamemodify(abs_path, ':.')
+              rel_path = vim.fn.fnamemodify(abs_path, ':.')
+              path = vim.fn.fnamemodify(rel_path, ':h')
             else
               -- Path is outside cwd → use fallback
-              path = Location.get_file_name(node.location)
+              path = ''
             end
             -- return order_prefix .. path .. '|' .. node.location.line .. ': ' .. name .. ' ' .. linked_icon
-            return string.format('%-03s  %-30s|%-04d   [%-30s]   %s', order_prefix, truncate(node.content, 30), node.location.line, truncate(name, 30), path)
+            return string.format(
+              '%-03s  %-30s|%-04d   [%-30s]   %-20s %s',
+              order_prefix,
+              truncate(node.content, 30),
+              node.location.line,
+              truncate(name, 30),
+              truncate(filename, 20),
+              path
+            )
           end,
           -- Dimension of the window spawned for Treeview
           window_split_dimension = 140,
