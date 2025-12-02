@@ -124,6 +124,25 @@ source $(brew --prefix nvm)/nvm.sh --no-use
 
 export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin"
 
+change_colour () {
+	echo -e "\033]50;SetProfile=$1\a"
+}
+
+uat-k3-shell () {
+	cc UAT
+	cd ~/Documents/Github/K3
+	./shortcuts.sh shell_plus
+	change_colour Default
+}
+
+
+prod-k3-shell () {
+	cc Production
+	cd ~/Documents/Github/K3
+	./shortcuts.sh prod_shell
+	change_colour Default
+}
+
 function devsession() {
   local nvm_cmd='export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
   # Wait for Docker to start and be ready before running commands

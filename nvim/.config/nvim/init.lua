@@ -208,8 +208,45 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 vim.api.nvim_create_user_command('Zen', function()
-  vim.api.nvim_command "execute 'topleft' ((&columns - &textwidth) / 4 - 1) . 'vsplit _padding_' | wincmd p "
+  local padding_width = math.floor((vim.o.columns - vim.o.textwidth) / 4 - 1)
+  local padding_bufnr = nil
+  local padding_winid = nil
+
+  -- Find if a window with buffer name "_padding_" already exists
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name:match '_padding_$' then
+      padding_bufnr = buf
+      padding_winid = win
+      break
+    end
+  end
+
+  if padding_winid then
+    -- Just resize the existing padding window
+    vim.api.nvim_set_current_win(padding_winid)
+    vim.cmd('vertical resize ' .. padding_width)
+    -- Go back to previous window
+    vim.cmd 'wincmd p'
+  else
+    -- Create a new left split for padding
+    vim.cmd(string.format('topleft %dvsplit _padding_', padding_width))
+    local pad_buf = vim.api.nvim_get_current_buf()
+
+    -- Make it unmodifiable and blank
+    vim.api.nvim_buf_set_option(pad_buf, 'buftype', 'nofile')
+    vim.api.nvim_buf_set_option(pad_buf, 'bufhidden', 'wipe')
+    vim.api.nvim_buf_set_option(pad_buf, 'swapfile', false)
+    vim.api.nvim_buf_set_option(pad_buf, 'modifiable', false)
+
+    -- Return to previous window
+    vim.cmd 'wincmd p'
+  end
 end, {})
+
+vim.keymap.set('n', '<C-w>z', '<cmd>Zen<cr>', { desc = 'Center windows' })
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -279,8 +316,8 @@ require('lazy').setup({
       cmd = 'GitLink',
       opts = {},
       keys = {
-        { '<leader>hy', '<cmd>GitLink default_branch<cr>', mode = { 'n', 'v' }, desc = 'Yank git link' },
-        { '<leader>hY', '<cmd>GitLink! default_branch<cr>', mode = { 'n', 'v' }, desc = 'Open git link' },
+        { '<leader>hy', '<cmd>GitLink<cr>', mode = { 'n', 'v' }, desc = 'Yank git link' },
+        { '<leader>hY', '<cmd>GitLink!<cr>', mode = { 'n', 'v' }, desc = 'Open git link' },
       },
     },
   },
@@ -301,6 +338,18 @@ require('lazy').setup({
       { '<leader>fm', '<cmd>Oil<cr>', mode = 'n', desc = 'Open Filesystem' },
     },
     lazy = false,
+  },
+  {
+    'benomahony/uv.nvim',
+    -- Optional filetype to lazy load when you open a python file
+    -- ft = { python }
+    -- Optional dependency, but recommended:
+    -- dependencies = {
+    --   "folke/snacks.nvim"
+    -- or
+    --   "nvim-telescope/telescope.nvim"
+    -- },
+    opts = {},
   },
   {
     'mbbill/undotree',
@@ -732,16 +781,41 @@ require('lazy').setup({
     -- backup your bookmark sqlite db when there are breaking changes (major version change)
     tag = 'v4.0.0',
     dependencies = {
+      -- Note issue with using function call type string
+      -- in upstream sqlite https://github.com/kkharji/sqlite.lua/issues/182
+      -- -- Note issue with using function call type string
+      -- in upstream sqlite https://github.com/kkharji/sqlite.lua/issues/182
       { 'kkharji/sqlite.lua' },
       { 'nvim-telescope/telescope.nvim' }, -- currently has only telescopes supported, but PRs for other pickers are welcome
       { 'stevearc/dressing.nvim' }, -- optional: better UI
     },
     config = function()
+      local function truncate(str, max)
+        if not str then
+          -- Todo make this the full length
+          return ''
+        end
+        str = str:match '^%s*(.*)$'
+        if string.len(str) <= max then
+          return str
+        end
+        return str:sub(1, max - 1) .. '…'
+      end
       local opts = {
+        backup = {
+          -- Default backup dir: vim.fn.stdpath("data").."/bookmarks.backup"
+          enabled = true,
+        },
         treeview = {
+          keymap = {
+            ['<Enter>'] = {
+              action = 'goto',
+              desc = 'Go to bookmark location in previous window',
+            },
+          },
           render_bookmark = function(node)
             local Location = require 'bookmarks.domain.location'
-            local order_prefix = (node.order or 0) .. ': '
+            local order_prefix = (node.order or 0)
             local linked_icon = #node.linked_bookmarks > 0 and '🔗' or ''
 
             local name = node.name
@@ -767,24 +841,31 @@ require('lazy').setup({
               -- Path is outside cwd → use fallback
               path = Location.get_file_name(node.location)
             end
-            return order_prefix .. name .. ' ' .. linked_icon .. ': ' .. path .. '|' .. node.location.line
+            -- return order_prefix .. path .. '|' .. node.location.line .. ': ' .. name .. ' ' .. linked_icon
+            return string.format('%-03s  %-30s|%-04d   [%-30s]   %s', order_prefix, truncate(node.content, 30), node.location.line, truncate(name, 30), path)
           end,
           -- Dimension of the window spawned for Treeview
-          window_split_dimension = 90,
+          window_split_dimension = 140,
           -- stylua: ignore end
         },
       } -- check the "./lua/bookmarks/default-config.lua" file for all the options
       require('bookmarks').setup(opts) -- you must call setup to init sqlite db
+      -- Define highlight groups once
+      vim.api.nvim_set_hl(0, 'BookmarkDir', { fg = '#2e7515', bold = true })
+      vim.api.nvim_set_hl(0, 'BookmarkFile', { fg = '#1196c6', bold = true })
+      vim.api.nvim_set_hl(0, 'BookmarkLine', { fg = '#ffaf00' })
 
       -- Example config https://github.com/LintaoAmons/VimEverywhere/blob/main/nvim/lua/plugins/editor-enhance/bookmarks.lua
       -- where the keymaps were borrowed from
-      vim.keymap.set('n', '<leader>mt', '<cmd>' .. 'BookmarksTree' .. '<cr>')
-      vim.keymap.set('n', '<leader>mg', '<cmd>' .. 'BookmarksGotoRecent' .. '<cr>')
-      vim.keymap.set('n', '<leader>mm', '<cmd>' .. 'BookmarksMark' .. '<cr>')
-      vim.keymap.set('n', '<leader>ma', '<cmd>' .. 'BookmarksCommands' .. '<cr>')
-      vim.keymap.set('n', '<leader>ms', '<cmd>' .. 'BookmarksInfoCurrentBookmark' .. '<cr>')
-      vim.keymap.set('n', '<leader>mo', '<cmd>' .. 'BookmarksGoto' .. '<cr>')
-      vim.keymap.set('n', '<leader>ml', '<cmd>' .. 'BookmarksLists' .. '<cr>')
+      vim.keymap.set('n', '<leader>mt', '<cmd>' .. 'BookmarksTree' .. '<cr>', { desc = 'Tree' })
+      vim.keymap.set('n', '<leader>mg', '<cmd>' .. 'BookmarksGotoRecent' .. '<cr>', { desc = 'Go To Recent' })
+      vim.keymap.set('n', '<leader>mm', '<cmd>' .. 'BookmarksMark' .. '<cr>', { desc = 'Mark' })
+      vim.keymap.set('n', '<leader>ma', '<cmd>' .. 'BookmarksCommands' .. '<cr>', { desc = 'Commands' })
+      vim.keymap.set('n', '<leader>ms', '<cmd>' .. 'BookmarksInfoCurrentBookmark' .. '<cr>', { desc = 'Info' })
+      vim.keymap.set('n', '<leader>mo', '<cmd>' .. 'BookmarksGoto' .. '<cr>', { desc = 'GoTo' })
+      vim.keymap.set('n', '<leader>ml', '<cmd>' .. 'BookmarksLists' .. '<cr>', { desc = 'Lists' })
+      vim.keymap.set('n', '<leader>mn', '<cmd>' .. 'BookmarksGotoNextInList' .. '<cr>', { desc = 'Next' })
+      vim.keymap.set('n', '<leader>mp', '<cmd>' .. 'BookmarksGotoPrevInList' .. '<cr>', { desc = 'Prev' })
     end,
   },
   {
@@ -809,37 +890,21 @@ require('lazy').setup({
           },
         },
         mode = 'n',
-        body = '<C-w>',
+        -- Typically this is mapped to move to left window
+        -- But I remap that to <C-h> anyway
+        -- Also this is consistent with the debugging hydra
+        body = '<C-w>h',
         heads = {
-          { 'h', '<C-w>h' },
-          { 'j', '<C-w>j' },
-          { 'k', pcmd('wincmd k', 'E11', 'close') },
-          { 'l', '<C-w>l' },
-
           { '=', '<C-w>=', { desc = 'equalize' } },
 
           -- Vertical and horizontal resizing
-          { '-', '<C-w>-', { desc = 'plus' } },
-          { '+', '<C-w>+', { desc = 'minus' } },
-          { '<', '<C-w><', { desc = 'left' } },
-          { '>', '<C-w>>', { desc = 'right' } },
+          --
+          { '-', '<C-w>-', { desc = 'Move window bot up' } },
+          { '+', '<C-w>+', { desc = 'Move window bot up' } },
+          { '<', '<cmd>vertical resize -10<cr>', { desc = 'Move window left' } },
+          { '>', '<cmd>vertical resize +10<cr>', { desc = 'Move window right' } },
 
-          { 's', pcmd('split', 'E36') },
-          { '<C-s>', pcmd('split', 'E36'), { desc = false } },
-          { 'v', pcmd('vsplit', 'E36') },
-          { '<C-v>', pcmd('vsplit', 'E36'), { desc = false } },
-
-          { 'w', '<C-w>w', { exit = true, desc = false } },
-          { '<C-w>', '<C-w>w', { exit = true, desc = false } },
-
-          { 'o', '<C-w>o', { exit = true, desc = 'remain only' } },
-          { '<C-o>', '<C-w>o', { exit = true, desc = false } },
-
-          { 'c', pcmd('close', 'E444') },
-          { 'q', pcmd('close', 'E444'), { desc = 'close window' } },
-          { '<C-c>', pcmd('close', 'E444'), { desc = false } },
-          { '<C-q>', pcmd('close', 'E444'), { desc = false } },
-
+          { 'q', nil, { exit = true, nowait = true } },
           { '<Esc>', nil, { exit = true, desc = false } },
         },
       }
@@ -890,8 +955,9 @@ require('lazy').setup({
           { 'b', dap.toggle_breakpoint, { silent = true } },
           { 'K', ":lua require('dap.ui.widgets').hover()<CR>", { silent = true } },
           { 'q', nil, { exit = true, nowait = true } },
+          { '<Esc>', nil, { exit = true, desc = false } },
         },
-      } -- create hydras in here
+      }
     end,
   },
   -- LSP Plugins
