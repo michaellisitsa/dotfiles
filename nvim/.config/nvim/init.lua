@@ -421,64 +421,7 @@ require('lazy').setup({
       },
     },
   },
-  {
-    'nvim-treesitter/nvim-treesitter-textobjects',
-    event = 'VeryLazy',
-    enabled = true,
-    config = function()
-      local configs = require('nvim-treesitter.configs').setup {
-        textobjects = {
-          -- Copied almost wholesale from
-          -- https://github.com/nvim-treesitter/nvim-treesitter-textobjects?tab=readme-ov-file#text-objects-select
-          select = {
-            enable = true,
 
-            -- Automatically jump forward to textobj, similar to targets.vim
-            lookahead = true,
-
-            keymaps = {
-              -- You can use the capture groups defined in textobjects.scm
-              ['al'] = '@loop.outer',
-              ['il'] = '@loop.inner',
-              ['ac'] = '@call.outer',
-              ['ic'] = '@call.inner',
-              ['af'] = '@function.outer',
-              ['if'] = '@function.inner',
-              ['aC'] = '@class.outer',
-              -- You can optionally set descriptions to the mappings (used in the desc parameter of
-              -- nvim_buf_set_keymap) which plugins like which-key display
-              ['iC'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
-              -- You can also use captures from other query groups like `locals.scm`  "nvim-treesitter/nvim-treesitter-textobjects",
-              ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
-            },
-            -- You can choose the select mode (default is charwise 'v')
-            --
-            -- Can also be a function which gets passed a table with the keys
-            -- * query_string: eg '@function.inner'
-            -- * method: eg 'v' or 'o'
-            -- and should return the mode ('v', 'V', or '<c-v>') or a table
-            -- mapping query_strings to modes.
-            selection_modes = {
-              ['@parameter.outer'] = 'v', -- charwise
-              ['@function.outer'] = 'V', -- linewise
-              ['@class.outer'] = '<c-v>', -- blockwise
-            },
-            -- If you set this to `true` (default is `false`) then any textobject is
-            -- extended to include preceding or succeeding whitespace. Succeeding
-            -- whitespace has priority in order to act similarly to eg the built-in
-            -- `ap`.
-            --
-            -- Can also be a function which gets passed a table with the keys
-            -- * query_string: eg '@function.inner'
-            -- * selection_mode: eg 'v'
-            -- and should return true or false
-            -- Surrounding whitespace is not useful for classes / functions which include newlines above and below function
-            include_surrounding_whitespace = false,
-          },
-        },
-      }
-    end,
-  },
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -1259,6 +1202,7 @@ require('lazy').setup({
           },
         },
         bashls = {},
+        terraformls = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -1705,17 +1649,63 @@ require('lazy').setup({
       require('litee.calltree').setup(opts)
     end,
   },
+  {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    event = 'VeryLazy',
+    branch = 'main',
+    enabled = true,
+    dependencies = { 'nvim-treesitter/nvim-treesitter', branch = 'main' },
+    config = function()
+      require('nvim-treesitter-textobjects').setup {
+        select = {
+          -- Automatically jump forward to textobj, similar to targets.vim
+          lookahead = true,
+          -- You can choose the select mode (default is charwise 'v')
+          keymaps = {
+            -- You can use the capture groups defined in textobjects.scm
+            ['al'] = '@loop.outer',
+            ['il'] = '@loop.inner',
+            ['ac'] = '@call.outer',
+            ['ic'] = '@call.inner',
+            ['af'] = '@function.outer',
+            ['if'] = '@function.inner',
+            ['aC'] = '@class.outer',
+            -- You can optionally set descriptions to the mappings (used in the desc parameter of
+            -- nvim_buf_set_keymap) which plugins like which-key display
+            ['iC'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+            -- You can also use captures from other query groups like `locals.scm`  "nvim-treesitter/nvim-treesitter-textobjects",
+            ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
+          },
+          selection_modes = {
+            ['@parameter.outer'] = 'v', -- charwise
+            ['@function.outer'] = 'V', -- linewise
+            ['@class.outer'] = '<c-v>', -- blockwise
+          },
+          include_surrounding_whitespace = false,
+        },
+        move = {
+          -- whether to set jumps in the jumplist
+          set_jumps = true,
+        },
+      }
+
+      local move = require 'nvim-treesitter-textobjects.move'
+      vim.keymap.set({ 'n', 'x', 'o' }, ']f', function()
+        move.goto_next_end('@function.outer', 'textobjects')
+      end)
+    end,
+  },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    keys = {
-      { '<C-n>', desc = 'Increment Selection' },
-      { '<C-p>', desc = 'Decrement Selection', mode = 'x' },
-    },
+    -- keys = {
+    --   { '<C-n>', desc = 'Increment Selection' },
+    --   { '<C-p>', desc = 'Decrement Selection', mode = 'x' },
+    -- },
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = {
+    config = function()
+      local ts = require 'nvim-treesitter'
+      parsers = {
         'bash',
         'c',
         'diff',
@@ -1740,43 +1730,18 @@ require('lazy').setup({
         'jsdoc',
         -- FE
         'html',
-      },
-      -- Autoinstall languages that are not installed
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = '<C-n>',
-          node_incremental = '<C-n>',
-          scope_incremental = false,
-          node_decremental = '<C-p>',
-        },
-      },
-      textobjects = {
-        move = {
-          enable = true,
-          goto_next_start = { [']f'] = '@function.outer', [']a'] = '@parameter.inner' },
-          goto_next_end = { [']F'] = '@function.outer', [']A'] = '@parameter.inner' },
-          goto_previous_start = { ['[f'] = '@function.outer', ['[a'] = '@parameter.inner' },
-          goto_previous_end = { ['[F'] = '@function.outer', ['[A'] = '@parameter.inner' },
-        },
-      },
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    NOTE: This is installed above
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+      }
+      for _, parser in ipairs(parsers) do
+        ts.install(parser)
+      end
+
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = parsers,
+        callback = function()
+          vim.treesitter.start()
+        end,
+      })
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
