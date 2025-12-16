@@ -1661,21 +1661,6 @@ require('lazy').setup({
           -- Automatically jump forward to textobj, similar to targets.vim
           lookahead = true,
           -- You can choose the select mode (default is charwise 'v')
-          keymaps = {
-            -- You can use the capture groups defined in textobjects.scm
-            ['al'] = '@loop.outer',
-            ['il'] = '@loop.inner',
-            ['ac'] = '@call.outer',
-            ['ic'] = '@call.inner',
-            ['af'] = '@function.outer',
-            ['if'] = '@function.inner',
-            ['aC'] = '@class.outer',
-            -- You can optionally set descriptions to the mappings (used in the desc parameter of
-            -- nvim_buf_set_keymap) which plugins like which-key display
-            ['iC'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
-            -- You can also use captures from other query groups like `locals.scm`  "nvim-treesitter/nvim-treesitter-textobjects",
-            ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
-          },
           selection_modes = {
             ['@parameter.outer'] = 'v', -- charwise
             ['@function.outer'] = 'V', -- linewise
@@ -1688,24 +1673,32 @@ require('lazy').setup({
           set_jumps = true,
         },
       }
-
+      local select = require 'nvim-treesitter-textobjects.select'
+      vim.keymap.set({ 'x', 'o' }, 'af', function()
+        select.select_textobject('@function.outer', 'textobjects')
+      end)
+      vim.keymap.set({ 'x', 'o' }, 'if', function()
+        select.select_textobject('@function.inner', 'textobjects')
+      end)
       local move = require 'nvim-treesitter-textobjects.move'
       vim.keymap.set({ 'n', 'x', 'o' }, ']f', function()
-        move.goto_next_end('@function.outer', 'textobjects')
+        move.goto_next_start('@function.outer', 'textobjects')
+      end)
+      vim.keymap.set({ 'n', 'x', 'o' }, '[f', function()
+        move.goto_previous_start('@function.outer', 'textobjects')
       end)
     end,
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    -- keys = {
-    --   { '<C-n>', desc = 'Increment Selection' },
-    --   { '<C-p>', desc = 'Decrement Selection', mode = 'x' },
-    -- },
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+    branch = 'main',
+    lazy = false,
+    -- NOTE: If This hangs, you need to install tree-sitter-cli.
+    -- see issue https://github.com/nvim-treesitter/nvim-treesitter/issues/8010#issuecomment-3172049340
     config = function()
       local ts = require 'nvim-treesitter'
-      parsers = {
+      ts.install {
         'bash',
         'c',
         'diff',
@@ -1731,14 +1724,14 @@ require('lazy').setup({
         -- FE
         'html',
       }
-      for _, parser in ipairs(parsers) do
-        ts.install(parser)
-      end
 
       vim.api.nvim_create_autocmd('FileType', {
-        pattern = parsers,
-        callback = function()
-          vim.treesitter.start()
+        callback = function(args)
+          local lang = vim.treesitter.language.get_lang(args.match) or args.match
+          local installed = require('nvim-treesitter').get_installed 'parsers'
+          if vim.tbl_contains(installed, lang) then
+            vim.treesitter.start(args.buf)
+          end
         end,
       })
     end,
