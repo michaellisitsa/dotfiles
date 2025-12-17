@@ -99,6 +99,8 @@ vim.opt.fillchars = {
   vertleft = '│',
   verthoriz = '│',
 }
+-- :vimgrep should not search these
+vim.opt.wildignore:append { '.git/*', '.DS_Store/*', '*/node_modules/*', '.venv/*', '*/__pycache__/*', '*/static/*' }
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -1140,32 +1142,42 @@ require('lazy').setup({
         -- gopls = {},
         html = {},
         pgformatter = {},
-        pyright = {
-          --[[
-          -- Pyright will preference pyproject.toml so you may need to override
-          [tool.pyright]
-          -- Reduce unused code
-          exclude = ["**/node_modules", "**/__pycache__", "**/migrations", "**/tests/", "**/.venv/"]
-          -- LSP recognises dependencies
-          venvPath = "."
-          venv = ".venv"
-          ]]
+        ty = {
           settings = {
-            python = {
-              -- venvPath = '.',
-              -- venv = '.venv',
-              -- pythonPath = nil,
-              analysis = {
-                autoSearchPaths = true,
-                typeCheckingMode = 'standard',
-                useLibraryCodeForTypes = true,
-                diagnosticMode = 'openFilesOnly',
-                -- as above this may be overridden by pyproject.toml config
-                exclude = { '**/node_modules', '**/__pycache__', '**/migrations/', '**/.venv/', '**/tests/' },
+            ty = {
+              inlayHints = {
+                variableTypes = false,
               },
+              diagnosticMode = 'openFilesOnly',
             },
           },
         },
+        -- pyright = {
+        --   --[[
+        --   -- Pyright will preference pyproject.toml so you may need to override
+        --   [tool.pyright]
+        --   -- Reduce unused code
+        --   exclude = ["**/node_modules", "**/__pycache__", "**/migrations", "**/tests/", "**/.venv/"]
+        --   -- LSP recognises dependencies
+        --   venvPath = "."
+        --   venv = ".venv"
+        --   ]]
+        --   settings = {
+        --     python = {
+        --       -- venvPath = '.',
+        --       -- venv = '.venv',
+        --       -- pythonPath = nil,
+        --       analysis = {
+        --         autoSearchPaths = true,
+        --         typeCheckingMode = 'standard',
+        --         useLibraryCodeForTypes = true,
+        --         diagnosticMode = 'openFilesOnly',
+        --         -- as above this may be overridden by pyproject.toml config
+        --         exclude = { '**/node_modules', '**/__pycache__', '**/migrations/', '**/.venv/', '**/tests/' },
+        --       },
+        --     },
+        --   },
+        -- },
         ruff = {},
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
