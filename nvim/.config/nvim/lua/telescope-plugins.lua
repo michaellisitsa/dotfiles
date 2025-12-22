@@ -9,38 +9,7 @@ vim.pack.add({ "https://github.com/nvim-telescope/telescope-fzf-native.nvim" }, 
 vim.pack.add({ "https://github.com/nvim-telescope/telescope.nvim" })
 
 
-require('telescope').setup {
-	-- defaults = {
-	-- 	mappings = {
-	-- 		i = {
-	-- 			-- These interfere with backspace char code. Think of better keys
-	-- 			-- ['<C-l>'] = require('telescope.actions').cycle_history_next,
-	-- 			-- ['<C-h>'] = require('telescope.actions').cycle_history_prev,
-	-- 			['<C-space>'] = require('telescope.actions').to_fuzzy_refine,
-	-- 		},
-	-- 	},
-	-- },
-	-- extensions = {
-	-- 	pickers = {
-	-- 		['buffers'] = { sort_mru = true, ignore_current_buffer = true, sort_lastused = true, initial_mode = 'normal' },
-	-- 		colorscheme = {
-	-- 			enable_preview = true,
-	-- 		},
-	-- 		lsp_dynamic_workspace_symbols = {
-	-- 			-- By default Telescope will let the LSP define the order of results
-	-- 			-- however some LSPs like Pyright don't return in a useful order
-	-- 			-- Override so that the fuzzy sorting is done based on the native fzf sorter
-	-- 			-- see https://github.com/nvim-telescope/telescope.nvim/issues/2104
-	-- 			sorter = require('telescope').extensions.fzf.native_fzf_sorter {
-	-- 				fuzzy = true, -- false will only do exact matching
-	-- 				override_generic_sorter = true, -- override the generic sorter
-	-- 				override_file_sorter = true, -- override the file sorter
-	-- 				case_mode = 'smart_case', -- or "ignore_case" or "respect_case"
-	-- 			},
-	-- 		},
-	-- 	},
-	-- }
-}
+require('telescope').setup({})
 
 
 -- Enable telescope fzf native, if installed
@@ -60,4 +29,3 @@ vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Fi
 vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
 vim.keymap.set('n', '<leader>/', builtin.current_buffer_fuzzy_find, { desc = '[/] Fuzzily search in current buffer' })
-

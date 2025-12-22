@@ -47,7 +47,7 @@ opt.signcolumn = 'yes'
 opt.updatetime = 250
 
 -- Decrease mapped sequence wait time
-opt.timeoutlen = 300
+opt.timeoutlen = 600
 
 -- Configure how new splits should be opened
 opt.splitright = true

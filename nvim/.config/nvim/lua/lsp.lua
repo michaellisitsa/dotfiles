@@ -11,11 +11,29 @@ vim.api.nvim_create_autocmd('LspAttach', {
 	callback = function(args)
 		local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
 
+		local map = function(keys, func, desc, mode)
+			mode = mode or 'n'
+			vim.keymap.set(mode, keys, func, { buffer = args.buf, desc = 'LSP: ' .. desc })
+		end
+
+
 		-- Enable auto-completion. Note: Use CTRL-Y to select an item. |complete_CTRL-Y|
 		if client:supports_method('textDocument/completion') then
 			vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
 			vim.keymap.set("i", "<C-space>", vim.lsp.completion.get, { desc = "trigger autocompletion" })
 		end
+
+		map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences Word under cursor')
+		map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+		--  To jump back, press <C-t>r
+		map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+		map('gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
+		map('gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
+		map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+		map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+		map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+		--  In C this would take you to the header.
+		map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
 		-- Auto-format ("lint") on save.
 		-- Usually not needed if server supports "textDocument/willSaveWaitUntil".
