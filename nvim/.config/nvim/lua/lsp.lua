@@ -1,6 +1,7 @@
 vim.lsp.enable({
 	"bashls",
 	"lua_ls",
+	"ts_ls",
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
