@@ -2,6 +2,8 @@ vim.lsp.enable({
 	"bashls",
 	"lua_ls",
 	"ts_ls",
+	"ty",
+	"ruff",
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -27,5 +29,30 @@ vim.api.nvim_create_autocmd('LspAttach', {
 				end,
 			})
 		end
+
+		local virtual_text_settings = {
+			source = 'if_many',
+			spacing = 2,
+			format = function(diagnostic)
+				local diagnostic_message = {
+					[vim.diagnostic.severity.ERROR] = diagnostic.message,
+					[vim.diagnostic.severity.WARN] = diagnostic.message,
+					[vim.diagnostic.severity.INFO] = diagnostic.message,
+					[vim.diagnostic.severity.HINT] = diagnostic.message,
+				}
+				return diagnostic_message[diagnostic.severity]
+			end,
+		}
+
+		-- Toggle diagnostics so they are not as distracting
+		-- https://samuellawrentz.com/hacks/neovim/disable-annoying-eslint-lsp-server-and-hide-virtual-text/
+		local isLspDiagnosticsVisible = false
+		vim.keymap.set('n', '<leader>lx', function()
+			isLspDiagnosticsVisible = not isLspDiagnosticsVisible
+			vim.diagnostic.config {
+				virtual_text = isLspDiagnosticsVisible and virtual_text_settings or false,
+				underline = isLspDiagnosticsVisible,
+			}
+		end)
 	end,
 })
