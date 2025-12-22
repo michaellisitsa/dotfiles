@@ -70,3 +70,13 @@ https://shyr.io/blog/sync-iterm2-configs
 1. Create a folder at the top-level with the name of what you're configuring e.g. nvim, i3, etc.
 2. Create all sub-directories that would be included under root
 3. Run `stow [name]` from the `~/.dotfiles` directory
+
+# Neovim specifics
+Updating to 0.12 HEAD
+
+```sh
+brew unlink neovim
+brew uninstall --force tree-sitter
+brew install --HEAD tree-sitter
+brew install --HEAD neovim
+```
