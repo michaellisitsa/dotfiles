@@ -37,3 +37,14 @@ keymap('n',
 	end,
 	{ desc = 'Toggle Diffview window' }
 )
+
+vim.keymap.set('n', '<leader>gt', function()
+	require('utils').PytestKogan(false)
+end)
+
+vim.keymap.set('n', '<leader>gd', function()
+	require('utils').PytestKogan(true)
+end)
+vim.keymap.set('n', '<leader>gf', function()
+	require('utils').PathBreadcrumbs()
+end)
