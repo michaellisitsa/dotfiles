@@ -24,3 +24,16 @@ keymap("n", "<Leader>w", "<cmd>w!<CR>", s)                                      
 keymap("n", "grd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, silent = true }) -- Go to definition
 keymap({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash" })
 keymap('n', '<Leader>;', require 'dropbar.api'.pick, { desc = 'Pick symbols in winbar' })
+
+keymap('n', '<leader>hf', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
+keymap('n',
+	'<leader>hv',
+	function()
+		if next(require('diffview.lib').views) == nil then
+			vim.cmd 'DiffviewOpen'
+		else
+			vim.cmd 'DiffviewClose'
+		end
+	end,
+	{ desc = 'Toggle Diffview window' }
+)

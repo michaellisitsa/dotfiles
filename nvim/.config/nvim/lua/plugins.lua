@@ -7,6 +7,7 @@ vim.pack.add {
 	{ src = "https://github.com/Mofiqul/vscode.nvim" },
 	{ src = "https://github.com/folke/flash.nvim" },
 	{ src = "https://github.com/Bekaboo/dropbar.nvim" },
+	{ src = "https://github.com/sindrets/diffview.nvim" },
 }
 
 require('nvim-surround').setup {}
@@ -16,3 +17,4 @@ require("mason").setup({})
 require("vscode").setup({})
 require("flash").setup({})
 require("dropbar").setup({})
+require("diffview").setup({})

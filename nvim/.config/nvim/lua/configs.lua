@@ -13,7 +13,7 @@ opt.wildmenu = true
 opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
--- TODO: If we use external status line 
+-- TODO: If we use external status line
 -- opt.showmode = false
 
 -- Use treesitter folding, already built into neovim
@@ -27,7 +27,7 @@ vim.o.foldlevelstart = 99
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.schedule(function()
-  opt.clipboard = 'unnamedplus'
+	opt.clipboard = 'unnamedplus'
 end)
 
 -- Enable break indent
@@ -76,16 +76,19 @@ opt.confirm = true
 -- Better diff syntax
 --
 opt.fillchars = {
-  fold = ' ',
-  diff = '╱',
-  wbr = '─',
-  msgsep = '─',
-  horiz = ' ',
-  horizup = '│',
-  horizdown = '│',
-  vertright = '│',
-  vertleft = '│',
-  verthoriz = '│',
+	fold = ' ',
+	diff = '╱',
+	wbr = '─',
+	msgsep = '─',
+	horiz = ' ',
+	horizup = '│',
+	horizdown = '│',
+	vertright = '│',
+	vertleft = '│',
+	verthoriz = '│',
 }
 -- :vimgrep should not search these
 opt.wildignore:append { '.git/*', '.DS_Store/*', '*/node_modules/*', '.venv/*', '*/__pycache__/*', '*/static/*' }
+
+-- https://blog.viktomas.com/graph/neovim-native-built-in-lsp-autocomplete/
+vim.opt.completeopt = { "menuone", "noselect", "popup" }
