@@ -1,5 +1,10 @@
 {
   "plugins": {
+    "bookmarks.nvim": {
+      "rev": "6d39685485bfb95e6e8cd3441ff156562ff6fe59",
+      "src": "https://github.com/LintaoAmons/bookmarks.nvim",
+      "version": "'v4.0.0'"
+    },
     "diffview.nvim": {
       "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
       "src": "https://github.com/sindrets/diffview.nvim"
@@ -12,9 +17,17 @@
       "rev": "fcea7ff883235d9024dc41e638f164a450c14ca2",
       "src": "https://github.com/folke/flash.nvim"
     },
+    "gitlinker.nvim": {
+      "rev": "63cfbb7ba0465fa4a599f57c08c888abb188a595",
+      "src": "https://github.com/linrongbin16/gitlinker.nvim"
+    },
     "gitsigns.nvim": {
       "rev": "5813e4878748805f1518cee7abb50fd7205a3a48",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
+    },
+    "guess-indent.nvim": {
+      "rev": "84a4987ff36798c2fc1169cbaff67960aed9776f",
+      "src": "https://github.com/nmac427/guess-indent.nvim"
     },
     "mason.nvim": {
       "rev": "57e5a8addb8c71fb063ee4acda466c7cf6ad2800",
@@ -32,13 +45,25 @@
       "rev": "b9fd5226c2f76c951fc8ed5923d85e4de065e509",
       "src": "https://github.com/nvim-lua/plenary.nvim"
     },
+    "sqlite.lua": {
+      "rev": "50092d60feb242602d7578398c6eb53b4a8ffe7b",
+      "src": "https://github.com/kkharji/sqlite.lua"
+    },
     "telescope-fzf-native.nvim": {
       "rev": "6fea601bd2b694c6f2ae08a6c6fab14930c60e2c",
       "src": "https://github.com/nvim-telescope/telescope-fzf-native.nvim"
     },
+    "telescope-live-grep-args.nvim": {
+      "rev": "b80ec2c70ec4f32571478b501218c8979fab5201",
+      "src": "https://github.com/nvim-telescope/telescope-live-grep-args.nvim"
+    },
     "telescope.nvim": {
       "rev": "e709d31454ee6e6157f0537f861f797bd44c0bad",
       "src": "https://github.com/nvim-telescope/telescope.nvim"
+    },
+    "timber.nvim": {
+      "rev": "1038a15f846e73840819355cab1c4346e6cf97f6",
+      "src": "https://github.com/Goose97/timber.nvim"
     },
     "undotree": {
       "rev": "0f1c9816975b5d7f87d5003a19c53c6fd2ff6f7f",

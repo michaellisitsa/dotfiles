@@ -1,5 +1,17 @@
 local M = {}
 
+local function truncate(str, max)
+	if not str then
+		-- Todo make this the full length
+		return ''
+	end
+	str = str:match '^%s*(.*)$'
+	if string.len(str) <= max then
+		return str
+	end
+	return str:sub(1, max - 1) .. '…'
+end
+
 function M.PytestKogan(debug)
 	local buf = vim.api.nvim_get_current_buf()
 
@@ -75,6 +87,42 @@ function M.PathBreadcrumbs()
 	vim.fn.setreg('"', str)
 	vim.fn.setreg('+', str)
 	print('Yanked location: ' .. str)
+end
+
+function M.RenderBookmark(node)
+	local Location = require 'bookmarks.domain.location'
+	local order_prefix = (node.order or 0)
+
+	local name = node.name
+	if node.name == '' then
+		name = '[Untitled]'
+	end
+
+	local abs_path = node.location.path
+	if abs_path == '' then
+		return '[No Name]'
+	end
+
+	local cwd = vim.loop.cwd()
+	if not cwd:match '/$' then
+		cwd = cwd .. '/'
+	end
+	local filename = Location.get_file_name(node.location)
+	local path = ''
+	if abs_path:sub(1, #cwd) == cwd then
+		-- Path is inside cwd, use relative
+		local rel_path = vim.fn.fnamemodify(abs_path, ':.')
+		path = vim.fn.fnamemodify(rel_path, ':h')
+	end
+	return string.format(
+		'%-03s  %-30s|%-04d   [%-30s]   %-20s %s',
+		order_prefix,
+		truncate(node.content, 30),
+		node.location.line,
+		truncate(name, 30),
+		truncate(filename, 20),
+		path
+	)
 end
 
 return M

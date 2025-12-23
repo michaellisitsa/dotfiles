@@ -26,6 +26,7 @@ keymap({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = 
 keymap('n', '<Leader>;', require 'dropbar.api'.pick, { desc = 'Pick symbols in winbar' })
 
 keymap('n', '<leader>hf', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
+keymap('n', '<leader>r', '<cmd>restart<cr>', { desc = 'Restart' })
 keymap('n',
 	'<leader>hv',
 	function()
@@ -38,13 +39,27 @@ keymap('n',
 	{ desc = 'Toggle Diffview window' }
 )
 
-vim.keymap.set('n', '<leader>gt', function()
+keymap('n', '<leader>gt', function()
 	require('utils').PytestKogan(false)
 end)
 
-vim.keymap.set('n', '<leader>gd', function()
+keymap('n', '<leader>gd', function()
 	require('utils').PytestKogan(true)
 end)
-vim.keymap.set('n', '<leader>gf', function()
+keymap('n', '<leader>gf', function()
 	require('utils').PathBreadcrumbs()
 end)
+
+keymap({ 'n', 'v' }, '<leader>hy', '<cmd>GitLink<cr>', { desc = 'Link to GitHub' }) -- linrongbin16/gitlinker.nvim
+
+-- bookmarks.nvim
+-- https://github.com/LintaoAmons/VimEverywhere/blob/main/nvim/lua/plugins/editor-enhance/bookmarks.lua
+keymap('n', '<leader>mt', '<cmd>' .. 'BookmarksTree' .. '<cr>', { desc = 'Tree' })
+keymap('n', '<leader>mg', '<cmd>' .. 'BookmarksGotoRecent' .. '<cr>', { desc = 'Go To Recent' })
+keymap('n', '<leader>mm', '<cmd>' .. 'BookmarksMark' .. '<cr>', { desc = 'Mark' })
+keymap('n', '<leader>ma', '<cmd>' .. 'BookmarksCommands' .. '<cr>', { desc = 'Commands' })
+keymap('n', '<leader>ms', '<cmd>' .. 'BookmarksInfoCurrentBookmark' .. '<cr>', { desc = 'Info' })
+keymap('n', '<leader>mo', '<cmd>' .. 'BookmarksGoto' .. '<cr>', { desc = 'GoTo' })
+keymap('n', '<leader>ml', '<cmd>' .. 'BookmarksLists' .. '<cr>', { desc = 'Lists' })
+keymap('n', '<leader>mn', '<cmd>' .. 'BookmarksGotoNextInList' .. '<cr>', { desc = 'Next' })
+keymap('n', '<leader>mp', '<cmd>' .. 'BookmarksGotoPrevInList' .. '<cr>', { desc = 'Prev' })
