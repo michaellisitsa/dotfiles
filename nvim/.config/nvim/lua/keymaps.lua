@@ -63,3 +63,24 @@ keymap('n', '<leader>mo', '<cmd>' .. 'BookmarksGoto' .. '<cr>', { desc = 'GoTo' 
 keymap('n', '<leader>ml', '<cmd>' .. 'BookmarksLists' .. '<cr>', { desc = 'Lists' })
 keymap('n', '<leader>mn', '<cmd>' .. 'BookmarksGotoNextInList' .. '<cr>', { desc = 'Next' })
 keymap('n', '<leader>mp', '<cmd>' .. 'BookmarksGotoPrevInList' .. '<cr>', { desc = 'Prev' })
+
+require 'hydra' {
+	name = 'Windows',
+	config = {
+		invoke_on_body = true,
+		hint = {
+			offset = -1,
+		},
+	},
+	mode = 'n',
+	body = '<C-w>h',
+	heads = {
+		{ '=',     '<C-w>=',                       { desc = 'equalize' } },
+		{ '-',     '<C-w>-',                       { desc = 'Move window bot up' } },
+		{ '+',     '<C-w>+',                       { desc = 'Move window bot up' } },
+		{ '<',     '<cmd>vertical resize -10<cr>', { desc = 'Move window left' } },
+		{ '>',     '<cmd>vertical resize +10<cr>', { desc = 'Move window right' } },
+		{ 'q',     nil,                            { exit = true, nowait = true } },
+		{ '<Esc>', nil,                            { exit = true, desc = false } },
+	},
+}

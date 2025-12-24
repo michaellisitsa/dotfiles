@@ -5,6 +5,7 @@ vim.g.maplocalleader = ' '
 -- Inspiration https://vieitesss.github.io/posts/Neovim-new-config/
 require 'telescope-plugins'
 require 'plugins'
+require 'debugging'
 require 'configs'
 require 'keymaps'
 require 'autocmds'

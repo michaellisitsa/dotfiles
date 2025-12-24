@@ -15,7 +15,7 @@ vim.pack.add {
 	-- in upstream sqlite https://github.com/kkharji/sqlite.lua/issues/182
 	{ src = "https://github.com/kkharji/sqlite.lua" }, -- Dependency of bookmarks.nvim
 	{ src = "https://github.com/LintaoAmons/bookmarks.nvim", version = 'v4.0.0' },
-
+	{ src = "https://github.com/nvimtools/hydra.nvim" }, -- Initialization in separate file
 }
 
 
