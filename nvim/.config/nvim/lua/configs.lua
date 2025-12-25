@@ -1,8 +1,8 @@
 local opt = vim.opt
 
 vim.cmd.colorscheme 'vscode'
-
 vim.g.have_nerd_font = true
+vim.o.diffopt = 'internal,filler,closeoff,inline:word,linematch:40'
 
 opt.number = true
 opt.relativenumber = true
@@ -91,4 +91,8 @@ opt.fillchars = {
 opt.wildignore:append { '.git/*', '.DS_Store/*', '*/node_modules/*', '.venv/*', '*/__pycache__/*', '*/static/*' }
 
 -- https://blog.viktomas.com/graph/neovim-native-built-in-lsp-autocomplete/
-vim.opt.completeopt = { "menuone", "noinsert", "popup", "preinsert", "preview" }
+vim.opt.completeopt = { "menuone", "fuzzy", "noinsert", "preinsert", "preview" }
+require('vim._extui').enable({})
+vim.cmd.packadd('nvim.difftool')
+-- Similar to mbill version but auto updates as you scroll
+vim.cmd.packadd('nvim.undotree')

@@ -73,6 +73,10 @@
       "rev": "b80ec2c70ec4f32571478b501218c8979fab5201",
       "src": "https://github.com/nvim-telescope/telescope-live-grep-args.nvim"
     },
+    "telescope-undo.nvim": {
+      "rev": "928d0c2dc9606e01e2cc547196f48d2eaecf58e5",
+      "src": "https://github.com/debugloop/telescope-undo.nvim"
+    },
     "telescope.nvim": {
       "rev": "e709d31454ee6e6157f0537f861f797bd44c0bad",
       "src": "https://github.com/nvim-telescope/telescope.nvim"

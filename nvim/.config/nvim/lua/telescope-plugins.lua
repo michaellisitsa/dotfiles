@@ -7,6 +7,7 @@ vim.pack.add({ "https://github.com/nvim-telescope/telescope-fzf-native.nvim" }, 
 	end,
 })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope-live-grep-args.nvim" })
+vim.pack.add({ "https://github.com/debugloop/telescope-undo.nvim" })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope.nvim" })
 
 
@@ -42,6 +43,7 @@ require('telescope').setup({
 -- Enable telescope fzf native, if installed
 pcall(require("telescope").load_extension, "fzf")
 pcall(require('telescope').load_extension, 'live_grep_args')
+pcall(require('telescope').load_extension, 'undo')
 local builtin = require 'telescope.builtin'
 vim.keymap.set('n', '<header>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
@@ -52,6 +54,9 @@ vim.keymap.set('n', '<leader>sc', builtin.find_files, { desc = '[S]earch [F]iles
 vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch [J]umps' })
 vim.keymap.set('n', '<leader>sg', function()
 	require('telescope').extensions.live_grep_args.live_grep_args()
+end, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>su', function()
+	require('telescope').extensions.undo.undo()
 end, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
