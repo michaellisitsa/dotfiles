@@ -1,16 +1,20 @@
-# Config based on kickstart.nvim
+# Config
+
+Suitable for neovim 0.12, utilising native package manager for plugins
 
 ### Install External Dependencies
 
 External Requirements:
-- Basic utils: `git`, `make`, `unzip`, C Compiler (`gcc`)
 - [ripgrep](https://github.com/BurntSushi/ripgrep#installation)
-- Clipboard tool (xclip/xsel/win32yank or other depending on the platform)
+- `fzf` for telescope's-fzf-native plugin
+- Clipboard tool (xclip/xsel/win32yank or other depending on the platform) - Linux only
 - A [Nerd Font](https://www.nerdfonts.com/): optional, provides various icons
   - if you have it set `vim.g.have_nerd_font` in `init.lua` to true
+- [tree-sitter-cli](https://formulae.brew.sh/formula/tree-sitter-cli)
 
-### Other likely dependendencies
+# Steps
+- Install above dependencies
+- Load neovim
+- Install all lsps used in `/lsp/` folder using `:Mason`
+- Install all debuggers and formatters using `:Mason`
 
-- `fzf` for telescope's-fzf-native plugin, and snacks picker search
-- `fd` has previously shown up as necessary for snacks picker search
-- `rg` for live_grep in telescope
