@@ -84,3 +84,5 @@ require 'hydra' {
 		{ '<Esc>', nil,                            { exit = true, desc = false } },
 	},
 }
+
+keymap('n', '<leader>fo', '<cmd>Outline<CR>', { desc = '[F]ile [O]utline' })

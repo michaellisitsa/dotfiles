@@ -19,7 +19,8 @@ vim.pack.add {
 	-- in upstream sqlite https://github.com/kkharji/sqlite.lua/issues/182
 	{ src = "https://github.com/kkharji/sqlite.lua" }, -- Dependency of bookmarks.nvim
 	{ src = "https://github.com/LintaoAmons/bookmarks.nvim", version = 'v4.0.0' },
-	{ src = "https://github.com/nvimtools/hydra.nvim" }, -- Initialization in separate file
+	{ src = "https://github.com/nvimtools/hydra.nvim" }, -- Config in debugging and keymaps files
+	{ src = "https://github.com/hedyhli/outline.nvim" },
 }
 
 
@@ -71,3 +72,8 @@ local opts = {
 -- https://github.com/LintaoAmons/bookmarks.nvim/issues/100
 vim.cmd.runtime('plugin/bookmarks.lua')
 require('bookmarks').setup(opts)
+require('outline').setup {
+	symbols = {
+		filter = { 'String', 'Constant', exclude = true },
+	},
+}

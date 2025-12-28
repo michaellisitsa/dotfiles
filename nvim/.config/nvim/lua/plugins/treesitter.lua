@@ -27,6 +27,7 @@ require('nvim-treesitter-textobjects').setup {
 require('utils').BuildAfterUpdate('nvim-treesitter', ':TSUpdate')
 require('nvim-treesitter').install {
 	'bash',
+	'zsh',
 	'c',
 	'diff',
 	'lua',
@@ -34,10 +35,9 @@ require('nvim-treesitter').install {
 	'vim',
 	'vimdoc',
 	'luadoc',
-	-- Markdown
+	-- Data
 	'markdown',
 	'markdown_inline',
-	-- JSON
 	'json',
 	'jsonc',
 	-- Python
@@ -50,6 +50,9 @@ require('nvim-treesitter').install {
 	'jsdoc',
 	-- FE
 	'html',
+	-- Configuration
+	'terraform',
+	'yaml',
 }
 
 vim.api.nvim_create_autocmd('FileType', {
