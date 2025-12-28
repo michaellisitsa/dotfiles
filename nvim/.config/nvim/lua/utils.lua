@@ -125,4 +125,26 @@ function M.RenderBookmark(node)
 	)
 end
 
+function M.BuildAfterUpdate(plugin_name, build)
+	-- https://github.com/cgimenes/dotfiles/blob/4ad8cadf1c9ede5ee46f4f4a9be01b7cd0f9d562/nvim/.config/nvim/lua/plugins/init.lua#L1-L19
+	vim.api.nvim_create_autocmd('PackChanged', {
+		pattern = '*',
+		callback = function(ev)
+			if ev.data.spec.name == plugin_name and ev.data.spec.kind ~= 'deleted' then
+				vim.notify(plugin_name .. ' was updated, running build', vim.log.levels.INFO)
+
+				if type(build) == 'function' then
+					build(ev.data)
+				elseif build:sub(1, 1) == ':' then
+					local cmd = vim.api.nvim_parse_cmd(build:sub(2), {})
+					vim.notify(vim.api.nvim_cmd(cmd, { output = true }), vim.log.levels.INFO)
+				else
+					vim.notify('You will need to go to ' .. ev.data.path .. ' and run: ' .. build,
+						vim.log.levels.WARN)
+				end
+			end
+		end,
+	})
+end
+
 return M

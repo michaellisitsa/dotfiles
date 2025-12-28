@@ -16,9 +16,6 @@ opt.mouse = 'a'
 -- TODO: If we use external status line
 -- opt.showmode = false
 
--- Use treesitter folding, already built into neovim
-vim.wo.foldmethod = 'expr'
-vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 -- Folds all start closed if you don't set this
 vim.o.foldlevelstart = 99
 
@@ -91,8 +88,6 @@ opt.fillchars = {
 opt.wildignore:append { '.git/*', '.DS_Store/*', '*/node_modules/*', '.venv/*', '*/__pycache__/*', '*/static/*' }
 
 -- https://blog.viktomas.com/graph/neovim-native-built-in-lsp-autocomplete/
-vim.opt.completeopt = { "menuone", "fuzzy", "noinsert", "preinsert", "preview" }
+opt.completeopt = { "menuone", "fuzzy", "noinsert", "preinsert", "preview" }
+opt.wildmode = "noselect"
 require('vim._extui').enable({})
-vim.cmd.packadd('nvim.difftool')
--- Similar to mbill version but auto updates as you scroll
-vim.cmd.packadd('nvim.undotree')

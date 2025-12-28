@@ -3,8 +3,9 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Inspiration https://vieitesss.github.io/posts/Neovim-new-config/
-require 'telescope-plugins'
-require 'plugins'
+require 'plugins.telescope'
+require 'plugins.treesitter'
+require 'plugins.common'
 require 'debugging'
 require 'configs'
 require 'keymaps'

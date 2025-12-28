@@ -1,3 +1,7 @@
+vim.cmd.packadd('nvim.difftool')
+-- Similar to mbill version but auto updates as you scroll
+vim.cmd.packadd('nvim.undotree')
+
 vim.pack.add {
 	{ src = 'https://github.com/kylechui/nvim-surround' },
 	{ src = "https://github.com/lewis6991/gitsigns.nvim" },

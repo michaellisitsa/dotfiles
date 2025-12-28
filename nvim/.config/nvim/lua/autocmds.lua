@@ -1,7 +1,12 @@
+vim.api.nvim_create_autocmd("CmdlineChanged", {
+  pattern = { ":", "/", "?" },
+  callback = function()
+    vim.fn.wildtrigger()
+  end
+})
 
 vim.api.nvim_create_user_command('Zen', function()
   local padding_width = math.floor((vim.o.columns - vim.o.textwidth) / 4 - 1)
-  local padding_bufnr = nil
   local padding_winid = nil
 
   -- Find if a window with buffer name "_padding_" already exists
@@ -9,7 +14,6 @@ vim.api.nvim_create_user_command('Zen', function()
     local buf = vim.api.nvim_win_get_buf(win)
     local name = vim.api.nvim_buf_get_name(buf)
     if name:match '_padding_$' then
-      padding_bufnr = buf
       padding_winid = win
       break
     end
@@ -27,10 +31,10 @@ vim.api.nvim_create_user_command('Zen', function()
     local pad_buf = vim.api.nvim_get_current_buf()
 
     -- Make it unmodifiable and blank
-    vim.api.nvim_buf_set_option(pad_buf, 'buftype', 'nofile')
-    vim.api.nvim_buf_set_option(pad_buf, 'bufhidden', 'wipe')
-    vim.api.nvim_buf_set_option(pad_buf, 'swapfile', false)
-    vim.api.nvim_buf_set_option(pad_buf, 'modifiable', false)
+    vim.api.nvim_set_option_value('buftype', 'nofile', { buf = pad_buf })
+    vim.api.nvim_set_option_value('bufhidden', 'wipe', { buf = pad_buf })
+    vim.api.nvim_set_option_value('swapfile', false, { buf = pad_buf })
+    vim.api.nvim_set_option_value('modifiable', false, { buf = pad_buf })
 
     -- Return to previous window
     vim.cmd 'wincmd p'
@@ -38,9 +42,9 @@ vim.api.nvim_create_user_command('Zen', function()
 end, {})
 
 vim.api.nvim_create_autocmd('TextYankPost', {
-	desc = 'Highlight when yanking (copying) text',
-	group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
-	callback = function()
-		vim.highlight.on_yank()
-	end,
+  desc = 'Highlight when yanking (copying) text',
+  group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+  callback = function()
+    vim.highlight.on_yank()
+  end,
 })
