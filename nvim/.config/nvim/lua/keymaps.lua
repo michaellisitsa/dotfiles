@@ -86,3 +86,23 @@ require 'hydra' {
 }
 
 keymap('n', '<leader>fo', '<cmd>Outline<CR>', { desc = '[F]ile [O]utline' })
+
+
+keymap("n", "<Leader>gy", function()
+	local reg = vim.v.register
+	if reg == "" then
+		reg = '"' -- fallback if no register prefix
+	end
+
+	local unnamed, unnamed_t = vim.fn.getreg('"'), vim.fn.getregtype('"')
+	local other, other_t = vim.fn.getreg(reg), vim.fn.getregtype(reg)
+
+	vim.fn.setreg('"', other, other_t)
+	vim.fn.setreg('+', other, other_t)
+	vim.fn.setreg('x', unnamed, unnamed_t) -- Don't lose previous
+	vim.notify(string.format('Yanked register %s = %s', reg, other))
+end, { desc = "Swap unnamed register with given register" })
+
+-- Gitsigns
+--gitsigns.blame_line
+keymap("n", "<Leader>hb", require("gitsigns").blame_line, { desc = "git [b]lame line" })

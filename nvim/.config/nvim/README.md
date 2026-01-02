@@ -18,3 +18,8 @@ External Requirements:
 - Install all lsps used in `/lsp/` folder using `:Mason`
 - Install all debuggers and formatters using `:Mason`
 
+# Useful directories
+
+`~/.local/share/nvim/mason/bin` - LSP, formatter and debugger binaries
+`~/.local/share/nvim/bookmarks.sqlite.db` - All bookmarks saved
+`~/.local/state/nvim` - shada, frecency etc.
