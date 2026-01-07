@@ -1,11 +1,15 @@
 -- Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+-- Other good tutorial https://tduyng.com/blog/neovim-highlight-syntax/
 vim.pack.add {
 	'https://github.com/nvim-treesitter/nvim-treesitter',
 }
 vim.pack.add {
 	{ src = 'https://github.com/nvim-treesitter/nvim-treesitter-textobjects', version = 'main' },
 }
-require('nvim-treesitter').setup {}
+require('nvim-treesitter').setup {
+	-- Testing separate directory due to issue with installed parsers
+	install_dir = vim.fn.stdpath('data') .. '/site_treesitter'
+}
 require('nvim-treesitter-textobjects').setup {
 	select = {
 		-- Automatically jump forward to textobj, similar to targets.vim
@@ -25,6 +29,7 @@ require('nvim-treesitter-textobjects').setup {
 }
 -- This should build both treesitter and text-objects
 require('utils').BuildAfterUpdate('nvim-treesitter', ':TSUpdate')
+require('utils').BuildAfterUpdate('nvim-treesitter-textobjects', ':TSUpdate')
 require('nvim-treesitter').install {
 	'bash',
 	'zsh',
@@ -56,6 +61,12 @@ require('nvim-treesitter').install {
 }
 
 vim.api.nvim_create_autocmd('FileType', {
+	-- Treesitter isn't enabled by default in 'main' branch
+	-- https://github.com/nvim-treesitter/nvim-treesitter/issues/8053
+	-- Also treesitter specific highlight groups have been removed.
+	-- https://github.com/nvim-treesitter/nvim-treesitter/issues/4106
+	pattern = '*',
+	-- Currently the treesitter parsing for certain javascript isn't highlight most elements
 	callback = function(args)
 		local lang = vim.treesitter.language.get_lang(args.match) or args.match
 		local installed = require('nvim-treesitter').get_installed 'parsers'

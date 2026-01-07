@@ -17,7 +17,7 @@ require('dap-view').setup {
 		},
 	},
 }
-vim.keymap.set('n', '<leader>dU', '<cmd>DapViewToggle!<cr>', { desc = 'Dap UI' })
+vim.keymap.set('n', '<leader>du', '<cmd>DapViewToggle!<cr>', { desc = 'Dap UI' })
 -- Use nvim-dap builtin UI widgets for scopes
 -- https://github.com/igorlfs/dotfiles/blob/76781206733c96dfef3cc5334e0b2aa3de9fa2db/nvim/.config/nvim/lua/plugins/bare/nvim-dap.lua#L8-L15
 vim.keymap.set('n',
@@ -41,6 +41,16 @@ vim.keymap.set('n', '<leader>dj', function() dap.down() end, { desc = 'Down Scop
 vim.keymap.set('n', '<leader>dt', function() dap.terminate() end, { desc = 'Terminate' })
 vim.keymap.set('n', '<leader>dp', function() dap.disconnect({ terminateDebuggee = false }) end, { desc = 'Disconnect' })
 
+-- https://github.com/r0nsha/dotfiles/blob/master/nvim/lua/plugins/dap/hydra.lua#L82
+--
+local dv = require "dap-view"
+---@param view dapview.Section
+local function jump_to_view(view)
+	return function()
+		dv.open()
+		dv.jump_to_view(view)
+	end
+end
 -- Debugging
 -- https://github.com/anuvyklack/hydra.nvim/issues/3#issuecomment-1162988750
 require "hydra" {
@@ -66,5 +76,12 @@ require "hydra" {
 		{ 'p',     ":lua require'dap'.disconnect({ terminateDebuggee = false })<CR>", { exit = true, silent = true } },
 		{ 'q',     nil,                                                               { exit = true, nowait = true } },
 		{ '<Esc>', nil,                                                               { exit = true, desc = false } },
+		{ "gw",    jump_to_view "watches",                                            { desc = "Jump to Watches", private = true } },
+		{ "gs",    jump_to_view "scopes",                                             { desc = "Jump to Scopes", private = true } },
+		{ "gx",    jump_to_view "exceptions",                                         { desc = "Jump to Exceptions", private = true } },
+		{ "gb",    jump_to_view "breakpoints",                                        { desc = "Jump to Breakpoints", private = true } },
+		{ "gT",    jump_to_view "threads",                                            { desc = "Jump to Threads", private = true } },
+		{ "gR",    jump_to_view "repl",                                               { desc = "Jump to REPL", private = true } },
+		{ "gC",    jump_to_view "console",                                            { desc = "Jump to Console", private = true } },
 	},
 }
