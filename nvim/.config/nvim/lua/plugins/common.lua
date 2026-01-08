@@ -9,6 +9,7 @@ vim.pack.add {
 	{ src = "https://github.com/mbbill/undotree" },
 	{ src = "https://github.com/mason-org/mason.nvim" },
 	{ src = "https://github.com/Mofiqul/vscode.nvim" },
+	{ src = "https://github.com/catppuccin/nvim" },
 	{ src = "https://github.com/folke/flash.nvim" },
 	{ src = "https://github.com/Bekaboo/dropbar.nvim" },
 	{ src = "https://github.com/sindrets/diffview.nvim" },
@@ -21,6 +22,8 @@ vim.pack.add {
 	{ src = "https://github.com/LintaoAmons/bookmarks.nvim", version = 'v4.0.0' },
 	{ src = "https://github.com/nvimtools/hydra.nvim" }, -- Config in debugging and keymaps files
 	{ src = "https://github.com/hedyhli/outline.nvim" },
+	{ src = "https://github.com/MunifTanjim/nui.nvim" },
+	{ src = "https://github.com/esmuellert/codediff.nvim" }
 }
 
 
@@ -77,3 +80,4 @@ require('outline').setup {
 		filter = { 'String', 'Constant', exclude = true },
 	},
 }
+require("codediff").setup({})

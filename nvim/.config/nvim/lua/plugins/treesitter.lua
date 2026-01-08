@@ -1,7 +1,7 @@
 -- Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 -- Other good tutorial https://tduyng.com/blog/neovim-highlight-syntax/
 vim.pack.add {
-	'https://github.com/nvim-treesitter/nvim-treesitter',
+	{ src = 'https://github.com/nvim-treesitter/nvim-treesitter', versions = 'main' }
 }
 vim.pack.add {
 	{ src = 'https://github.com/nvim-treesitter/nvim-treesitter-textobjects', version = 'main' },

@@ -5,6 +5,10 @@
       "src": "https://github.com/LintaoAmons/bookmarks.nvim",
       "version": "'v4.0.0'"
     },
+    "codediff.nvim": {
+      "rev": "e6d0efcf20197b266deeb8e4b6a2bbe7f0e8c6ec",
+      "src": "https://github.com/esmuellert/codediff.nvim"
+    },
     "diffview.nvim": {
       "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
       "src": "https://github.com/sindrets/diffview.nvim"
@@ -36,6 +40,14 @@
     "mason.nvim": {
       "rev": "57e5a8addb8c71fb063ee4acda466c7cf6ad2800",
       "src": "https://github.com/mason-org/mason.nvim"
+    },
+    "nui.nvim": {
+      "rev": "de740991c12411b663994b2860f1a4fd0937c130",
+      "src": "https://github.com/MunifTanjim/nui.nvim"
+    },
+    "nvim": {
+      "rev": "6efc53e42cfc97700f19043105bf73ba83c4ae7d",
+      "src": "https://github.com/catppuccin/nvim"
     },
     "nvim-dap": {
       "rev": "818cd8787a77a97703eb1d9090543a374f79a9ac",

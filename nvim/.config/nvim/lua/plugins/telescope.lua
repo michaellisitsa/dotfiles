@@ -18,6 +18,9 @@ require('telescope').setup({
 				['<C-space>'] = require('telescope.actions').to_fuzzy_refine,
 			},
 		},
+		path_display = {
+			"filename_first",
+		},
 	},
 	extensions = {
 		live_grep_args = {
