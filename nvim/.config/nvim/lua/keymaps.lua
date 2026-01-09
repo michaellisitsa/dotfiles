@@ -25,7 +25,27 @@ keymap("n", "grd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, si
 keymap({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash" })
 keymap('n', '<Leader>;', require 'dropbar.api'.pick, { desc = 'Pick symbols in winbar' })
 
-keymap('n', '<leader>hf', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
+keymap('n', '<leader>hF', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
+keymap('n', '<leader>hf',
+	function()
+		local ref = vim.fn.systemlist({
+			"git",
+			"symbolic-ref",
+			"refs/remotes/origin/HEAD",
+		})[1]
+		local merge_base = vim.fn.systemlist({
+			"git",
+			"merge-base",
+			"--fork-point",
+			ref
+		})[1]
+		-- '<cmd>CodeDiff merge_base <cr>'
+		vim.api.nvim_cmd({
+			cmd = "CodeDiff",
+			args = { merge_base },
+		}, {})
+	end, { desc = 'Review branch changes' })
+
 keymap('n', '<leader>r', '<cmd>restart<cr>', { desc = 'Restart' })
 keymap('n',
 	'<leader>hv',
