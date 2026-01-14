@@ -28,21 +28,34 @@ keymap('n', '<Leader>;', require 'dropbar.api'.pick, { desc = 'Pick symbols in w
 keymap('n', '<leader>hF', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
 keymap('n', '<leader>hf',
 	function()
-		local ref = vim.fn.systemlist({
+		local main_branch = vim.fn.systemlist({
 			"git",
 			"symbolic-ref",
 			"refs/remotes/origin/HEAD",
+		})[1]
+		local current_branch = vim.fn.systemlist({
+			"git",
+			"rev-parse",
+			"--abbrev-ref",
+			"HEAD"
 		})[1]
 		local merge_base = vim.fn.systemlist({
 			"git",
 			"merge-base",
 			"--fork-point",
-			ref
+			main_branch
 		})[1]
-		-- '<cmd>CodeDiff merge_base <cr>'
+		local merge_base_fallback = vim.fn.systemlist({
+			"git",
+			"merge-base",
+			main_branch,
+			current_branch
+
+		})[1]
+		-- '<cmd>CodeDiff merge_base COMMIT_HASH<cr>'
 		vim.api.nvim_cmd({
 			cmd = "CodeDiff",
-			args = { merge_base },
+			args = { merge_base == nil and merge_base_fallback or merge_base },
 		}, {})
 	end, { desc = 'Review branch changes' })
 

@@ -90,4 +90,4 @@ opt.wildignore:append { '.git/*', '.DS_Store/*', '*/node_modules/*', '.venv/*', 
 -- https://blog.viktomas.com/graph/neovim-native-built-in-lsp-autocomplete/
 opt.completeopt = { "menuone", "fuzzy", "noinsert", "preinsert", "preview" }
 opt.wildmode = "noselect"
-require('vim._extui').enable({})
+-- require('vim._extui').enable({})

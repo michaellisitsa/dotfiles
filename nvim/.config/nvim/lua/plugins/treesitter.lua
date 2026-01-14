@@ -44,7 +44,6 @@ require('nvim-treesitter').install {
 	'markdown',
 	'markdown_inline',
 	'json',
-	'jsonc',
 	-- Python
 	'python',
 	'toml',
