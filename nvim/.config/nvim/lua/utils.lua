@@ -50,36 +50,51 @@ function M.PytestKogan(debug)
 	print('Pytest: ' .. str)
 end
 
-function M.PathBreadcrumbs()
+-- Get breadcrumb string for a buffer and line
+-- @param buf number|nil Buffer number (defaults to current buffer)
+-- @param row number|nil Line number 1-indexed (defaults to cursor line)
+-- @return string Breadcrumb path like "Class > method > inner"
+function M.GetBreadcrumbs(buf, row)
 	local ok_sources, sources = pcall(require, 'dropbar.sources')
 	local ok_utils, utils = pcall(require, 'dropbar.utils')
-
-	local buf = vim.api.nvim_get_current_buf()
-	local win = vim.api.nvim_get_current_win()
-	local row, col = unpack(vim.api.nvim_win_get_cursor(win))
-	local cursor = { row, col }
-
-	-- Dropbar.nvim has a get_symbols function that concatenates all the document symbols up the treesitter tree. Use if available
-	-- https://github.com/Bekaboo/dropbar.nvim/blob/418897fe7828b2749ca78056ec8d8ad43136b695/lua/dropbar/utils/source.lua#L7
-	local breadcrumb = ''
-	if ok_sources and ok_utils then
-		-- Fallback chain: LSP → Treesitter
-		local src = utils.source.fallback {
-			sources.lsp,
-			sources.treesitter,
-		}
-		local symbols = src.get_symbols(buf, win, cursor)
-
-		local names = {}
-		for _, sym in ipairs(symbols or {}) do
-			table.insert(names, sym.name)
-		end
-		breadcrumb = table.concat(names, ' > ')
+	if not (ok_sources and ok_utils) then
+		return ''
 	end
+
+	buf = buf or vim.api.nvim_get_current_buf()
+	local win = vim.api.nvim_get_current_win()
+	if not row then
+		row = vim.api.nvim_win_get_cursor(win)[1]
+	end
+	local cursor = { row, 0 }
+
+	-- Fallback chain: LSP → Treesitter
+	-- https://github.com/Bekaboo/dropbar.nvim/blob/418897fe7828b2749ca78056ec8d8ad43136b695/lua/dropbar/utils/source.lua#L7
+	local src = utils.source.fallback {
+		sources.lsp,
+		sources.treesitter,
+	}
+	local symbols = src.get_symbols(buf, win, cursor)
+
+	local names = {}
+	for _, sym in ipairs(symbols or {}) do
+		table.insert(names, sym.name)
+	end
+	return table.concat(names, ' > ')
+end
+
+function M.PathBreadcrumbs(buf, row)
+	buf = buf or vim.api.nvim_get_current_buf()
+	if not row then
+		row = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win())[1]
+	end
+
+	local breadcrumb = M.GetBreadcrumbs(buf, row)
+	local filepath = vim.api.nvim_buf_get_name(buf)
 
 	local str = string.format(
 		'%s|%d | %s',
-		vim.fn.expand('%:p'),
+		filepath,
 		row,
 		breadcrumb
 	)
