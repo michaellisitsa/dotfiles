@@ -53,8 +53,9 @@ end
 -- Get breadcrumb string for a buffer and line
 -- @param buf number|nil Buffer number (defaults to current buffer)
 -- @param row number|nil Line number 1-indexed (defaults to cursor line)
+-- @param win number|nil Window ID (defaults to current window)
 -- @return string Breadcrumb path like "Class > method > inner"
-function M.GetBreadcrumbs(buf, row)
+function M.GetBreadcrumbs(buf, row, win)
 	local ok_sources, sources = pcall(require, 'dropbar.sources')
 	local ok_utils, utils = pcall(require, 'dropbar.utils')
 	if not (ok_sources and ok_utils) then
@@ -62,7 +63,7 @@ function M.GetBreadcrumbs(buf, row)
 	end
 
 	buf = buf or vim.api.nvim_get_current_buf()
-	local win = vim.api.nvim_get_current_win()
+	win = win or vim.api.nvim_get_current_win()
 	if not row then
 		row = vim.api.nvim_win_get_cursor(win)[1]
 	end

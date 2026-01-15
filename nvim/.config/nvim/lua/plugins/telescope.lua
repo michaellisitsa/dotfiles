@@ -61,13 +61,38 @@ vim.keymap.set('n', '<leader>sc', function()
 	local previewer = previewers.new_buffer_previewer({
 		title = 'File Preview',
 		dyn_title = function(self, entry)
+			local utils = require('utils')
+
 			local filepath = from_entry.path(entry, false, false) or entry.filename or entry.path or ''
-			local first_line = ''
-			if self.state and self.state.bufnr and vim.api.nvim_buf_is_valid(self.state.bufnr) then
-				local lines = vim.api.nvim_buf_get_lines(self.state.bufnr, 0, 1, false)
-				first_line = lines[1] or ''
+			if self.state and self.state.bufnr and vim.api.nvim_buf_is_valid(self.state.bufnr) and self.state.winid then
+				local bufnr = self.state.bufnr
+				local filepath = from_entry.path(entry, false, false)
+
+				-- Detect and set filetype
+				local ft = vim.bo[bufnr].filetype
+				if filepath and ft == '' then
+					ft = vim.filetype.match({ filename = filepath, buf = bufnr })
+					if ft then
+						vim.bo[bufnr].filetype = ft
+					end
+				end
+
+				-- Explicitly get parser and parse
+				if ft and ft ~= '' then
+					local ok, parser = pcall(vim.treesitter.get_parser, bufnr, ft)
+					if ok and parser then
+						parser:parse()
+					end
+				end
+
+				-- Debug: check buffer content
+				local line_count = vim.api.nvim_buf_line_count(bufnr)
+				print("ft: " .. (ft or "nil") .. ", lines: " .. line_count)
+
+				local result = utils.GetBreadcrumbs(bufnr, 1, self.state.winid)
+				return result ~= '' and result or filepath
 			end
-			return filepath .. ' | ' .. first_line
+			return filepath
 		end,
 		define_preview = function(self, entry)
 			local p = from_entry.path(entry, false, false)
