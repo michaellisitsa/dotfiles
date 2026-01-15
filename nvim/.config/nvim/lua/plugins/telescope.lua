@@ -51,8 +51,8 @@ local function breadcrumbs_title(self, entry)
 			end
 
 
-			result = utils.GetBreadcrumbs(bufnr, entry.lnum, col, self.state.winid)
-			return result ~= '' and result or filepath
+			local breadcrumb = utils.GetBreadcrumbs(bufnr, entry.lnum, col, self.state.winid)
+			return result .. ' | ' .. breadcrumb
 		end
 	end
 	return result
