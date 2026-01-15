@@ -10,6 +10,53 @@ vim.pack.add({ "https://github.com/nvim-telescope/telescope-live-grep-args.nvim"
 vim.pack.add({ "https://github.com/debugloop/telescope-undo.nvim" })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope.nvim" })
 
+local from_entry = require('telescope.from_entry')
+local function breadcrumbs_title(self, entry)
+	-- your custom logic
+	-- can call original_dyn_title(self, entry) as fallback
+	local utils = require('utils')
+
+	-- fallback to existing implementation
+	-- https://github.com/nvim-telescope/telescope.nvim/blob/a8c2223ea6b185701090ccb1ebc7f4e41c4c9784/lua/telescope/previewers/buffer_previewer.lua#L559-L561
+	local result = require "plenary.path":new(from_entry.path(entry, false, false)):normalize(vim.uv.cwd())
+
+	if self.state and self.state.bufnr and vim.api.nvim_buf_is_valid(self.state.bufnr) and self.state.winid then
+		-- see https://github.com/nvim-telescope/telescope.nvim/blob/a8c2223ea6b185701090ccb1ebc7f4e41c4c9784/lua/telescope/previewers/buffer_previewer.lua#L525
+		if entry.lnum and entry.lnum > 0 then
+			local col, colend = 0, -1
+			-- Both col delimiters should be provided for them to take effect.
+			-- This is to ensure that column range highlighting was opted in, as `col`
+			-- is already used to determine the buffer jump position elsewhere.
+			if entry.col and entry.colend then
+				col, colend = entry.col - 1, entry.colend - 1
+			end
+			local bufnr = self.state.bufnr
+			local filepath = from_entry.path(entry, false, false)
+
+			-- Detect and set filetype
+			local ft = vim.bo[bufnr].filetype
+			if filepath and ft == '' then
+				ft = vim.filetype.match({ filename = filepath, buf = bufnr })
+				if ft then
+					vim.bo[bufnr].filetype = ft
+				end
+			end
+
+			-- Explicitly get parser and parse
+			if ft and ft ~= '' then
+				local ok, parser = pcall(vim.treesitter.get_parser, bufnr, ft)
+				if ok and parser then
+					parser:parse()
+				end
+			end
+
+
+			result = utils.GetBreadcrumbs(bufnr, entry.lnum - 1, col, self.state.winid)
+			return result ~= '' and result or filepath
+		end
+	end
+	return result
+end
 
 require('telescope').setup({
 	defaults = {
@@ -22,6 +69,11 @@ require('telescope').setup({
 		path_display = {
 			"filename_first",
 		},
+		grep_previewer = function(...)
+			local orig_grep_previewer = require('telescope.previewers').vim_buffer_vimgrep.new(...)
+			orig_grep_previewer._dyn_title_fn = breadcrumbs_title
+			return orig_grep_previewer
+		end,
 	},
 	extensions = {
 		live_grep_args = {
@@ -54,60 +106,7 @@ vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps'
 vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
 vim.keymap.set('n', '<leader>sp', builtin.registers, { desc = '[S]earch [P]aste Registers' })
 vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
-vim.keymap.set('n', '<leader>sc', function()
-	local previewers = require('telescope.previewers')
-	local from_entry = require('telescope.from_entry')
-
-	local previewer = previewers.new_buffer_previewer({
-		title = 'File Preview',
-		dyn_title = function(self, entry)
-			local utils = require('utils')
-
-			local filepath = from_entry.path(entry, false, false) or entry.filename or entry.path or ''
-			if self.state and self.state.bufnr and vim.api.nvim_buf_is_valid(self.state.bufnr) and self.state.winid then
-				local bufnr = self.state.bufnr
-				local filepath = from_entry.path(entry, false, false)
-
-				-- Detect and set filetype
-				local ft = vim.bo[bufnr].filetype
-				if filepath and ft == '' then
-					ft = vim.filetype.match({ filename = filepath, buf = bufnr })
-					if ft then
-						vim.bo[bufnr].filetype = ft
-					end
-				end
-
-				-- Explicitly get parser and parse
-				if ft and ft ~= '' then
-					local ok, parser = pcall(vim.treesitter.get_parser, bufnr, ft)
-					if ok and parser then
-						parser:parse()
-					end
-				end
-
-				-- Debug: check buffer content
-				local line_count = vim.api.nvim_buf_line_count(bufnr)
-				print("ft: " .. (ft or "nil") .. ", lines: " .. line_count)
-
-				local result = utils.GetBreadcrumbs(bufnr, 1, self.state.winid)
-				return result ~= '' and result or filepath
-			end
-			return filepath
-		end,
-		define_preview = function(self, entry)
-			local p = from_entry.path(entry, false, false)
-			if p then
-				require('telescope.previewers.utils').highlighter(self.state.bufnr, p)
-				vim.api.nvim_buf_call(self.state.bufnr, function()
-					pcall(vim.cmd, 'silent! read ' .. vim.fn.fnameescape(p))
-					vim.api.nvim_buf_set_lines(self.state.bufnr, 0, 1, false, {})
-				end)
-			end
-		end,
-	})
-
-	builtin.find_files({ previewer = previewer })
-end, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>sc', builtin.find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch [J]umps' })
 vim.keymap.set('n', '<leader>sg', function()
 	require('telescope').extensions.live_grep_args.live_grep_args()

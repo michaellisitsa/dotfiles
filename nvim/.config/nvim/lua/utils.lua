@@ -50,26 +50,17 @@ function M.PytestKogan(debug)
 	print('Pytest: ' .. str)
 end
 
--- Get breadcrumb string for a buffer and line
--- @param buf number|nil Buffer number (defaults to current buffer)
--- @param row number|nil Line number 1-indexed (defaults to cursor line)
--- @param win number|nil Window ID (defaults to current window)
 -- @return string Breadcrumb path like "Class > method > inner"
-function M.GetBreadcrumbs(buf, row, win)
+function M.GetBreadcrumbs(buf, row, col, win)
 	local ok_sources, sources = pcall(require, 'dropbar.sources')
 	local ok_utils, utils = pcall(require, 'dropbar.utils')
 	if not (ok_sources and ok_utils) then
 		return ''
 	end
 
-	buf = buf or vim.api.nvim_get_current_buf()
-	win = win or vim.api.nvim_get_current_win()
-	if not row then
-		row = vim.api.nvim_win_get_cursor(win)[1]
-	end
-	local cursor = { row, 0 }
+	local cursor = { row, col }
 
-	-- Fallback chain: LSP → Treesitter
+	-- Dropbar.nvim has a get_symbols function that concatenates all the document symbols up the treesitter tree. Use if available
 	-- https://github.com/Bekaboo/dropbar.nvim/blob/418897fe7828b2749ca78056ec8d8ad43136b695/lua/dropbar/utils/source.lua#L7
 	local src = utils.source.fallback {
 		sources.lsp,
@@ -84,18 +75,16 @@ function M.GetBreadcrumbs(buf, row, win)
 	return table.concat(names, ' > ')
 end
 
-function M.PathBreadcrumbs(buf, row)
-	buf = buf or vim.api.nvim_get_current_buf()
-	if not row then
-		row = vim.api.nvim_win_get_cursor(vim.api.nvim_get_current_win())[1]
-	end
+function M.PathBreadcrumbs()
+	local buf = vim.api.nvim_get_current_buf()
+	local win = vim.api.nvim_get_current_win()
 
-	local breadcrumb = M.GetBreadcrumbs(buf, row)
-	local filepath = vim.api.nvim_buf_get_name(buf)
+	local row, col = unpack(vim.api.nvim_win_get_cursor(win))
+	local breadcrumb = M.GetBreadcrumbs(buf, row, col, win)
 
 	local str = string.format(
 		'%s|%d | %s',
-		filepath,
+		vim.fn.expand('%:p'),
 		row,
 		breadcrumb
 	)
