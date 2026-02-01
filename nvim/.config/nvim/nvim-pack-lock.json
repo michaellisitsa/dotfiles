@@ -50,7 +50,7 @@
       "src": "https://github.com/catppuccin/nvim"
     },
     "nvim-dap": {
-      "rev": "818cd8787a77a97703eb1d9090543a374f79a9ac",
+      "rev": "e47878dcf1ccc30136b30d19ab19fe76946d61cd",
       "src": "https://github.com/mfussenegger/nvim-dap"
     },
     "nvim-dap-python": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/mfussenegger/nvim-dap-python"
     },
     "nvim-dap-view": {
-      "rev": "82ac7c3ac62466ce9ce43b5d393fa9ec3c4121c1",
+      "rev": "821a6d049096fea7023d8f5628ad1d35a02c88d0",
       "src": "https://github.com/igorlfs/nvim-dap-view"
     },
     "nvim-surround": {
