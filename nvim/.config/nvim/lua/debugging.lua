@@ -6,7 +6,13 @@ vim.pack.add {
 local dap = require 'dap'
 
 require('dap-python').setup 'uv'
-
+table.insert(require('dap').configurations.python, {
+	type = 'python',
+	request = 'attach',
+	name = 'Attach Auto',
+	host = '127.0.0.1',
+	port = 9292,
+})
 -- DAP UI
 vim.pack.add { 'https://github.com/igorlfs/nvim-dap-view' }
 require('dap-view').setup {

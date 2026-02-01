@@ -12,7 +12,7 @@ local function truncate(str, max)
 	return str:sub(1, max - 1) .. '…'
 end
 
-function M.PytestKogan(debug)
+function M.PytestKogan(debug, autorun)
 	local buf = vim.api.nvim_get_current_buf()
 
 	-- 0-indexed row/col
@@ -48,6 +48,25 @@ function M.PytestKogan(debug)
 	vim.fn.setreg('"', str)
 	vim.fn.setreg('+', str)
 	print('Pytest: ' .. str)
+
+	if autorun and debug then
+		-- Run the command in a new integrated terminal.
+		vim.cmd('botright split | terminal ' .. str)
+
+		-- Kick off the debugger using the option from
+		-- require('dap').configurations.python, with the name "Attach Auto"
+		vim.defer_fn(function()
+			local dap = require('dap')
+			for _, config in ipairs(dap.configurations.python) do
+				if config.name == 'Attach Auto' then
+					dap.run(config)
+					break
+				end
+			end
+		end, 2000)
+
+		print("Ran command: " .. str)
+	end
 end
 
 -- @return string Breadcrumb path like "Class > method > inner"

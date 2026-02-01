@@ -6,7 +6,7 @@
       "version": "'v4.0.0'"
     },
     "codediff.nvim": {
-      "rev": "e6d0efcf20197b266deeb8e4b6a2bbe7f0e8c6ec",
+      "rev": "8dc25e4aae6c2570d764ca3877f617d36fb5a73d",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "diffview.nvim": {

@@ -6,6 +6,8 @@ vim.o.diffopt = 'internal,filler,closeoff,inline:word,linematch:40'
 
 opt.number = true
 opt.relativenumber = true
+-- Markdown hides formatting, but does not hide lines for code blocks
+opt.conceallevel = 1
 
 opt.wildmenu = true
 

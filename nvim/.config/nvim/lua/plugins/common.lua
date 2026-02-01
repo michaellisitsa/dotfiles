@@ -27,7 +27,20 @@ vim.pack.add {
 }
 
 
-require('nvim-surround').setup {}
+require('nvim-surround').setup {
+	surrounds = {
+		['<M-">'] = {
+			add = { '"""', '"""' },
+			find = '""".-"""',
+			delete = "^(...)().-(...)()$",
+		},
+		["<M-`>"] = {
+			add = { "```", "```" },
+			find = "```.-```",
+			delete = "^(...)().-(...)()$",
+		},
+	},
+}
 require('gitsigns').setup({})
 require('oil').setup({ keymaps = { ['<Esc>'] = 'actions.close' }, view_options = { show_hidden = true } })
 require("mason").setup({})
@@ -80,4 +93,14 @@ require('outline').setup {
 		filter = { 'String', 'Constant', exclude = true },
 	},
 }
-require("codediff").setup({})
+require("codediff").setup({
+	highlights = {
+		char_brightness = 1.2,
+	},
+	-- Keymaps in diff view
+	keymaps = {
+		explorer = {
+			toggle_stage = "s", -- matches diffview
+		},
+	}
+})

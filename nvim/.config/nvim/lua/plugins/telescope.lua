@@ -16,9 +16,9 @@ local function breadcrumbs_title(self, entry)
 	-- can call original_dyn_title(self, entry) as fallback
 	local utils = require('utils')
 
-	-- fallback to existing implementation
+	-- Override to existing implementation
 	-- https://github.com/nvim-telescope/telescope.nvim/blob/a8c2223ea6b185701090ccb1ebc7f4e41c4c9784/lua/telescope/previewers/buffer_previewer.lua#L559-L561
-	local result = require "plenary.path":new(from_entry.path(entry, false, false)):normalize(vim.uv.cwd())
+	local result = vim.fn.fnamemodify(from_entry.path(entry, false, false), ':t')
 
 	if self.state and self.state.bufnr and vim.api.nvim_buf_is_valid(self.state.bufnr) and self.state.winid then
 		-- see https://github.com/nvim-telescope/telescope.nvim/blob/a8c2223ea6b185701090ccb1ebc7f4e41c4c9784/lua/telescope/previewers/buffer_previewer.lua#L525
@@ -73,6 +73,11 @@ require('telescope').setup({
 			local orig_grep_previewer = require('telescope.previewers').vim_buffer_vimgrep.new(...)
 			orig_grep_previewer._dyn_title_fn = breadcrumbs_title
 			return orig_grep_previewer
+		end,
+		qflist_previewer = function(...)
+			local orig_qflist_previewer = require('telescope.previewers').vim_buffer_qflist.new(...)
+			orig_qflist_previewer._dyn_title_fn = breadcrumbs_title
+			return orig_qflist_previewer
 		end,
 	},
 	extensions = {

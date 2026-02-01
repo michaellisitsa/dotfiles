@@ -73,11 +73,16 @@ keymap('n',
 )
 
 keymap('n', '<leader>gt', function()
-	require('utils').PytestKogan(false)
+	require('utils').PytestKogan(false, false)
+end)
+
+keymap('n', '<leader>ga', function()
+	-- Auto run
+	require('utils').PytestKogan(true, true)
 end)
 
 keymap('n', '<leader>gd', function()
-	require('utils').PytestKogan(true)
+	require('utils').PytestKogan(true, false)
 end)
 keymap('n', '<leader>gf', function()
 	require('utils').PathBreadcrumbs()
@@ -139,3 +144,47 @@ end, { desc = "Swap unnamed register with given register" })
 -- Gitsigns
 --gitsigns.blame_line
 keymap("n", "<Leader>hb", require("gitsigns").blame_line, { desc = "git [b]lame line" })
+
+
+vim.api.nvim_create_user_command("ClaudeQF", function(opts)
+	local qf = vim.fn.getqflist()
+	local items = vim.tbl_map(function(item)
+		local fname = item.bufnr > 0 and vim.fn.bufname(item.bufnr) or ""
+		return string.format("%s:%d:%s", fname, item.lnum, item.text)
+	end, qf)
+
+	local prompt = opts.args ~= "" and opts.args or "summarise and categorise"
+	local content = prompt .. ":\n" .. table.concat(items, "\n")
+
+	local result = vim.fn.system({ "claude", "-p", content })
+
+	-- Show in a new buffer
+	vim.cmd("new")
+	vim.bo.buftype = "nofile"
+	vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(result, "\n"))
+end, { nargs = "?" })
+
+vim.api.nvim_create_user_command("BlameSearch", function(opts)
+	-- Runction that enters the string in the opts into the command (with proper escaping)
+	local search_string = opts.args
+	if search_string == "" then
+		-- Get visual selection if no args provided
+		search_string = vim.fn.getreg('"')
+	end
+
+	-- Escape single quotes for shell
+	local escaped = search_string:gsub("'", "'\\''")
+
+	local cmd = string.format(
+		"git log -p -G'%s' --date=short --pretty=format:'commit %%H%%nParent: %%P%%nDate: %%ad%%nSubject: %%s' | "
+		.. "awk '/^commit / {commit=$2} /^Parent:/ {parent=$2} /^Date:/ {date=$2} "
+		.. "/^Subject:/ {subject=$0; sub(/^Subject: /, \"\", subject)} "
+		.. "/^diff --git/ {file=$3; sub(/^a\\/\\//,\"\",file)} "
+		.. "/^[+-]/ && $0 ~ /%s/ {print date, commit, parent, \"\\\"\" subject \"\\\"\", file \": \" $0}'",
+		escaped,
+		escaped
+	)
+
+	vim.cmd("new")
+	vim.fn.termopen(cmd)
+end, { nargs = "?", range = true })
