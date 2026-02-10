@@ -87,6 +87,11 @@ end)
 keymap('n', '<leader>gf', function()
 	require('utils').PathBreadcrumbs()
 end)
+keymap('v', '<leader>gf', function()
+	-- Exit visual mode so '< and '> marks are set
+	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'x', false)
+	require('utils').PathBreadcrumbs(true)
+end)
 
 keymap({ 'n', 'v' }, '<leader>hy', '<cmd>GitLink<cr>', { desc = 'Link to GitHub' }) -- linrongbin16/gitlinker.nvim
 

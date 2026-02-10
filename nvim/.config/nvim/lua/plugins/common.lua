@@ -23,7 +23,8 @@ vim.pack.add {
 	{ src = "https://github.com/nvimtools/hydra.nvim" }, -- Config in debugging and keymaps files
 	{ src = "https://github.com/hedyhli/outline.nvim" },
 	{ src = "https://github.com/MunifTanjim/nui.nvim" },
-	{ src = "https://github.com/esmuellert/codediff.nvim" }
+	{ src = "https://github.com/esmuellert/codediff.nvim" },
+	{ src = 'https://github.com/kiyoon/repeatable-move.nvim' },
 }
 
 
@@ -45,7 +46,13 @@ require('gitsigns').setup({})
 require('oil').setup({ keymaps = { ['<Esc>'] = 'actions.close' }, view_options = { show_hidden = true } })
 require("mason").setup({})
 require("vscode").setup({})
-require("flash").setup({})
+require("flash").setup({
+	modes = {
+		char = {
+			enabled = false,
+		},
+	}
+})
 require("dropbar").setup({})
 require("diffview").setup({})
 require("guess-indent").setup({})
@@ -93,14 +100,36 @@ require('outline').setup {
 		filter = { 'String', 'Constant', exclude = true },
 	},
 }
-require("codediff").setup({
+local codediff = require("codediff").setup({
 	highlights = {
 		char_brightness = 1.2,
 	},
 	-- Keymaps in diff view
 	keymaps = {
+		view = {
+			next_file = "]n", -- Next file[n]ame in explorer/history mode
+			prev_file = "[n", -- Previous file[n]ame in explorer/history mode
+		},
+
 		explorer = {
 			toggle_stage = "s", -- matches diffview
 		},
 	}
 })
+
+local ts_repeat_move = require "nvim-treesitter-textobjects.repeatable_move"
+vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next)
+vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous)
+-- Restore builtin f, F, t, T so repeatable with ; and ,
+vim.keymap.set({ "n", "x", "o" }, "f", ts_repeat_move.builtin_f_expr, { expr = true })
+vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = true })
+vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
+vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
+
+local repeat_move = require("repeatable_move")
+-- Waiting for codediff allow calling actions
+-- https://github.com/esmuellert/codediff.nvim/issues/217
+local next_hunk_repeat, prev_hunk_repeat = repeat_move.make_repeatable_move_pair(require "codediff".next_hunk,
+	require "codediff".prev_hunk)
+vim.keymap.set({ "n", "x", "o" }, "]h", next_hunk_repeat)
+vim.keymap.set({ "n", "x", "o" }, "[h", prev_hunk_repeat)

@@ -4,6 +4,7 @@ vim.lsp.enable({
 	"ts_ls",
 	"ty",
 	"ruff",
+	"yamlls",
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {

@@ -94,19 +94,35 @@ function M.GetBreadcrumbs(buf, row, col, win)
 	return table.concat(names, ' > ')
 end
 
-function M.PathBreadcrumbs()
+function M.PathBreadcrumbs(visual)
 	local buf = vim.api.nvim_get_current_buf()
 	local win = vim.api.nvim_get_current_win()
 
 	local row, col = unpack(vim.api.nvim_win_get_cursor(win))
 	local breadcrumb = M.GetBreadcrumbs(buf, row, col, win)
+	local path = vim.fn.expand('%:p:~')
 
-	local str = string.format(
-		'%s|%d | %s',
-		vim.fn.expand('%:p'),
-		row,
-		breadcrumb
-	)
+	local str
+	if visual then
+		local start_line = vim.fn.line("'<")
+		local end_line = vim.fn.line("'>")
+		str = string.format(
+			'[%s|#L%d-L%d](%s|%d)',
+			breadcrumb,
+			start_line,
+			end_line,
+			path,
+			start_line
+		)
+	else
+		str = string.format(
+			'[%s-#L%d](%s|%d)',
+			breadcrumb,
+			row,
+			path,
+			row
+		)
+	end
 
 	vim.fn.setreg('"', str)
 	vim.fn.setreg('+', str)
