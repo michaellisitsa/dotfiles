@@ -37,6 +37,17 @@ vim.keymap.set('n',
 	}
 )
 vim.keymap.set('n', '<leader>db', function() dap.toggle_breakpoint() end, { desc = 'Toggle Breakpoint' })
+-- https://github.com/mfussenegger/nvim-dap/discussions/670#discussioncomment-14254241
+vim.keymap.set('n', '<leader>de', function()
+	local condition = vim.fn.input("Breakpoint condition (optional): ")
+	local hit_condition = vim.fn.input("Hit count (optional): ")
+
+	-- Convert empty strings to nil
+	condition = condition ~= "" and condition or nil
+	hit_condition = hit_condition ~= "" and hit_condition or nil
+
+	require("dap").toggle_breakpoint(condition, hit_condition)
+end, { desc = 'Toggle Breakpoint' })
 vim.keymap.set('n', '<leader>dc', function() dap.continue() end, { desc = 'Run/Continue' })
 vim.keymap.set('n', '<leader>di', function() dap.step_into() end, { desc = 'Step Into' })
 vim.keymap.set('n', '<leader>do', function() dap.step_out() end, { desc = 'Step Out' })

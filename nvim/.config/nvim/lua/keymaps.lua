@@ -97,7 +97,15 @@ keymap({ 'n', 'v' }, '<leader>hy', '<cmd>GitLink<cr>', { desc = 'Link to GitHub'
 
 -- bookmarks.nvim
 -- https://github.com/LintaoAmons/VimEverywhere/blob/main/nvim/lua/plugins/editor-enhance/bookmarks.lua
-keymap('n', '<leader>mt', '<cmd>' .. 'BookmarksTree' .. '<cr>', { desc = 'Tree' })
+keymap('n', '<leader>mt', function()
+  local ok, ctx = pcall(function() return require('bookmarks.tree.ctx').get_ctx() end)
+  if ok and ctx and ctx.win and vim.api.nvim_win_is_valid(ctx.win) then
+    vim.api.nvim_win_close(ctx.win, true)
+    require('bookmarks.tree.ctx').clear()
+  else
+    vim.cmd('BookmarksTree')
+  end
+end, { desc = 'Tree' })
 keymap('n', '<leader>mg', '<cmd>' .. 'BookmarksGotoRecent' .. '<cr>', { desc = 'Go To Recent' })
 keymap('n', '<leader>mm', '<cmd>' .. 'BookmarksMark' .. '<cr>', { desc = 'Mark' })
 keymap('n', '<leader>ma', '<cmd>' .. 'BookmarksCommands' .. '<cr>', { desc = 'Commands' })
