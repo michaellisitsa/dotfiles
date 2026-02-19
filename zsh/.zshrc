@@ -120,7 +120,9 @@ alias python=python3
 export PATH=~/.nvm/versions/node/v18.20.8/bin:$PATH
 
 export NVM_DIR=~/.nvm
-source $(brew --prefix nvm)/nvm.sh --no-use
+if [[ $(uname) == "Darwin" ]]; then
+	source $(brew --prefix nvm)/nvm.sh --no-use
+fi
 
 export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin"
 

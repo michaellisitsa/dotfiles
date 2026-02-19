@@ -23,15 +23,20 @@ mv .config/nvim/  ./.config-backup/nvim/
 
 3. Install some dependencies
 
+## For linux replace
 ```bash
-# For linux replace brew with relevant package manager
 sudo apt install ripgrep fzf tmux stow
 # Install nvm, node
 sudo apt install python3.13-venv # assuming python also installed in this version
+# Get release from https://github.com/dandavison/delta/releases
+dpkg -i git-delta_0.18.2_amd64.deb
+```
 
-# For mac users
+## For mac users
+```sh
 brew install --cask nikitabobko/tap/aerospace
 brew install stow tmux ripgrep fzf tpm prettierd
+brew install git-delta
 
 # Tmux plugin manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
