@@ -25,8 +25,18 @@ mv .config/nvim/  ./.config-backup/nvim/
 
 ```bash
 # For linux replace brew with relevant package manager
+sudo apt install ripgrep fzf tmux stow
+# Install nvm, node
+sudo apt install python3.13-venv # assuming python also installed in this version
+
+# For mac users
 brew install --cask nikitabobko/tap/aerospace
-brew install stow tmux ripgrep fzf fd tpm prettierd
+brew install stow tmux ripgrep fzf tpm prettierd
+
+# Tmux plugin manager
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# Press prefix + I inside tmux (capital i, as in Install) to fetch the plugin.
+
 ```
 
 4. Install Zsh plugin manager (Oh My Zsh), as the .zshrc uses that.
@@ -74,6 +84,13 @@ https://shyr.io/blog/sync-iterm2-configs
 # Neovim specifics
 Updating to 0.12 HEAD
 
+Linux
+```sh
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+npm install -g tree-sitter-cli
+```
+mac
 ```sh
 brew unlink neovim
 brew uninstall --force tree-sitter
