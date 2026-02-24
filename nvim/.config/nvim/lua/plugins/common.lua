@@ -12,7 +12,6 @@ vim.pack.add {
 	{ src = "https://github.com/catppuccin/nvim" },
 	{ src = "https://github.com/folke/flash.nvim" },
 	{ src = "https://github.com/Bekaboo/dropbar.nvim" },
-	{ src = "https://github.com/sindrets/diffview.nvim" },
 	{ src = "https://github.com/nmac427/guess-indent.nvim" },
 	{ src = "https://github.com/linrongbin16/gitlinker.nvim" },
 	{ src = "https://github.com/Goose97/timber.nvim" },
@@ -54,7 +53,6 @@ require("flash").setup({
 	}
 })
 require("dropbar").setup({})
-require("diffview").setup({})
 require("guess-indent").setup({})
 require("gitlinker").setup({})
 require('timber').setup({
@@ -100,7 +98,7 @@ require('outline').setup {
 		filter = { 'String', 'Constant', exclude = true },
 	},
 }
-local codediff = require("codediff").setup({
+require("codediff").setup({
 	highlights = {
 		char_brightness = 1.2,
 	},
@@ -109,10 +107,6 @@ local codediff = require("codediff").setup({
 		view = {
 			next_file = "]n", -- Next file[n]ame in explorer/history mode
 			prev_file = "[n", -- Previous file[n]ame in explorer/history mode
-		},
-
-		explorer = {
-			toggle_stage = "s", -- matches diffview
 		},
 	}
 })
@@ -126,9 +120,8 @@ vim.keymap.set({ "n", "x", "o" }, "F", ts_repeat_move.builtin_F_expr, { expr = t
 vim.keymap.set({ "n", "x", "o" }, "t", ts_repeat_move.builtin_t_expr, { expr = true })
 vim.keymap.set({ "n", "x", "o" }, "T", ts_repeat_move.builtin_T_expr, { expr = true })
 
+-- Navigate git hunks repeatable using ; and ,
 local repeat_move = require("repeatable_move")
--- Waiting for codediff allow calling actions
--- https://github.com/esmuellert/codediff.nvim/issues/217
 local next_hunk_repeat, prev_hunk_repeat = repeat_move.make_repeatable_move_pair(require "codediff".next_hunk,
 	require "codediff".prev_hunk)
 vim.keymap.set({ "n", "x", "o" }, "]h", next_hunk_repeat)

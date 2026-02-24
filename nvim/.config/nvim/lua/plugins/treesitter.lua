@@ -27,6 +27,7 @@ require('nvim-treesitter-textobjects').setup {
 		set_jumps = true,
 	},
 }
+
 -- This should build both treesitter and text-objects
 require('utils').BuildAfterUpdate('nvim-treesitter', ':TSUpdate')
 require('utils').BuildAfterUpdate('nvim-treesitter-textobjects', ':TSUpdate')
@@ -57,6 +58,7 @@ require('nvim-treesitter').install {
 	-- Configuration
 	'terraform',
 	'yaml',
+
 }
 
 vim.api.nvim_create_autocmd('FileType', {
