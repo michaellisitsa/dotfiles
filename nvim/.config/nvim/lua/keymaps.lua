@@ -25,7 +25,6 @@ keymap("n", "grd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, si
 keymap({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash" })
 keymap('n', '<Leader>;', require 'dropbar.api'.pick, { desc = 'Pick symbols in winbar' })
 
-keymap('n', '<leader>hF', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
 keymap('n', '<leader>hf',
 	function()
 		local main_branch = vim.fn.systemlist({
@@ -60,17 +59,6 @@ keymap('n', '<leader>hf',
 	end, { desc = 'Review branch changes' })
 
 keymap('n', '<leader>r', '<cmd>restart<cr>', { desc = 'Restart' })
-keymap('n',
-	'<leader>hv',
-	function()
-		if next(require('diffview.lib').views) == nil then
-			vim.cmd 'DiffviewOpen'
-		else
-			vim.cmd 'DiffviewClose'
-		end
-	end,
-	{ desc = 'Toggle Diffview window' }
-)
 
 keymap('n', '<leader>gt', function()
 	require('utils').PytestKogan(false, false)
