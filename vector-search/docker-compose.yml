@@ -1,0 +1,16 @@
+services:
+  vector-search:
+    build: .
+    ports:
+      - "9876:9876"
+    volumes:
+      # Persistent vector storage
+      - vector-data:/data/vector-search
+      # Mount home directory read-only so the service can read code files
+      - ${HOME}:${HOME}:ro
+    environment:
+      - VECTOR_SEARCH_STORAGE=/data/vector-search
+    restart: unless-stopped
+
+volumes:
+  vector-data:

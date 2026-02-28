@@ -4,6 +4,7 @@ vim.g.maplocalleader = ' '
 
 -- Inspiration https://vieitesss.github.io/posts/Neovim-new-config/
 require 'plugins.telescope'
+require 'plugins.vector-search'
 require 'plugins.treesitter'
 require 'plugins.common'
 require 'debugging'
