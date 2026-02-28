@@ -5,12 +5,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the default embedding model used by ChromaDB
-# so first startup doesn't have a long delay
-RUN python -c "\
-from chromadb.utils.embedding_functions import DefaultEmbeddingFunction; \
-ef = DefaultEmbeddingFunction(); \
-ef(['warmup'])"
+# Pre-download the embedding model so first startup is fast
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 COPY app/ ./app/
 

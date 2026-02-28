@@ -1,24 +1,55 @@
+from unittest.mock import MagicMock
+
+import numpy as np
 import pytest
-import chromadb
 from fastapi.testclient import TestClient
+
+import app.main as main_module
+from app.main import EMBEDDING_DIM
 
 
 @pytest.fixture(autouse=True)
-def isolated_storage(tmp_path, monkeypatch):
-    """Replace the module-level ChromaDB client with one using a temp directory."""
-    import app.main as main_module
+def isolated_env(monkeypatch):
+    """Mock OpenSearch client, embedding model, and reset indexing state."""
+    # --- OpenSearch client ---
+    mock_os = MagicMock()
+    mock_os.indices.exists.return_value = False
+    mock_os.indices.create.return_value = None
+    mock_os.indices.delete.return_value = None
+    mock_os.count.return_value = {"count": 0}
+    mock_os.search.return_value = {"hits": {"hits": []}}
+    monkeypatch.setattr(main_module, "os_client", mock_os)
 
-    storage_dir = str(tmp_path / "vector-search-data")
-    test_client = chromadb.PersistentClient(path=storage_dir)
+    # --- helpers.bulk (called via opensearchpy.helpers.bulk) ---
+    import opensearchpy
 
-    monkeypatch.setattr(main_module, "client", test_client)
+    monkeypatch.setattr(
+        opensearchpy.helpers,
+        "bulk",
+        lambda client, actions, **kw: (sum(1 for _ in actions), []),
+    )
+
+    # --- Embedding model (lazy-loaded via get_model) ---
+    mock_model = MagicMock()
+    mock_model.encode.side_effect = lambda texts, **kw: np.random.rand(
+        len(texts), EMBEDDING_DIM
+    ).astype(np.float32)
+    monkeypatch.setattr(main_module, "get_model", lambda: mock_model)
+
+    # --- Fresh indexing state ---
     monkeypatch.setattr(main_module, "indexing_status", {})
 
-    yield test_client
+    return {"os_client": mock_os, "model": mock_model}
 
 
 @pytest.fixture
-def api(isolated_storage):
+def mock_os(isolated_env):
+    """Convenience alias for the mocked OpenSearch client."""
+    return isolated_env["os_client"]
+
+
+@pytest.fixture
+def api():
     from app.main import app
 
     return TestClient(app)
