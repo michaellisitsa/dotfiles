@@ -24,6 +24,8 @@ vim.pack.add {
 	{ src = "https://github.com/MunifTanjim/nui.nvim" },
 	{ src = "https://github.com/esmuellert/codediff.nvim" },
 	{ src = 'https://github.com/kiyoon/repeatable-move.nvim' },
+	{ src = 'https://github.com/ThePrimeagen/99' },
+
 }
 
 
@@ -110,7 +112,12 @@ require("codediff").setup({
 		},
 	}
 })
-
+local _99 = require("99")
+_99.setup({
+	provider = _99.Providers.ClaudeCodeProvider,
+	-- Currently native completions not supported see https://github.com/ThePrimeagen/99/issues/97
+	-- completion = { },
+})
 local ts_repeat_move = require "nvim-treesitter-textobjects.repeatable_move"
 vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next)
 vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous)

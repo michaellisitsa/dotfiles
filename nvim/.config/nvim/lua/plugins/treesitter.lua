@@ -14,12 +14,6 @@ require('nvim-treesitter-textobjects').setup {
 	select = {
 		-- Automatically jump forward to textobj, similar to targets.vim
 		lookahead = true,
-		-- You can choose the select mode (default is charwise 'v')
-		selection_modes = {
-			['@parameter.outer'] = 'v', -- charwise
-			['@function.outer'] = 'V', -- linewise
-			['@class.outer'] = '<c-v>', -- blockwise
-		},
 		include_surrounding_whitespace = false,
 	},
 	move = {
@@ -67,7 +61,6 @@ vim.api.nvim_create_autocmd('FileType', {
 	-- Also treesitter specific highlight groups have been removed.
 	-- https://github.com/nvim-treesitter/nvim-treesitter/issues/4106
 	pattern = '*',
-	-- Currently the treesitter parsing for certain javascript isn't highlight most elements
 	callback = function(args)
 		local lang = vim.treesitter.language.get_lang(args.match) or args.match
 		local installed = require('nvim-treesitter').get_installed 'parsers'
@@ -85,23 +78,29 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 local select = require 'nvim-treesitter-textobjects.select'
-vim.keymap.set({ 'x', 'o' }, 'af', function()
-	select.select_textobject('@function.outer', 'textobjects')
-end)
-vim.keymap.set({ 'x', 'o' }, 'if', function()
-	select.select_textobject('@function.inner', 'textobjects')
-end)
-local move = require 'nvim-treesitter-textobjects.move'
-vim.keymap.set({ 'n', 'x', 'o' }, ']f', function()
-	move.goto_next_start('@function.outer', 'textobjects')
-end)
-vim.keymap.set({ 'n', 'x', 'o' }, '[f', function()
-	move.goto_previous_start('@function.outer', 'textobjects')
-end)
+local textobjects = {
+	{ key = 'f', type = 'function' },
+	{ key = 'b', type = 'block',   exclude_move = true },
+	{ key = 'k', type = 'class', },
+}
 
-vim.keymap.set({ 'x', 'o' }, 'ab', function()
-	select.select_textobject('@block.outer', 'textobjects')
-end)
-vim.keymap.set({ 'x', 'o' }, 'ib', function()
-	select.select_textobject('@block.inner', 'textobjects')
-end)
+for _, obj in ipairs(textobjects) do
+	vim.keymap.set({ 'x', 'o' }, 'a' .. obj.key, function()
+		select.select_textobject('@' .. obj.type .. '.outer', 'textobjects')
+	end)
+	vim.keymap.set({ 'x', 'o' }, 'i' .. obj.key, function()
+		select.select_textobject('@' .. obj.type .. '.inner', 'textobjects')
+	end)
+end
+
+local move = require 'nvim-treesitter-textobjects.move'
+for _, obj in ipairs(textobjects) do
+	if not obj.exclude_move then
+		vim.keymap.set({ 'n', 'x', 'o' }, ']' .. obj.key, function()
+			move.goto_next_start('@' .. obj.type .. '.outer', 'textobjects')
+		end)
+		vim.keymap.set({ 'n', 'x', 'o' }, '[' .. obj.key, function()
+			move.goto_previous_start('@' .. obj.type .. '.outer', 'textobjects')
+		end)
+	end
+end
