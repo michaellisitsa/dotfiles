@@ -52,7 +52,6 @@ require('nvim-treesitter').install {
 	-- Configuration
 	'terraform',
 	'yaml',
-
 }
 
 vim.api.nvim_create_autocmd('FileType', {
@@ -76,6 +75,22 @@ vim.api.nvim_create_autocmd('FileType', {
 		end
 	end,
 })
+
+-- Lox language support (Crafting Interpreters)
+-- Taken from https://github.com/kaezrr/dotfiles/blob/b1257152f40f8ea82891c9335e71772f339a4193/dot_config/nvim/lua/config/autocmd.lua#L38-L48
+vim.api.nvim_create_autocmd('User', {
+	pattern = 'TSUpdate',
+	callback = function()
+		require('nvim-treesitter.parsers').lox = {
+			install_info = {
+				url = 'https://github.com/kaezrr/tree-sitter-lox',
+				revision = '31b5d8585ecded1bdc67fc0e50348c0932a64b0c',
+				queries = 'queries',
+			},
+		}
+	end,
+})
+vim.filetype.add({ extension = { lox = 'lox' } })
 
 local select = require 'nvim-treesitter-textobjects.select'
 local textobjects = {
