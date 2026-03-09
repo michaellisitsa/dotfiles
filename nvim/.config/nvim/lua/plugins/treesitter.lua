@@ -6,6 +6,21 @@ vim.pack.add {
 vim.pack.add {
 	{ src = 'https://github.com/nvim-treesitter/nvim-treesitter-textobjects', version = 'main' },
 }
+-- Lox language support (Crafting Interpreters)
+vim.filetype.add({ extension = { lox = 'lox' } })
+vim.api.nvim_create_autocmd('User', {
+	pattern = 'TSUpdate',
+	callback = function()
+		require('nvim-treesitter.parsers').lox = {
+			install_info = {
+				url = 'https://github.com/ajeetdsouza/tree-sitter-lox',
+				branch = 'main',
+				files = { 'src/parser.c' },
+			},
+			tier = 2,
+		}
+	end,
+})
 require('nvim-treesitter').setup {
 	-- Testing separate directory due to issue with installed parsers
 	install_dir = vim.fn.stdpath('data') .. '/site_treesitter'
@@ -52,6 +67,8 @@ require('nvim-treesitter').install {
 	-- Configuration
 	'terraform',
 	'yaml',
+	-- Crafting Interpreters
+	'lox',
 
 }
 
