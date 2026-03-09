@@ -13,6 +13,48 @@ table.insert(require('dap').configurations.python, {
 	host = '127.0.0.1',
 	port = 9292,
 })
+
+-- C language
+require('dap').adapters['codelldb'] = {
+	type = 'executable',
+	command = 'codelldb', -- or if not in $PATH: "/absolute/path/to/codelldb"
+}
+require('dap').configurations.cpp = {
+	{
+		name = 'Launch file',
+		type = 'codelldb',
+		request = 'launch',
+		program = function()
+			return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+		end,
+		cwd = '${workspaceFolder}',
+		stopOnEntry = false,
+	},
+	{
+		name = 'Launch file with script',
+		type = 'codelldb',
+		request = 'launch',
+		program = function()
+			local path = vim.fn.input('Path to executable: ', '', 'file')
+			if path == '' then
+				return vim.fn.getcwd() .. '/build/main'
+			end
+			return vim.fn.getcwd() .. '/' .. path
+		end,
+		args = function()
+			local args = vim.fn.input('First argument: ', '', 'file')
+			if args == '' then
+				-- Currently hard-coded for crafting interpreters script file
+				return { vim.fn.getcwd(), '/build/main.lox' }
+			end
+			return { vim.fn.getcwd() .. '/', args }
+		end,
+		cwd = '${workspaceFolder}',
+		stopOnEntry = false,
+	},
+}
+require('dap').configurations.c = require('dap').configurations.cpp
+
 -- DAP UI
 vim.pack.add { 'https://github.com/igorlfs/nvim-dap-view' }
 require('dap-view').setup {
