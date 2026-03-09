@@ -1,7 +1,7 @@
 {
   "plugins": {
     "99": {
-      "rev": "7994a2c4c74d8adec6a26bd6112f3e96ec0fd792",
+      "rev": "6a64e0b2f4c7f1e3911db1f8318e5d7c68cb8dff",
       "src": "https://github.com/ThePrimeagen/99"
     },
     "bookmarks.nvim": {
@@ -10,7 +10,7 @@
       "version": "'v4.0.0'"
     },
     "codediff.nvim": {
-      "rev": "0a2f5d71cdf2e8e0ca37acb604cf7cb09998b045",
+      "rev": "5e6915233e71503795d365d5ce6aec651461a434",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "diffview.nvim": {
