@@ -45,9 +45,9 @@ require('dap').configurations.cpp = {
 			local args = vim.fn.input('First argument: ', '', 'file')
 			if args == '' then
 				-- Currently hard-coded for crafting interpreters script file
-				return { vim.fn.getcwd(), '/build/main.lox' }
+				return { vim.fn.getcwd() .. '/build/main.lox' }
 			end
-			return { vim.fn.getcwd() .. '/', args }
+			return { vim.fn.getcwd() .. '/' .. args }
 		end,
 		cwd = '${workspaceFolder}',
 		stopOnEntry = false,
