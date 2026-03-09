@@ -6,7 +6,6 @@ vim.pack.add {
 vim.pack.add {
 	{ src = 'https://github.com/nvim-treesitter/nvim-treesitter-textobjects', version = 'main' },
 }
-vim.filetype.add({ extension = { lox = 'lox' } })
 require('nvim-treesitter').setup {
 	-- Testing separate directory due to issue with installed parsers
 	install_dir = vim.fn.stdpath('data') .. '/site_treesitter'
@@ -91,6 +90,8 @@ vim.api.nvim_create_autocmd('User', {
 		}
 	end,
 })
+vim.filetype.add({ extension = { lox = 'lox' } })
+
 local select = require 'nvim-treesitter-textobjects.select'
 local textobjects = {
 	{ key = 'f', type = 'function' },
