@@ -10,7 +10,7 @@
       "version": "'v4.0.0'"
     },
     "codediff.nvim": {
-      "rev": "5e6915233e71503795d365d5ce6aec651461a434",
+      "rev": "93cd80c56f71af4671388c568a37d4c84c3ddefa",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "diffview.nvim": {
@@ -62,7 +62,7 @@
       "src": "https://github.com/mfussenegger/nvim-dap-python"
     },
     "nvim-dap-view": {
-      "rev": "821a6d049096fea7023d8f5628ad1d35a02c88d0",
+      "rev": "4f9069096f5616f12a73b9287586d21eb1e4fdb0",
       "src": "https://github.com/igorlfs/nvim-dap-view"
     },
     "nvim-surround": {

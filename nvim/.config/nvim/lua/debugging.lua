@@ -45,7 +45,7 @@ require('dap').configurations.cpp = {
 			local args = vim.fn.input('First argument: ', '', 'file')
 			if args == '' then
 				-- Currently hard-coded for crafting interpreters script file
-				return { vim.fn.getcwd() .. '/build/main.lox' }
+				return { vim.fn.getcwd() .. '/examples/main.lox' }
 			end
 			return { vim.fn.getcwd() .. '/' .. args }
 		end,
@@ -60,8 +60,11 @@ vim.pack.add { 'https://github.com/igorlfs/nvim-dap-view' }
 require('dap-view').setup {
 	auto_toggle = true,
 	windows = {
+		size = 0.3,
+		position = "right",
 		terminal = {
-			position = 'right',
+			position = 'below',
+			hide = { "python", "debugpy" },
 		},
 	},
 }

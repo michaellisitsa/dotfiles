@@ -1,11 +1,28 @@
 -- Inspiration from https://antoinepoulin.com/blog/2025/08/08/how-to-setup-neovim-0.12-for-c%23-development-with-vim.pack/
 vim.pack.add({ "https://github.com/nvim-lua/plenary.nvim" })
-vim.pack.add({ "https://github.com/nvim-telescope/telescope-fzf-native.nvim" }, {
-	build = "make",
-	cond = function()
-		return vim.fn.executable("make") == 1
+-- Native install of fzf
+-- https://github.com/ysomad/dotfiles/blob/8ab154c5a71554a026cadce2252a9da91946bbfb/nvim/plugin/plugins/telescope.lua#L1-L19
+vim.api.nvim_create_autocmd("PackChanged", {
+	callback = function(ev)
+		if ev.data.spec.name ~= "telescope-fzf-native.nvim" then
+			return
+		end
+
+		if ev.data.kind ~= "install" and ev.data.kind ~= "update" then
+			return
+		end
+
+		local result = vim.system({ "make" }, { cwd = ev.data.path }):wait()
+		if result.code ~= 0 then
+			vim.notify(
+				string.format("Build failed for %s:\n%s", ev.data.spec.name, result.stderr or ""),
+				vim.log.levels.ERROR
+			)
+		end
 	end,
 })
+
+vim.pack.add({ "https://github.com/nvim-telescope/telescope-fzf-native.nvim" })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope-live-grep-args.nvim" })
 vim.pack.add({ "https://github.com/debugloop/telescope-undo.nvim" })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope.nvim" })
@@ -57,7 +74,13 @@ local function breadcrumbs_title(self, entry)
 	end
 	return result
 end
-
+local fzf_opts = {
+	fuzzy = true,            -- false will only do exact matching
+	override_generic_sorter = true, -- override the generic sorter
+	override_file_sorter = true, -- override the file sorter
+	case_mode = "smart_case", -- or "ignore_case" or "respect_case"
+	-- the default case_mode is "smart_case"
+}
 require('telescope').setup({
 	defaults = {
 		dynamic_preview_title = true,
@@ -91,9 +114,13 @@ require('telescope').setup({
 				},
 			},
 		},
+		fzf = fzf_opts,
 	},
 	pickers = {
 		['buffers'] = { sort_mru = true, ignore_current_buffer = true, sort_lastused = true, initial_mode = 'normal' },
+		lsp_dynamic_workspace_symbols = {
+			sorter = require("telescope").extensions.fzf.native_fzf_sorter(fzf_opts)
+		},
 		colorscheme = {
 			enable_preview = true,
 		},
@@ -102,7 +129,7 @@ require('telescope').setup({
 
 
 -- Enable telescope fzf native, if installed
-pcall(require("telescope").load_extension, "fzf")
+pcall(require('telescope').load_extension, 'fzf')
 pcall(require('telescope').load_extension, 'live_grep_args')
 pcall(require('telescope').load_extension, 'undo')
 local builtin = require 'telescope.builtin'
@@ -121,6 +148,7 @@ vim.keymap.set('n', '<leader>su', function()
 end, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>st', builtin.tagstack, { desc = '[S]earch [T]agstack' })
 vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 -- Shortcut for searching your Neovim configuration files
