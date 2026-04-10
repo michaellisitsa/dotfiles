@@ -4,6 +4,9 @@ vim.cmd.colorscheme 'vscode'
 vim.g.have_nerd_font = true
 vim.o.diffopt = 'internal,filler,closeoff,inline:word,linematch:40'
 
+-- See also autocmd to check when entering buffer
+vim.o.autoread = true
+
 opt.number = true
 opt.relativenumber = true
 -- Markdown hides formatting, but does not hide lines for code blocks

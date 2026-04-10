@@ -87,7 +87,7 @@ https://shyr.io/blog/sync-iterm2-configs
 3. Run `stow [name]` from the `~/.dotfiles` directory
 
 # Neovim specifics
-Updating to 0.12 HEAD
+Updating to 0.12
 
 Linux
 ```sh

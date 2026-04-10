@@ -223,3 +223,4 @@ end)
 keymap("n", "<leader>aw", function()
 	_99.Extensions.Worker.work()
 end)
+keymap("n", "<leader>mv", "<CMD>Markview<CR>", { desc = "Toggles `markview` previews globally." });

@@ -25,7 +25,7 @@ vim.pack.add {
 	{ src = "https://github.com/esmuellert/codediff.nvim" },
 	{ src = 'https://github.com/kiyoon/repeatable-move.nvim' },
 	{ src = 'https://github.com/ThePrimeagen/99' },
-
+	{ src = 'https://github.com/OXY2DEV/markview.nvim' },
 }
 
 
@@ -100,6 +100,9 @@ require('outline').setup {
 		filter = { 'String', 'Constant', exclude = true },
 	},
 }
+require("markview").setup({
+	preview = { enable = false }
+});
 require("codediff").setup({
 	highlights = {
 		char_brightness = 1.2,
