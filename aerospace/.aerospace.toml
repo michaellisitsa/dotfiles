@@ -126,10 +126,10 @@ alt-shift-keypad9 = 'move-node-to-workspace 9'
 
 # Aliases for common workspaces
 alt-m = 'workspace 1'
-alt-comma = 'workspace 2'
+alt-space = 'workspace 2'
 alt-period = 'workspace 3'
 alt-shift-m = 'move-node-to-workspace 1'
-alt-shift-comma = 'move-node-to-workspace 2'
+alt-shift-space = 'move-node-to-workspace 2'
 alt-shift-period = 'move-node-to-workspace 3'
 
 # See: https://nikitabobko.github.io/AeroSpace/commands#workspace-back-and-forth

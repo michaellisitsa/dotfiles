@@ -101,7 +101,7 @@ require('outline').setup {
 	},
 }
 require("markview").setup({
-	preview = { enable = false }
+	-- preview = { enable = false }
 });
 require("codediff").setup({
 	highlights = {
