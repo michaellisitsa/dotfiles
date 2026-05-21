@@ -118,7 +118,10 @@ require("image").setup({
 				return fallback(document_path, image_path)
 			end,
 		}
-	}
+	},
+	window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
+	editor_only_render_when_focused = true, -- auto show/hide images when the editor gains/looses focus
+	tmux_show_only_in_active_window = true, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
 })
 require("codediff").setup({
 	highlights = {
