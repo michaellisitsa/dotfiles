@@ -26,6 +26,7 @@ vim.pack.add {
 	{ src = 'https://github.com/kiyoon/repeatable-move.nvim' },
 	{ src = 'https://github.com/ThePrimeagen/99' },
 	{ src = 'https://github.com/OXY2DEV/markview.nvim' },
+	{ src = 'https://github.com/3rd/image.nvim' },
 }
 
 
@@ -103,6 +104,22 @@ require('outline').setup {
 require("markview").setup({
 	-- preview = { enable = false }
 });
+require("image").setup({
+	backend = "kitty",
+	processor = "magick_cli",
+	integrations = {
+		markdown = {
+			resolve_image_path = function(document_path, image_path, fallback)
+				-- document_path is the path to the file that contains the image
+				-- image_path is the potentially relative path to the image. for
+				-- markdown it's `![](this text)`
+
+				-- you can call the fallback function to get the default behavior
+				return fallback(document_path, image_path)
+			end,
+		}
+	}
+})
 require("codediff").setup({
 	highlights = {
 		char_brightness = 1.2,
