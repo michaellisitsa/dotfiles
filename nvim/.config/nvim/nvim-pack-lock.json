@@ -10,7 +10,7 @@
       "version": "'v4.0.0'"
     },
     "codediff.nvim": {
-      "rev": "93cd80c56f71af4671388c568a37d4c84c3ddefa",
+      "rev": "76ff1b13f0bcba655dca85cea1ef0df877a53c0f",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "diffview.nvim": {
@@ -44,6 +44,10 @@
     "image.nvim": {
       "rev": "44e07129cd0ea0c60afa7a1991d35b5765b51a6b",
       "src": "https://github.com/3rd/image.nvim"
+    },
+    "img-clip.nvim": {
+      "rev": "b6ddfb97b5600d99afe3452d707444afda658aca",
+      "src": "https://github.com/HakonHarnes/img-clip.nvim"
     },
     "markview.nvim": {
       "rev": "1861f959599ae03cfd59f56222a542035b0cd947",

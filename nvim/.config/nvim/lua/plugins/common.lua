@@ -27,6 +27,7 @@ vim.pack.add {
 	{ src = 'https://github.com/ThePrimeagen/99' },
 	{ src = 'https://github.com/OXY2DEV/markview.nvim' },
 	{ src = 'https://github.com/3rd/image.nvim' },
+	{ src = 'https://github.com/HakonHarnes/img-clip.nvim' },
 }
 
 
@@ -123,6 +124,13 @@ require("image").setup({
 	editor_only_render_when_focused = true, -- auto show/hide images when the editor gains/looses focus
 	tmux_show_only_in_active_window = true, -- auto show/hide images in the correct Tmux window (needs visual-activity off)
 })
+require("img-clip").setup({
+	default = {
+		-- Resizes images larger than equiv 1000x800 pixels.
+		process_cmd = "magick - -resize  '800000@>' -",
+	}
+})
+vim.keymap.set({ "n", "v" }, "<leader>p", "<cmd>PasteImage<cr>", { desc = "Paste image from clipboard" })
 require("codediff").setup({
 	highlights = {
 		char_brightness = 1.2,
