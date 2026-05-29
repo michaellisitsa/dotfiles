@@ -6,6 +6,7 @@ vim.lsp.enable({
 	"ruff",
 	"yamlls",
 	"jsonls",
+	"html",
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {

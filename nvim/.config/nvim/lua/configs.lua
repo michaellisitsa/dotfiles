@@ -95,4 +95,5 @@ opt.wildignore:append { '.git/*', '.DS_Store/*', '*/node_modules/*', '.venv/*', 
 -- https://blog.viktomas.com/graph/neovim-native-built-in-lsp-autocomplete/
 opt.completeopt = { "menuone", "noinsert", "preinsert" }
 opt.wildmode = "noselect"
+opt.scrolloff = 5
 require('vim._core.ui2').enable({})
