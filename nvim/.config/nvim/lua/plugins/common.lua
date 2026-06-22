@@ -28,6 +28,7 @@ vim.pack.add {
 	{ src = 'https://github.com/OXY2DEV/markview.nvim' },
 	{ src = 'https://github.com/3rd/image.nvim' },
 	{ src = 'https://github.com/HakonHarnes/img-clip.nvim' },
+	{ src = 'https://github.com/MagicDuck/grug-far.nvim' },
 }
 
 
@@ -103,7 +104,7 @@ require('outline').setup {
 	},
 }
 require("markview").setup({
-	-- preview = { enable = false }
+	preview = { map_gx = false }
 });
 require("image").setup({
 	backend = "kitty",
@@ -143,6 +144,7 @@ require("codediff").setup({
 		},
 	}
 })
+require('grug-far').setup({})
 local _99 = require("99")
 _99.setup({
 	provider = _99.Providers.ClaudeCodeProvider,

@@ -59,16 +59,9 @@ keymap('n', '<leader>hf',
 		}, {})
 	end, { desc = 'Review branch changes' })
 
-keymap('n', '<leader>r', '<cmd>restart<cr>', { desc = 'Restart' })
 keymap('n',
 	'<leader>hv',
-	function()
-		if next(require('diffview.lib').views) == nil then
-			vim.cmd 'DiffviewOpen'
-		else
-			vim.cmd 'DiffviewClose'
-		end
-	end,
+	'<cmd>CodeDiff<cr>',
 	{ desc = 'Toggle Diffview window' }
 )
 
@@ -224,3 +217,5 @@ keymap("n", "<leader>aw", function()
 	_99.Extensions.Worker.work()
 end)
 keymap("n", "<leader>mv", "<CMD>Markview<CR>", { desc = "Toggles `markview` previews globally." });
+keymap("n", "<leader>sx", function() require('grug-far').open({ engine = 'astgrep-rules' }) end,
+	{ desc = '[S]earch [X]ml Ast-grep' });

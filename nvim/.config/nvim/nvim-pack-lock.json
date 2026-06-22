@@ -10,7 +10,7 @@
       "version": "'v4.0.0'"
     },
     "codediff.nvim": {
-      "rev": "76ff1b13f0bcba655dca85cea1ef0df877a53c0f",
+      "rev": "7608f3b436ce1f84a4888f75e53079caa981a2e9",
       "src": "https://github.com/esmuellert/codediff.nvim"
     },
     "diffview.nvim": {
@@ -33,6 +33,10 @@
       "rev": "abf82a65f185bd54adc0679f74b7d6e1ada690c9",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
+    "grug-far.nvim": {
+      "rev": "c995bbacf8229dc096ec1c3d60f8531059c86c1b",
+      "src": "https://github.com/MagicDuck/grug-far.nvim"
+    },
     "guess-indent.nvim": {
       "rev": "84a4987ff36798c2fc1169cbaff67960aed9776f",
       "src": "https://github.com/nmac427/guess-indent.nvim"
@@ -50,7 +54,7 @@
       "src": "https://github.com/HakonHarnes/img-clip.nvim"
     },
     "markview.nvim": {
-      "rev": "1861f959599ae03cfd59f56222a542035b0cd947",
+      "rev": "576e50fa99091ff47a9920e1b6ef94b2a7c2f036",
       "src": "https://github.com/OXY2DEV/markview.nvim"
     },
     "mason.nvim": {
@@ -74,7 +78,7 @@
       "src": "https://github.com/mfussenegger/nvim-dap-python"
     },
     "nvim-dap-view": {
-      "rev": "4f9069096f5616f12a73b9287586d21eb1e4fdb0",
+      "rev": "91a2b0eab74cc889499587166cc6e3d53a7e1e45",
       "src": "https://github.com/igorlfs/nvim-dap-view"
     },
     "nvim-surround": {
@@ -117,6 +121,10 @@
     "telescope-live-grep-args.nvim": {
       "rev": "b80ec2c70ec4f32571478b501218c8979fab5201",
       "src": "https://github.com/nvim-telescope/telescope-live-grep-args.nvim"
+    },
+    "telescope-sg": {
+      "rev": "1992a9d5e51b7b41673754daf1b15654bfd662de",
+      "src": "https://github.com/Marskey/telescope-sg"
     },
     "telescope-undo.nvim": {
       "rev": "928d0c2dc9606e01e2cc547196f48d2eaecf58e5",

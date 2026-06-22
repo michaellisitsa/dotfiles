@@ -23,6 +23,7 @@ opt.mouse = 'a'
 
 -- Folds all start closed if you don't set this
 vim.o.foldlevelstart = 99
+opt.foldcolumn = 'auto:5'
 
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
@@ -79,6 +80,9 @@ opt.confirm = true
 --
 opt.fillchars = {
 	fold = ' ',
+	foldopen = '▾',
+	foldclose = '▸',
+	foldsep = '│',
 	diff = '╱',
 	wbr = '─',
 	msgsep = '─',

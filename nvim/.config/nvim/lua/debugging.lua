@@ -99,14 +99,15 @@ vim.keymap.set('n', '<leader>do', function() dap.step_out() end, { desc = 'Step 
 vim.keymap.set('n', '<leader>dn', function() dap.step_over() end, { desc = 'Step Over' })
 vim.keymap.set('n', '<leader>dm', function() dap.run_to_cursor() end, { desc = 'Run to cursor' })
 vim.keymap.set('n', '<leader>dk', function() dap.up() end, { desc = 'Up Scope' })
-vim.keymap.set('n', '<leader>dv', function() require('dap.ui.widgets').hover() end, { desc = 'DAP: Hover variable' })
 vim.keymap.set('n', '<leader>dj', function() dap.down() end, { desc = 'Down Scope' })
 vim.keymap.set('n', '<leader>dt', function() dap.terminate() end, { desc = 'Terminate' })
 vim.keymap.set('n', '<leader>dp', function() dap.disconnect({ terminateDebuggee = false }) end, { desc = 'Disconnect' })
 
 -- https://github.com/r0nsha/dotfiles/blob/master/nvim/lua/plugins/dap/hydra.lua#L82
---
 local dv = require "dap-view"
+
+vim.keymap.set('n', '<leader>dv', function() dv.hover() end, { desc = 'DAP: Hover variable' })
+
 ---@param view dapview.Section
 local function jump_to_view(view)
 	return function()

@@ -25,6 +25,7 @@ vim.api.nvim_create_autocmd("PackChanged", {
 vim.pack.add({ "https://github.com/nvim-telescope/telescope-fzf-native.nvim" })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope-live-grep-args.nvim" })
 vim.pack.add({ "https://github.com/debugloop/telescope-undo.nvim" })
+vim.pack.add({ "https://github.com/Marskey/telescope-sg" })
 vim.pack.add({ "https://github.com/nvim-telescope/telescope.nvim" })
 
 local from_entry = require('telescope.from_entry')
@@ -104,6 +105,14 @@ require('telescope').setup({
 		end,
 	},
 	extensions = {
+		ast_grep = {
+			command = {
+				"sg", -- For Linux, use `ast-grep` instead of `sg`
+				"--json=stream",
+			},  -- must have --json=stream
+			grep_open_files = false, -- search in opened files
+			lang = nil, -- string value, specify language for ast-grep `nil` for default
+		},
 		live_grep_args = {
 			auto_quoting = true,
 			mappings = {
@@ -132,6 +141,7 @@ require('telescope').setup({
 pcall(require('telescope').load_extension, 'fzf')
 pcall(require('telescope').load_extension, 'live_grep_args')
 pcall(require('telescope').load_extension, 'undo')
+pcall(require('telescope').load_extension, 'ast_grep')
 local builtin = require 'telescope.builtin'
 vim.keymap.set('n', '<header>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
@@ -146,6 +156,9 @@ end, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>su', function()
 	require('telescope').extensions.undo.undo()
 end, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>sa', function()
+	require('telescope').extensions.ast_grep.ast_grep()
+end, { desc = '[S]earch by [A]ST grep' })
 vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
 vim.keymap.set('n', '<leader>st', builtin.tagstack, { desc = '[S]earch [T]agstack' })
