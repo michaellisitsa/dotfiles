@@ -165,6 +165,88 @@ function M.RenderBookmark(node)
 	)
 end
 
+local IMPORT_NODES = {
+	import_statement = true, -- Python, JS, TS
+	import_from_statement = true, -- Python
+	future_import_statement = true, -- Python
+	use_declaration = true, -- Rust
+	preproc_include = true, -- C/C++
+	import_declaration = true, -- Go, Java
+	import_spec = true, -- Go
+}
+
+-- Telescope lsp_references that hides entries inside test_* files or inside
+-- import statements (detected via treesitter). Falls back to passing entries
+-- through unchanged once filtering exceeds the 1s budget.
+function M.FilteredLspReferences()
+	local make_entry = require('telescope.make_entry')
+	local base = make_entry.gen_from_quickfix({})
+
+	local tree_cache = {}
+	local function get_tree(filename)
+		if tree_cache[filename] ~= nil then return tree_cache[filename] end
+		local bufnr = vim.fn.bufnr(filename)
+		if bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+			local ft = vim.bo[bufnr].filetype
+			if ft ~= '' then
+				local ok, parser = pcall(vim.treesitter.get_parser, bufnr, ft)
+				if ok and parser then
+					tree_cache[filename] = parser:parse()[1]
+					return tree_cache[filename]
+				end
+			end
+		end
+		local ft = vim.filetype.match({ filename = filename })
+		local f = ft and io.open(filename, 'r')
+		if f then
+			local content = f:read('*a')
+			f:close()
+			local ok, parser = pcall(vim.treesitter.get_string_parser, content, ft)
+			if ok and parser then
+				tree_cache[filename] = parser:parse()[1]
+				return tree_cache[filename]
+			end
+		end
+		tree_cache[filename] = false
+		return false
+	end
+
+	local function is_in_import(filename, lnum, col)
+		local tree = get_tree(filename)
+		if not tree then return false end
+		local node = tree:root():named_descendant_for_range(lnum - 1, col - 1, lnum - 1, col - 1)
+		while node do
+			if IMPORT_NODES[node:type()] then return true end
+			node = node:parent()
+		end
+		return false
+	end
+
+	local TIMEOUT_NS = 1e9
+	local start_ns, timed_out
+
+	require('telescope.builtin').lsp_references({
+		entry_maker = function(entry)
+			if not start_ns then start_ns = vim.uv.hrtime() end
+			if not timed_out and (vim.uv.hrtime() - start_ns) > TIMEOUT_NS then
+				timed_out = true
+				vim.schedule(function()
+					vim.notify('FilteredLspReferences: timed out, passing remaining entries through',
+						vim.log.levels.WARN)
+				end)
+			end
+			if timed_out then return base(entry) end
+			if vim.fn.fnamemodify(entry.filename, ':t'):match('^test_') then
+				return nil
+			end
+			if is_in_import(entry.filename, entry.lnum, entry.col) then
+				return nil
+			end
+			return base(entry)
+		end,
+	})
+end
+
 function M.BuildAfterUpdate(plugin_name, build)
 	-- https://github.com/cgimenes/dotfiles/blob/4ad8cadf1c9ede5ee46f4f4a9be01b7cd0f9d562/nvim/.config/nvim/lua/plugins/init.lua#L1-L19
 	vim.api.nvim_create_autocmd('PackChanged', {

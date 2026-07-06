@@ -27,6 +27,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		end
 
 		map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences Word under cursor')
+		-- Exclude tests
+		-- Exclude common python / javascript import exclusions and test exclusions
+		-- Once ty implementations are merged, most of this can be removed. See https://github.com/astral-sh/ty/issues/3514
+		map('gro', require('utils').FilteredLspReferences, '[G]oto [R]eferences (exclude test_* and imports)')
 		map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 		--  To jump back, press <C-t>r
 		map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')

@@ -18,17 +18,17 @@ vim.pack.add {
 	-- Note issue with using function call type string
 	-- in upstream sqlite https://github.com/kkharji/sqlite.lua/issues/182
 	{ src = "https://github.com/kkharji/sqlite.lua" }, -- Dependency of bookmarks.nvim
-	{ src = "https://github.com/LintaoAmons/bookmarks.nvim", version = 'v4.0.0' },
+	{ src = "https://github.com/LintaoAmons/bookmarks.nvim",      version = 'v4.0.0' },
 	{ src = "https://github.com/nvimtools/hydra.nvim" }, -- Config in debugging and keymaps files
 	{ src = "https://github.com/hedyhli/outline.nvim" },
 	{ src = "https://github.com/MunifTanjim/nui.nvim" },
 	{ src = "https://github.com/esmuellert/codediff.nvim" },
 	{ src = 'https://github.com/kiyoon/repeatable-move.nvim' },
-	{ src = 'https://github.com/ThePrimeagen/99' },
 	{ src = 'https://github.com/OXY2DEV/markview.nvim' },
 	{ src = 'https://github.com/3rd/image.nvim' },
 	{ src = 'https://github.com/HakonHarnes/img-clip.nvim' },
 	{ src = 'https://github.com/MagicDuck/grug-far.nvim' },
+	{ src = 'https://github.com/nemanjamalesija/smart-paste.nvim' },
 }
 
 
@@ -145,12 +145,7 @@ require("codediff").setup({
 	}
 })
 require('grug-far').setup({})
-local _99 = require("99")
-_99.setup({
-	provider = _99.Providers.ClaudeCodeProvider,
-	-- Currently native completions not supported see https://github.com/ThePrimeagen/99/issues/97
-	-- completion = { },
-})
+require('smart-paste').setup()
 local ts_repeat_move = require "nvim-treesitter-textobjects.repeatable_move"
 vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next)
 vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous)

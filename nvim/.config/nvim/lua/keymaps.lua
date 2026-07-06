@@ -23,6 +23,24 @@ keymap("n", "<Leader>w", "<cmd>w!<CR>", s)                                      
 
 keymap("n", "grd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, silent = true }) -- Go to definition
 keymap({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash" })
+keymap("n", "gs", function()
+	require("flash").jump({
+		action = function(match)
+			vim.api.nvim_set_current_win(match.win)
+			vim.api.nvim_win_set_cursor(match.win, match.pos)
+			vim.lsp.buf.definition()
+		end,
+	})
+end, { desc = "Flash → go to definition" })
+keymap("n", "go", function()
+	require("flash").jump({
+		action = function(match)
+			vim.api.nvim_set_current_win(match.win)
+			vim.api.nvim_win_set_cursor(match.win, match.pos)
+			require("utils").FilteredLspReferences()
+		end,
+	})
+end, { desc = "Flash → references (no tests/imports)" })
 keymap('n', '<Leader>;', require 'dropbar.api'.pick, { desc = 'Pick symbols in winbar' })
 
 keymap('n', '<leader>hF', '<cmd>DiffviewOpen origin/HEAD...HEAD --imply-local<cr>', { desc = 'Review branch changes' })
@@ -195,27 +213,6 @@ vim.api.nvim_create_user_command("BlameSearch", function(opts)
 	vim.fn.termopen(cmd)
 end, { nargs = "?", range = true })
 
-local _99 = require("99")
-keymap("v", "<leader>av", function()
-	_99.visual()
-end)
---- if you have a request you dont want to make any changes, just cancel it
-keymap("n", "<leader>ax", function()
-	_99.stop_all_requests()
-end)
-keymap("n", "<leader>as", function()
-	_99.search()
-end)
-keymap("n", "<leader>ap", function()
-	_99.Extensions.Worker.set_work()
-end)
--- Description of the prompt used
-keymap("n", "<leader>ac", function()
-	print(_99.Extensions.Worker.current_work_item)
-end)
-keymap("n", "<leader>aw", function()
-	_99.Extensions.Worker.work()
-end)
 keymap("n", "<leader>mv", "<CMD>Markview<CR>", { desc = "Toggles `markview` previews globally." });
 keymap("n", "<leader>sx", function() require('grug-far').open({ engine = 'astgrep-rules' }) end,
 	{ desc = '[S]earch [X]ml Ast-grep' });

@@ -1,9 +1,5 @@
 {
   "plugins": {
-    "99": {
-      "rev": "6a64e0b2f4c7f1e3911db1f8318e5d7c68cb8dff",
-      "src": "https://github.com/ThePrimeagen/99"
-    },
     "bookmarks.nvim": {
       "rev": "6d39685485bfb95e6e8cd3441ff156562ff6fe59",
       "src": "https://github.com/LintaoAmons/bookmarks.nvim",
@@ -12,10 +8,6 @@
     "codediff.nvim": {
       "rev": "7608f3b436ce1f84a4888f75e53079caa981a2e9",
       "src": "https://github.com/esmuellert/codediff.nvim"
-    },
-    "diffview.nvim": {
-      "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
-      "src": "https://github.com/sindrets/diffview.nvim"
     },
     "dropbar.nvim": {
       "rev": "ce202248134e3949aac375fd66c28e5207785b10",
@@ -110,6 +102,10 @@
       "rev": "2ac4b47fdb9ae1ddefb3e7650d3fc6c9fb2ae05c",
       "src": "https://github.com/kiyoon/repeatable-move.nvim"
     },
+    "smart-paste.nvim": {
+      "rev": "7a461d3d83a6bee199d3f1c0b177f7f3e22fa371",
+      "src": "https://github.com/nemanjamalesija/smart-paste.nvim"
+    },
     "sqlite.lua": {
       "rev": "50092d60feb242602d7578398c6eb53b4a8ffe7b",
       "src": "https://github.com/kkharji/sqlite.lua"
@@ -141,10 +137,6 @@
     "undotree": {
       "rev": "fc28931fbfba66ab75d9af23fe46ffbbb9de6e8c",
       "src": "https://github.com/mbbill/undotree"
-    },
-    "vscode.nvim": {
-      "rev": "aa1102a7e15195c9cca22730b09224a7f7745ba8",
-      "src": "https://github.com/Mofiqul/vscode.nvim"
     }
   }
 }
