@@ -1,0 +1,126 @@
+#!/bin/zsh
+# Compose the Slack composer text in VimR and paste the result back.
+# Works with the Slack desktop app or Slack web in Firefox — dispatches on
+# whichever was focused when the hotkey fired. Bound to alt-e in ~/.aerospace.toml.
+# Design: docs/superpowers/specs/2026-07-07-slack-vim-compose-design.md
+#
+# Deletes nothing: the lock is a PID file whose staleness is checked with
+# kill -0, and drafts accumulate under $TMPDIR/slack-vim-compose until macOS
+# purges them (so the last draft is always recoverable).
+
+set -u
+PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+notify() {
+    osascript -e "display notification \"$1\" with title \"slack-vim-compose\"" >/dev/null 2>&1
+}
+
+send_keystrokes() {
+    # $1: app to focus; $2: two keys to send with Cmd held ("a c" or "a v")
+    local app=$1
+    local first=${2%% *} second=${2##* }
+    osascript >/dev/null <<EOS
+tell application "$app" to activate
+delay 0.2
+tell application "System Events"
+    keystroke "$first" using command down
+    delay 0.1
+    keystroke "$second" using command down
+end tell
+delay 0.15
+EOS
+}
+
+frontmost_bundle_id() {
+    osascript -e 'tell application "System Events" to get bundle identifier of first application process whose frontmost is true' 2>/dev/null
+}
+
+# Firefox has no AppleScript tab API, so the front window title is the only
+# signal that the active tab is Slack. Loose *Slack* match for now — tighten
+# to the exact title suffix once observed in testing.
+firefox_front_is_slack() {
+    local title
+    title=$(osascript -e 'tell application "System Events" to tell (first application process whose bundle identifier is "org.mozilla.firefox") to get name of front window' 2>/dev/null)
+    [[ "$title" == *Slack* ]]
+}
+
+# --- guards --------------------------------------------------------------------
+# Dispatch on whichever Slack surface was focused when alt-e was pressed.
+case "$(frontmost_bundle_id)" in
+com.tinyspeck.slackmacgap)
+    target_app="Slack"
+    ;;
+org.mozilla.firefox)
+    if ! firefox_front_is_slack; then
+        notify "Front Firefox tab doesn't look like Slack"
+        exit 1
+    fi
+    target_app="Firefox"
+    ;;
+*)
+    notify "Focus Slack (app or Firefox tab) first"
+    exit 1
+    ;;
+esac
+
+if ! command -v vimr >/dev/null; then
+    notify "vimr CLI not found (VimR menu → Install CLI tool)"
+    exit 1
+fi
+
+lockfile="${TMPDIR:-/tmp}/slack-vim-compose.pid"
+lock_pid=$(cat "$lockfile" 2>/dev/null || true)
+if [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null; then
+    notify "A compose session is already open"
+    exit 1
+fi
+echo $$ >"$lockfile" # a dead PID here is stale and simply overwritten
+
+# --- capture composer text -------------------------------------------------------
+saved_clip=$(pbpaste 2>/dev/null || true)
+: | pbcopy # clear, so an empty composer doesn't inherit stale clipboard
+
+if ! send_keystrokes "$target_app" "a c"; then
+    printf '%s' "$saved_clip" | pbcopy
+    notify "Keystrokes failed — grant AeroSpace Accessibility permission?"
+    exit 1
+fi
+
+original=$(pbpaste)
+draft_root="${TMPDIR:-/tmp}/slack-vim-compose"
+mkdir -p "$draft_root"
+draft="$draft_root/draft-$(date +%Y%m%d-%H%M%S).md"
+if [[ -n "$original" ]]; then
+    printf '%s\n' "$original" >"$draft"
+else
+    : >"$draft"
+fi
+
+# hand the clipboard back to the user for the duration of the edit
+printf '%s' "$saved_clip" | pbcopy
+
+# --- edit ------------------------------------------------------------------------
+vimr --wait "$draft"
+
+# $(<file) strips trailing newlines, which also drops the final newline vim adds
+new=$(<"$draft")
+
+# abort: unchanged (:q/:q!) or emptied — leave the Slack draft untouched
+if [[ -z "$new" || "$new" == "$original" ]]; then
+    exit 0
+fi
+
+# --- paste back --------------------------------------------------------------------
+printf '%s' "$new" | pbcopy
+
+# the Firefox tab may have changed during the edit — never blind-paste into an
+# unverified page; the composed text stays in the clipboard instead
+if [[ "$target_app" == "Firefox" ]] && ! firefox_front_is_slack; then
+    notify "Firefox is no longer on Slack — text is in the clipboard, Cmd+V when you're back"
+    exit 1
+fi
+
+if ! send_keystrokes "$target_app" "a v"; then
+    notify "Paste-back failed — your text is in the clipboard, Cmd+V in Slack"
+    exit 1
+fi

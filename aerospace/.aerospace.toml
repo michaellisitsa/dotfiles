@@ -75,6 +75,9 @@ alt-slash = 'layout tiles horizontal vertical'
 alt-minus = 'resize smart -50'
 alt-equal = 'resize smart +50'
 
+# Edit the Slack composer in VimR, paste the result back on close
+alt-e = 'exec-and-forget ~/.dotfiles/bin/slack-vim-compose'
+
 # tmux uses the alt-X codes
 alt-shift-h = 'focus left'
 alt-shift-j = 'focus down'
