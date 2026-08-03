@@ -13,6 +13,8 @@ keymap('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 keymap('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 keymap('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+keymap('x', 'p', '"_dP', { desc = 'Paste over selection without clobbering register' })
+
 keymap('n', '<C-w>z', '<cmd>Zen<cr>', { desc = 'Center windows' })
 keymap('n', '<leader>fm', '<cmd>Oil<cr>', { desc = 'Open File System' })
 keymap('n', '<leader>tu', '<cmd>UndotreeToggle<cr>', { desc = 'Toggle Undotree' })
@@ -23,6 +25,7 @@ keymap("n", "<Leader>w", "<cmd>w!<CR>", s)                                      
 
 keymap("n", "grd", "<cmd>lua vim.lsp.buf.definition()<CR>", { noremap = true, silent = true }) -- Go to definition
 keymap({ "n", "x", "o" }, "s", function() require("flash").jump() end, { desc = "Flash" })
+keymap("o", "r", function() require("flash").remote() end, { desc = "Remote Flash" })
 keymap("n", "gs", function()
 	require("flash").jump({
 		action = function(match)

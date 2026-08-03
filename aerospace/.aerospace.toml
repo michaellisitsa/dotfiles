@@ -166,6 +166,10 @@ down = 'volume down'
 up = 'volume up'
 shift-down = ['volume set 0', 'mode main']
 
+# Force screen to secondary
+[workspace-to-monitor-force-assignment]
+    5 = '^built-in retina display$'  # Case insensitive regex match
+
 # On startup, move all windows to their respective workspaces
 [[on-window-detected]]
 if.app-id = 'com.googlecode.iterm2'

@@ -146,7 +146,61 @@ local builtin = require 'telescope.builtin'
 vim.keymap.set('n', '<header>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
 vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-vim.keymap.set('n', '<leader>sp', builtin.registers, { desc = '[S]earch [P]aste Registers' })
+vim.keymap.set('n', '<leader>sp', function()
+	local pickers = require 'telescope.pickers'
+	local finders = require 'telescope.finders'
+	local conf = require('telescope.config').values
+	local previewers = require 'telescope.previewers'
+	local actions = require 'telescope.actions'
+	local action_state = require 'telescope.actions.state'
+
+	local results = {}
+	for i = 0, 9 do
+		local reg = tostring(i)
+		local content = vim.fn.getreg(reg)
+		if content ~= '' then
+			table.insert(results, { reg = reg, content = content })
+		end
+	end
+
+	pickers
+	    .new({
+		    layout_strategy = 'vertical',
+		    layout_config = { preview_height = 0.65 },
+	    }, {
+		    prompt_title = 'Registers 0-9',
+		    finder = finders.new_table {
+			    results = results,
+			    entry_maker = function(entry)
+				    -- results row is single-line; full content shows in the previewer
+				    local summary = entry.content:gsub('\n', '⏎'):sub(1, 100)
+				    return {
+					    value = entry,
+					    display = '"' .. entry.reg .. '  ' .. summary,
+					    ordinal = entry.reg .. ' ' .. entry.content,
+				    }
+			    end,
+		    },
+		    sorter = conf.generic_sorter {},
+		    previewer = previewers.new_buffer_previewer {
+			    title = 'Register contents',
+			    define_preview = function(self, entry)
+				    vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false,
+					    vim.split(entry.value.content, '\n'))
+			    end,
+		    },
+		    initial_mode = 'normal',
+		    attach_mappings = function(prompt_bufnr)
+			    actions.select_default:replace(function()
+				    actions.close(prompt_bufnr)
+				    local entry = action_state.get_selected_entry()
+				    vim.api.nvim_paste(entry.value.content, true, -1)
+			    end)
+			    return true
+		    end,
+	    })
+	    :find()
+end, { desc = '[S]earch [P]aste Registers 0-9' })
 vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
 vim.keymap.set('n', '<leader>sc', builtin.find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sj', builtin.jumplist, { desc = '[S]earch [J]umps' })

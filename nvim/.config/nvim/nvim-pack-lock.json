@@ -1,13 +1,21 @@
 {
   "plugins": {
+    "99": {
+      "rev": "7994a2c4c74d8adec6a26bd6112f3e96ec0fd792",
+      "src": "https://github.com/ThePrimeagen/99"
+    },
     "bookmarks.nvim": {
       "rev": "6d39685485bfb95e6e8cd3441ff156562ff6fe59",
       "src": "https://github.com/LintaoAmons/bookmarks.nvim",
       "version": "'v4.0.0'"
     },
     "codediff.nvim": {
-      "rev": "7608f3b436ce1f84a4888f75e53079caa981a2e9",
+      "rev": "f48efe3b66296277043698126ea11251850cd67b",
       "src": "https://github.com/esmuellert/codediff.nvim"
+    },
+    "diffview.nvim": {
+      "rev": "4516612fe98ff56ae0415a259ff6361a89419b0a",
+      "src": "https://github.com/sindrets/diffview.nvim"
     },
     "dropbar.nvim": {
       "rev": "ce202248134e3949aac375fd66c28e5207785b10",
@@ -137,6 +145,10 @@
     "undotree": {
       "rev": "fc28931fbfba66ab75d9af23fe46ffbbb9de6e8c",
       "src": "https://github.com/mbbill/undotree"
+    },
+    "vscode.nvim": {
+      "rev": "aa1102a7e15195c9cca22730b09224a7f7745ba8",
+      "src": "https://github.com/Mofiqul/vscode.nvim"
     }
   }
 }
