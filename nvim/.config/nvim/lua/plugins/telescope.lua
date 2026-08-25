@@ -88,6 +88,12 @@ require('telescope').setup({
 		mappings = {
 			i = {
 				['<C-space>'] = require('telescope.actions').to_fuzzy_refine,
+				["<C-f>"] = require("telescope.actions").results_scrolling_down,
+				["<C-b>"] = require("telescope.actions").results_scrolling_up,
+			},
+			n = {
+				["<C-f>"] = require("telescope.actions").results_scrolling_down,
+				["<C-b>"] = require("telescope.actions").results_scrolling_up,
 			},
 		},
 		path_display = {

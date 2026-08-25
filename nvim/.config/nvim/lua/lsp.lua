@@ -34,6 +34,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 		--  To jump back, press <C-t>r
 		map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+		-- Call sites only (invocations), excludes imports and non-call references
+		map('grc', require('telescope.builtin').lsp_incoming_calls, '[G]oto Incoming [C]alls (callers)')
+		map('grC', require('utils').FilteredLspOutgoingCalls, '[G]oto Outgoing [C]alls (exclude vendored)')
 		map('gO', require('telescope.builtin').lsp_document_symbols, 'Open Document Symbols')
 		map('gW', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
 		map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
@@ -41,6 +44,30 @@ vim.api.nvim_create_autocmd('LspAttach', {
 		map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 		--  In C this would take you to the header.
 		map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+		-- Highlight other references to the symbol under the cursor on CursorHold,
+		-- and clear them when the cursor moves. Capability-gated: no-op on servers
+		-- that don't implement textDocument/documentHighlight (e.g. ty as of now).
+		if client:supports_method('textDocument/documentHighlight') then
+			local highlight_augroup = vim.api.nvim_create_augroup('my.lsp.highlight', { clear = false })
+			vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+				group = highlight_augroup,
+				buffer = args.buf,
+				callback = vim.lsp.buf.document_highlight,
+			})
+			vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+				group = highlight_augroup,
+				buffer = args.buf,
+				callback = vim.lsp.buf.clear_references,
+			})
+			vim.api.nvim_create_autocmd('LspDetach', {
+				group = vim.api.nvim_create_augroup('my.lsp.detach', { clear = true }),
+				callback = function(event)
+					vim.lsp.buf.clear_references()
+					vim.api.nvim_clear_autocmds({ group = 'my.lsp.highlight', buffer = event.buf })
+				end,
+			})
+		end
 
 		-- Auto-format ("lint") on save.
 		-- Usually not needed if server supports "textDocument/willSaveWaitUntil".

@@ -1,1 +1,9 @@
 set tabsort default
+
+" vim-style completion navigation in the command line (ex mode)
+bind --mode=ex <C-n> ex.next_completion
+bind --mode=ex <C-p> ex.prev_completion
+
+" Company/internal-specific settings (searchurls, quickmarks) live in a
+" gitignored local file so they don't end up in this public repo.
+source ~/.config/tridactyl/tridactylrc.local

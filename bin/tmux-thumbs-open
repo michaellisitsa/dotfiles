@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# tmux-thumbs-open — open a `path|line` citation (or plain path) in nvim.
+#
+# Called by tmux-thumbs' UPPERCASE (upcase) hint action with the selected
+# match as $1, e.g.  kogan3/apps/k3/products/mappings.py|569
+#
+# Opens nvim in a new tmux window whose cwd is the active pane's cwd, so
+# repo-root-relative citations resolve when you're sitting at the repo root.
+set -euo pipefail
+
+match="${1:-}"
+[ -n "$match" ] || exit 0
+
+if [[ "$match" == *"|"* ]]; then
+  file="${match%%|*}"
+  line="${match##*|}"
+else
+  file="$match"
+  line=1
+fi
+
+# `-c "#{pane_current_path}"` — tmux expands the format to the active pane's cwd.
+tmux new-window -c "#{pane_current_path}" "nvim +${line} -- \"${file}\""

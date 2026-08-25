@@ -247,6 +247,40 @@ function M.FilteredLspReferences()
 	})
 end
 
+-- Path fragments that mark a call target as third-party / generated rather than
+-- first-party project code. Outgoing calls resolve to the *definition* site, so
+-- these drop calls into stdlib stubs, typeshed, and installed packages.
+local VENDORED_PATTERNS = {
+	'/%.venv/',
+	'/site%-packages/',
+	'/node_modules/',
+	'/%.cache/',
+	'%.pyi$', -- type stubs (typeshed, django-stubs, etc.)
+}
+
+local function is_vendored(path)
+	for _, pat in ipairs(VENDORED_PATTERNS) do
+		if path:match(pat) then return true end
+	end
+	return false
+end
+
+-- Telescope lsp_outgoing_calls limited to calls whose target is defined in
+-- first-party code (drops stdlib/typeshed/site-packages/.pyi stubs).
+function M.FilteredLspOutgoingCalls()
+	local make_entry = require('telescope.make_entry')
+	local base = make_entry.gen_from_quickfix({})
+
+	require('telescope.builtin').lsp_outgoing_calls({
+		entry_maker = function(entry)
+			if is_vendored(entry.filename) then
+				return nil
+			end
+			return base(entry)
+		end,
+	})
+end
+
 function M.BuildAfterUpdate(plugin_name, build)
 	-- https://github.com/cgimenes/dotfiles/blob/4ad8cadf1c9ede5ee46f4f4a9be01b7cd0f9d562/nvim/.config/nvim/lua/plugins/init.lua#L1-L19
 	vim.api.nvim_create_autocmd('PackChanged', {
