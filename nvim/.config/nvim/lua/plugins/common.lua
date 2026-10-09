@@ -1,7 +1,12 @@
+local utils = require('utils')
+-- stdpath('data') is rewritten by NVIM_APPNAME, so anything stored under it is
+-- invisible to other instances sharing this config (see `nvn`). This is the
+-- appname-independent data dir, for state that should be shared rather than
+-- reinstalled/reduplicated per instance (mason binaries, bookmarks DB).
+local stable_data_dir = vim.fs.joinpath(vim.env.XDG_DATA_HOME or vim.fn.expand('~/.local/share'), 'nvim')
 vim.cmd.packadd('nvim.difftool')
 -- Similar to mbill version but auto updates as you scroll
 vim.cmd.packadd('nvim.undotree')
-
 vim.pack.add {
 	{ src = 'https://github.com/kylechui/nvim-surround' },
 	{ src = "https://github.com/lewis6991/gitsigns.nvim" },
@@ -48,8 +53,12 @@ require('nvim-surround').setup {
 }
 require('gitsigns').setup({})
 require('oil').setup({ keymaps = { ['<Esc>'] = 'actions.close' }, view_options = { show_hidden = true } })
-require("mason").setup({})
+-- Default install_root_dir is stdpath("data").."/mason", so a nightly gets an
+-- empty mason and prepends its empty bin dir to PATH -> vim.lsp.enable'd servers
+-- find no executable and nothing attaches. Server binaries are nvim-agnostic.
+require("mason").setup({ install_root_dir = vim.fs.joinpath(stable_data_dir, 'mason') })
 require("vscode").setup({})
+utils.Patch_flash_searchstate()
 require("flash").setup({
 	modes = {
 		char = {
@@ -57,7 +66,26 @@ require("flash").setup({
 		},
 	}
 })
-require("dropbar").setup({})
+-- nvim 0.13 removed BufModifiedSet ("use OptionSet with pattern 'modified'"),
+-- but dropbar still lists it in its default `bar.update_events.buf`, so
+-- setup() throws E5113 on nightly. Guarded on the event existing, so this is a
+-- no-op on 0.12: drop the dead event and re-add the same behaviour via OptionSet.
+local dropbar_opts = {}
+if vim.fn.exists('##BufModifiedSet') == 0 then
+	dropbar_opts.bar = {
+		update_events = {
+			buf = { 'FileChangedShellPost', 'TextChanged', 'ModeChanged' },
+		},
+	}
+	vim.api.nvim_create_autocmd('OptionSet', {
+		pattern = 'modified',
+		callback = function(args)
+			require('dropbar.utils').bar.exec('update', { buf = args.buf })
+		end,
+		desc = 'dropbar: BufModifiedSet replacement for nvim >= 0.13',
+	})
+end
+require("dropbar").setup(dropbar_opts)
 require("guess-indent").setup({})
 require("gitlinker").setup({})
 require('timber').setup({
@@ -78,6 +106,11 @@ require('timber').setup({
 	log_marker = 'Log:',
 })
 local opts = {
+	-- Pin the bookmarks DB to the stable data dir instead of stdpath("data"), so
+	-- an NVIM_APPNAME instance (e.g. the nightly, see `nvn`) shares one
+	-- bookmarks.sqlite.db rather than starting an empty one of its own.
+	-- Backups stay per-app under stdpath("data").."/bookmarks.backup".
+	db_dir = stable_data_dir,
 	backup = {
 		-- Default backup dir: vim.fn.stdpath("data").."/bookmarks.backup"
 		enabled = true,
@@ -144,6 +177,61 @@ require("codediff").setup({
 		},
 	}
 })
+-- Show dropbar breadcrumbs in codediff diff panes, without layout jitter.
+--
+-- codediff force-clears `winbar` on BOTH diff panes on every focus event
+-- (session.lua sync_window_ui) and exposes no option to disable it. We re-assert
+-- dropbar's winbar on every codediff pane in the tab (windows marked with the
+-- `codediff_restore` var), only when it is empty -> both panes keep an equal-height
+-- winbar (no alignment shift) and conflict/merge mode's "Ours/Theirs/Result" labels
+-- (non-empty) are left untouched.
+--
+-- The re-set must run in the SAME event *after* codediff's clear: autocmds for one
+-- event run back-to-back with a single redraw at the end, so trailing codediff means
+-- the winbar is never observed empty -> no flicker. (vim.schedule would defer to the
+-- next tick, letting a redraw show the cleared state = the jitter.) codediff creates
+-- its per-tab handler at diff-open, newer than a startup autocmd, so we re-register
+-- ours *after* open completes (deferred bootstrap) to guarantee it runs last.
+local cd_dropbar = vim.api.nvim_create_augroup("DropbarInCodeDiff", { clear = true })
+local cd_dropbar_boot = vim.api.nvim_create_augroup("DropbarInCodeDiffBoot", { clear = true })
+
+local function apply_codediff_dropbar()
+	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+		if vim.api.nvim_win_is_valid(win)
+		    and vim.w[win].codediff_restore
+		    and vim.wo[win].winbar == "" then
+			vim.wo[win].winbar = "%{%v:lua.dropbar()%}"
+		end
+	end
+end
+
+local function register_codediff_dropbar_handler()
+	vim.api.nvim_clear_autocmds({ group = cd_dropbar })
+	vim.api.nvim_create_autocmd({ "BufWinEnter", "BufEnter", "WinEnter", "FileType" }, {
+		group = cd_dropbar,
+		callback = function()
+			-- Runs after codediff's clear (same event) -> synchronous set, no jitter.
+			if vim.w[vim.api.nvim_get_current_win()].codediff_restore then
+				apply_codediff_dropbar()
+			end
+		end,
+	})
+end
+
+-- Re-register the handler after each diff opens so it always trails codediff's
+-- freshly-created per-tab autocmds. Deferred so it lands after the open call stack
+-- (and thus after codediff's augroup) completes.
+vim.api.nvim_create_autocmd("BufWinEnter", {
+	group = cd_dropbar_boot,
+	pattern = "codediff:///*",
+	callback = function()
+		vim.schedule(function()
+			register_codediff_dropbar_handler()
+			apply_codediff_dropbar()
+		end)
+	end,
+})
+register_codediff_dropbar_handler()
 require('grug-far').setup({})
 -- require('smart-paste').setup()
 local ts_repeat_move = require "nvim-treesitter-textobjects.repeatable_move"

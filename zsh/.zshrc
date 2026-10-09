@@ -100,6 +100,12 @@ fi
 # For a full list of active aliases, run `alias`.
 #
 alias python=python3
+
+# Neovim nightly, fully isolated from stable nvim via NVIM_APPNAME:
+#   config ~/.config/nvim-nightly | data ~/.local/share/nvim-nightly
+#   state  ~/.local/state/nvim-nightly | cache ~/.cache/nvim-nightly
+# Config dir is symlinked to the same dotfiles config; plugins/state are separate.
+nvn () { NVIM_APPNAME=nvim-nightly ~/Documents/nvim-macos-arm64/bin/nvim "$@" }
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
@@ -117,14 +123,14 @@ alias python=python3
 # Select --no-use so it doesn't enable specific node.
 # Make sure the path is updated with correct version below
 # https://www.ioannispoulakas.com/2020/02/22/how-to-speed-up-shell-load-while-using-nvm/
-export PATH=~/.nvm/versions/node/v18.20.8/bin:$PATH
+export PATH=~/.nvm/versions/node/v24.14.0/bin:$PATH
 
 export NVM_DIR=~/.nvm
 if [[ $(uname) == "Darwin" ]]; then
 	source $(brew --prefix nvm)/nvm.sh --no-use
 fi
 
-export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin"
+export PATH="$PATH:/snap/bin:/opt/nvim-linux-x86_64/bin:/home/michael/.local/bin:/home/michael/bin:/usr/sbin":/opt/homebrew/share/google-cloud-sdk/bin
 
 change_colour () {
 	echo -e "\033]50;SetProfile=$1\a"
@@ -158,3 +164,9 @@ function devsession() {
 
 export DOCKER_BUILDKIT=1
 export COMPOSE_DOCKER_CLI_BUILD=1
+# Added by dbt Fusion extension (ensure dbt binary dir on PATH)
+if [[ ":$PATH:" != *":/Users/michael.lisitsa/.local/bin:"* ]]; then
+  export PATH=/Users/michael.lisitsa/.local/bin:"$PATH"
+fi
+# Added by dbt Fusion extension
+alias dbtf=/Users/michael.lisitsa/.local/bin/dbt

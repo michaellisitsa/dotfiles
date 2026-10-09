@@ -9,7 +9,20 @@ keymap('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q
 
 keymap('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 keymap('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-keymap('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+-- nvim 0.13's default <C-L> also removes |multicursor|s (|CTRL-L-default|,
+-- |mcursor-clear|), which this map shadowed. Cursors are extmarks in the
+-- "nvim.multicursor" namespace, so clear them when the buffer has any and
+-- otherwise fall through to window focus. No-op change on 0.12 (no namespace).
+keymap('n', '<C-l>', function()
+	local ns = vim.api.nvim_get_namespaces()['nvim.multicursor']
+	if ns and #vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { limit = 1 }) > 0 then
+		vim.cmd('nohlsearch | diffupdate')
+		vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+		return
+	end
+	-- preserve [count], like the plain <C-w><C-l> this replaced (:h :wincmd)
+	vim.cmd((vim.v.count ~= 0 and vim.v.count or '') .. 'wincmd l')
+end, { desc = 'Clear multicursors, else move focus to the right window' })
 keymap('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 keymap('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
@@ -219,3 +232,4 @@ end, { nargs = "?", range = true })
 keymap("n", "<leader>mv", "<CMD>Markview<CR>", { desc = "Toggles `markview` previews globally." });
 keymap("n", "<leader>sx", function() require('grug-far').open({ engine = 'astgrep-rules' }) end,
 	{ desc = '[S]earch [X]ml Ast-grep' });
+
