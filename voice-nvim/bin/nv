@@ -1,0 +1,8 @@
+#!/bin/sh
+# nv - drive the Neovim in this tmux window. Logic lives in lua/nv/cli.lua; needs nvim >= 0.9.
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in /*) self=$link ;; *) self=$(dirname "$self")/$link ;; esac
+done
+exec nvim --clean -l "$(dirname "$self")/../lua/nv/cli.lua" "$@"

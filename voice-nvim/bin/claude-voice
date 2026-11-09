@@ -1,0 +1,29 @@
+#!/bin/sh
+# Start Claude Code wired to drive the Neovim in this tmux window by voice.
+#   VOICE_MODEL            default claude-haiku-5-5 (switch mid-session with /model, /fast)
+#   VOICE_EFFORT           default low
+#   VOICE_PERMISSION_MODE  default acceptEdits (file edits don't stop for a keypress)
+# Extra arguments go straight to `claude` (e.g. claude-voice --continue).
+set -eu
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in /*) self=$link ;; *) self=$(dirname "$self")/$link ;; esac
+done
+ROOT=$(cd "$(dirname "$self")/.." && pwd)
+NV="$ROOT/bin/nv"
+
+# Render the absolute path to nv into the settings and prompt, so permissions and hooks
+# match exactly and nothing depends on PATH.
+esc=$(printf '%s' "$NV" | sed 's/[|&\\]/\\&/g')
+mkdir -p "$ROOT/.cache"
+sed "s|@NV@|$esc|g" "$ROOT/claude/settings.template.json" > "$ROOT/.cache/settings.json"
+prompt=$(sed "s|@NV@|$esc|g" "$ROOT/claude/voice-prompt.md")
+
+exec claude \
+  --model "${VOICE_MODEL:-claude-haiku-5-5}" \
+  --effort "${VOICE_EFFORT:-low}" \
+  --permission-mode "${VOICE_PERMISSION_MODE:-acceptEdits}" \
+  --settings "$ROOT/.cache/settings.json" \
+  --append-system-prompt "$prompt" \
+  "$@"

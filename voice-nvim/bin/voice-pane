@@ -1,0 +1,30 @@
+#!/bin/sh
+# Split the current tmux window and start claude-voice beside the active pane (your Neovim).
+# Focus stays where it is. The new pane is tagged @voice, and F4 is bound (no prefix) in
+# this tmux server to talk to it. Nothing is written to your tmux.conf.
+# Arguments go to claude-voice: `voice-pane --continue` resumes the last session in this
+# directory, `voice-pane --resume` picks one.
+#   VOICE_PANE_SIZE  width of the new pane, default 38%
+#   VOICE_KEY        talk key, default F4
+set -eu
+[ -n "${TMUX:-}" ] || { echo "voice-pane: run this inside tmux" >&2; exit 1; }
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in /*) self=$link ;; *) self=$(dirname "$self")/$link ;; esac
+done
+ROOT=$(cd "$(dirname "$self")/.." && pwd)
+
+existing=$(tmux list-panes -F '#{pane_id} #{@voice}' | awk '$2 == "1" { print $1; exit }')
+if [ -n "$existing" ]; then
+  echo "voice-pane: this window already has one ($existing)" >&2
+  exit 0
+fi
+
+pane=$(tmux split-window -d -h -l "${VOICE_PANE_SIZE:-38%}" -c "#{pane_current_path}" \
+  -P -F '#{pane_id}' "$ROOT/bin/claude-voice" "$@")
+tmux set-option -p -t "$pane" @voice 1
+
+# Single quotes matter: tmux fills in ids like $0 and %3, which sh would otherwise expand.
+tmux bind-key -n "${VOICE_KEY:-F4}" run-shell -b \
+  "'$ROOT/bin/voice-talk' '#{pane_id}' '#{window_id}' '#{session_id}'"

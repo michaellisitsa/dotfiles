@@ -1,0 +1,27 @@
+#!/bin/sh
+# Talk key handler, bound by voice-pane (F4 by default). tmux passes the pane, window and
+# session the key was pressed in.
+#   From any other pane: remember it, focus the Claude voice pane, tap Space (starts recording).
+#   In the voice pane:   tap Space (stops recording and sends), then go back to the remembered pane.
+# Claude Code's tap mode only starts recording on Space when its prompt is empty.
+set -eu
+from=$1 window=$2 session=$3
+
+tagged() { tmux list-panes "$@" -F '#{pane_id} #{@voice}' | awk '$2 == "1" { print $1; exit }'; }
+voice=$(tagged -t "$window")
+[ -n "$voice" ] || voice=$(tagged -s -t "$session")
+if [ -z "$voice" ]; then
+  tmux display-message "voice: no Claude voice pane here (run voice-pane)"
+  exit 0
+fi
+
+if [ "$from" = "$voice" ]; then
+  tmux send-keys -t "$voice" Space
+  back=$(tmux show-options -pqv -t "$voice" @voice-origin)
+  if [ -n "$back" ]; then
+    tmux select-window -t "$back" \; select-pane -t "$back" 2>/dev/null || true
+  fi
+else
+  tmux set-option -p -t "$voice" @voice-origin "$from" \; \
+    select-window -t "$voice" \; select-pane -t "$voice" \; send-keys -t "$voice" Space
+fi

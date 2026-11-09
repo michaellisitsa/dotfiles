@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(@NV@)",
+      "Bash(@NV@ *)"
+    ]
+  },
+  "voice": {
+    "enabled": true,
+    "mode": "tap"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "'@NV@' hook prompt", "timeout": 3 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "'@NV@' hook pre", "timeout": 3 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "'@NV@' hook post", "timeout": 3 }
+        ]
+      }
+    ]
+  }
+}
