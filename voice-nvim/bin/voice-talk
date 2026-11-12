@@ -1,9 +1,11 @@
 #!/bin/sh
-# Talk key handler, bound by voice-pane (F4 by default). tmux passes the pane, window and
+# Focus key handler, bound by voice-pane (F5 by default). tmux passes the pane, window and
 # session the key was pressed in.
-#   From any other pane: remember it, focus the Claude voice pane, tap Space (starts recording).
-#   In the voice pane:   tap Space (stops recording and sends), then go back to the remembered pane.
-# Claude Code's tap mode only starts recording on Space when its prompt is empty.
+#   From any other pane: remember it and focus the Claude voice pane. Hold Claude Code's
+#   push-to-talk key there (F4 in keybindings.json) to talk; release sends (autoSubmit).
+#   In the voice pane: go back to the remembered pane.
+# In the agents view (footer "enter to return · space to reply") push-to-talk would dictate
+# a new background task, so return to the session with Enter first.
 set -eu
 from=$1 window=$2 session=$3
 
@@ -16,12 +18,16 @@ if [ -z "$voice" ]; then
 fi
 
 if [ "$from" = "$voice" ]; then
-  tmux send-keys -t "$voice" Space
   back=$(tmux show-options -pqv -t "$voice" @voice-origin)
   if [ -n "$back" ]; then
     tmux select-window -t "$back" \; select-pane -t "$back" 2>/dev/null || true
   fi
-else
-  tmux set-option -p -t "$voice" @voice-origin "$from" \; \
-    select-window -t "$voice" \; select-pane -t "$voice" \; send-keys -t "$voice" Space
+  exit 0
+fi
+
+tmux set-option -p -t "$voice" @voice-origin "$from" \; \
+  select-window -t "$voice" \; select-pane -t "$voice"
+# Only the footer is checked: the same words could appear in the transcript above it.
+if tmux capture-pane -p -t "$voice" | awk 'NF' | tail -n 2 | grep -q 'enter to return'; then
+  tmux send-keys -t "$voice" Enter
 fi

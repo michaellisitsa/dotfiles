@@ -7,7 +7,7 @@
   },
   "voice": {
     "enabled": true,
-    "mode": "tap"
+    "mode": "hold"
   },
   "hooks": {
     "UserPromptSubmit": [

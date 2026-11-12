@@ -42,6 +42,15 @@ local function target_win()
   return cur
 end
 
+-- Run f in the target window. When that is already the current window, call f directly:
+-- nvim_win_call would restore the original window afterwards and undo any move to another
+-- window or tab (<C-l>, gt, :tabnext). Only the :terminal case needs the temporary switch.
+local function in_target(f)
+  local w = target_win()
+  if w == api.nvim_get_current_win() then return f() end
+  return api.nvim_win_call(w, f)
+end
+
 local function same_file(a, b)
   if a == b then return true end
   local ra, rb = uv.fs_realpath(a), uv.fs_realpath(b)
@@ -55,7 +64,44 @@ local function find_buf(path)
   end
 end
 
--- Editor snapshot: file, mode, cursor, visible code around the cursor, diagnostics, buffers.
+local function is_codediff(name, ft)
+  return name:match('^codediff') or name:match('CodeDiff') or ft:match('^codediff')
+end
+
+-- One line per tab page when there is more than one: "*" marks the current tab, then the
+-- files shown in its windows. Tabs holding a CodeDiff view are labelled [CodeDiff].
+local function tabs_line()
+  local tabs = api.nvim_list_tabpages()
+  if #tabs < 2 then return nil end
+  local cur, parts = api.nvim_get_current_tabpage(), {}
+  for i, tab in ipairs(tabs) do
+    local files, diff, seen = {}, false, {}
+    for _, w in ipairs(api.nvim_tabpage_list_wins(tab)) do
+      if api.nvim_win_get_config(w).relative == '' then
+        local b = api.nvim_win_get_buf(w)
+        local name = api.nvim_buf_get_name(b)
+        if is_codediff(name, vim.bo[b].filetype) then
+          diff = true
+        elseif not seen[b] then
+          seen[b] = true
+          local bt = vim.bo[b].buftype
+          if bt == '' then
+            files[#files + 1] = rel(name)
+          elseif bt == 'terminal' then
+            files[#files + 1] = '[terminal]'
+          elseif vim.bo[b].filetype ~= '' then
+            files[#files + 1] = '[' .. vim.bo[b].filetype .. ']'
+          end
+        end
+      end
+    end
+    parts[#parts + 1] = string.format('%s%d%s %s', tab == cur and '*' or '', i,
+      diff and ' [CodeDiff]' or '', #files > 0 and table.concat(files, ', ') or '-')
+  end
+  return 'tabs: ' .. table.concat(parts, ' | ')
+end
+
+-- Editor snapshot: file, mode, cursor, visible code around the cursor, diagnostics, tabs, buffers.
 local function snapshot(radius)
   radius = tonumber(radius) or 20
   return api.nvim_win_call(target_win(), function()
@@ -84,6 +130,7 @@ local function snapshot(radius)
       info[#info + 1] = string.format('selection: %d:%d-%d:%d', v[2], v[3], row, col + 1)
     end
     out[#out + 1] = table.concat(info, '  ')
+    out[#out + 1] = tabs_line()
 
     for i, line in ipairs(api.nvim_buf_get_lines(buf, first - 1, last, false)) do
       local n = first + i - 1
@@ -142,7 +189,7 @@ end
 function M.keys(opts)
   local keys = api.nvim_replace_termcodes(opts.keys or '', true, true, true)
   local err
-  api.nvim_win_call(target_win(), function()
+  in_target(function()
     local ok, e = pcall(api.nvim_cmd, { cmd = 'normal', args = { keys }, mods = { silent = true } }, {})
     if not ok then err = e end
   end)
@@ -157,7 +204,7 @@ end
 
 function M.cmd(opts)
   local output, err
-  api.nvim_win_call(target_win(), function()
+  in_target(function()
     local ok, res = pcall(api.nvim_exec2, opts.cmd or '', { output = true })
     if ok then output = res.output else err = res end
   end)
@@ -169,7 +216,7 @@ function M.lua(opts)
   local chunk, perr = loadstring('return ' .. code, '=nv lua')
   if not chunk then chunk, perr = loadstring(code, '=nv lua') end
   if not chunk then return finish(opts, perr) end
-  local ok, res = pcall(api.nvim_win_call, target_win(), chunk)
+  local ok, res = pcall(in_target, chunk)
   if not ok then return finish(opts, res) end
   return finish(opts, nil, res ~= nil and vim.inspect(res) or nil)
 end

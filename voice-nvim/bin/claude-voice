@@ -1,8 +1,10 @@
 #!/bin/sh
 # Start Claude Code wired to drive the Neovim in this tmux window by voice.
-#   VOICE_MODEL            default claude-haiku-5-5 (switch mid-session with /model, /fast)
+#   VOICE_MODEL            default claude-opus-5-5 (switch mid-session with /model; /fast for speed)
 #   VOICE_EFFORT           default low
-#   VOICE_PERMISSION_MODE  default acceptEdits (file edits don't stop for a keypress)
+#   VOICE_PERMISSION_MODE  default auto (Claude decides what is safe to run without asking)
+#   VOICE_CHROME           default 1: start with --chrome (Claude in Chrome, via the extension
+#                          in your running Chrome); 0 to leave it off
 # Extra arguments go straight to `claude` (e.g. claude-voice --continue).
 set -eu
 self=$0
@@ -20,10 +22,13 @@ mkdir -p "$ROOT/.cache"
 sed "s|@NV@|$esc|g" "$ROOT/claude/settings.template.json" > "$ROOT/.cache/settings.json"
 prompt=$(sed "s|@NV@|$esc|g" "$ROOT/claude/voice-prompt.md")
 
+# Prepend --chrome so the caller's arguments (e.g. --resume ID) stay last.
+[ "${VOICE_CHROME:-1}" = 0 ] || set -- --chrome "$@"
+
 exec claude \
-  --model "${VOICE_MODEL:-claude-haiku-5-5}" \
+  --model "${VOICE_MODEL:-claude-opus-5-5}" \
   --effort "${VOICE_EFFORT:-low}" \
-  --permission-mode "${VOICE_PERMISSION_MODE:-acceptEdits}" \
+  --permission-mode "${VOICE_PERMISSION_MODE:-auto}" \
   --settings "$ROOT/.cache/settings.json" \
   --append-system-prompt "$prompt" \
   "$@"
