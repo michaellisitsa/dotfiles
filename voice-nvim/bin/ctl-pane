@@ -1,0 +1,54 @@
+#!/bin/sh
+# Key handler for the session's Claude (F6 in tmux.conf). tmux passes the pane, window and
+# session the key was pressed in. One Claude per session, started on first use in a hidden
+# window named `controller` and recorded in the session option @ctl-pane. The same process
+# moves between windows; it is never restarted by this key.
+#   From a pane in another window: move Claude into this window beside it, and focus it.
+#   From another pane in the window Claude is in: focus Claude.
+#   In Claude: hide it again (back to its own window) and return to the pane you came from.
+# Either way the pane you came from is saved as @ctl-target, the default for `tp`.
+#   CTL_PANE_SIZE    width of the Claude pane, default 38%
+#   CTL_WINDOW_NAME  name of its hidden window, default controller
+set -eu
+from=$1 window=$2 session=$3
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in /*) self=$link ;; *) self=$(dirname "$self")/$link ;; esac
+done
+ROOT=$(cd "$(dirname "$self")/.." && pwd)
+
+ctl=$(tmux show-options -qv -t "$session" @ctl-pane)
+if [ -n "$ctl" ] && [ "$(tmux display -p -t "$ctl" '#{session_id}' 2>/dev/null)" != "$session" ]; then
+  ctl= # gone, or moved out of this session
+fi
+if [ -z "$ctl" ]; then
+  dir=$(tmux display -p -t "$session" '#{session_path}')
+  ctl=$(tmux new-window -d -t "$session:" -n "${CTL_WINDOW_NAME:-controller}" -c "$dir" -P -F '#{pane_id}' "$ROOT/bin/claude-ctl")
+  tmux set-option -t "$session" @ctl-pane "$ctl"
+fi
+
+if [ "$from" = "$ctl" ]; then
+  back=$(tmux show-options -qv -t "$session" @ctl-target)
+  if [ "$(tmux display -p -t "$window" '#{window_panes}')" -gt 1 ]; then
+    tmux break-pane -d -s "$ctl" -n "${CTL_WINDOW_NAME:-controller}"
+    [ -z "$back" ] || tmux select-pane -t "$back" 2>/dev/null || true
+  else
+    # Looking at Claude's own hidden window: go back to where you were.
+    [ -n "$back" ] && tmux select-window -t "$back" \; select-pane -t "$back" 2>/dev/null ||
+      tmux last-window -t "$session" 2>/dev/null || true
+  fi
+  exit 0
+fi
+
+tmux set-option -t "$session" @ctl-target "$from"
+if [ "$(tmux display -p -t "$ctl" '#{window_id}')" = "$window" ]; then
+  tmux select-pane -t "$ctl"
+else
+  tmux join-pane -h -l "${CTL_PANE_SIZE:-38%}" -s "$ctl" -t "$from"
+fi
+# In the agents view push-to-talk would dictate a new background task; return to the session.
+# Only the footer is checked: the same words could appear in the transcript above it.
+if tmux capture-pane -p -t "$ctl" | awk 'NF' | tail -n 2 | grep -q 'enter to return'; then
+  tmux send-keys -t "$ctl" Enter
+fi

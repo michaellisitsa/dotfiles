@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(@TP@)",
+      "Bash(@TP@ *)",
+      "Bash(@NV@)",
+      "Bash(@NV@ *)"
+    ],
+    "deny": [
+      "Bash(tmux)",
+      "Bash(tmux *)"
+    ]
+  },
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "'@TP@' hook prompt", "timeout": 3 }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "'@NV@' hook pre", "timeout": 3 }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "'@NV@' hook post", "timeout": 3 }
+        ]
+      }
+    ]
+  }
+}

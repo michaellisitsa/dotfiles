@@ -1,0 +1,170 @@
+#!/bin/sh
+# tp - act on the panes of this tmux session, for the session's Claude (started by ctl-pane).
+# Everything is scoped to the session the calling pane is in, and the calling pane itself is
+# never a target.
+#   tp ctx [-n N]                       session panes, then the target pane's last N lines (40)
+#   tp show [-t P] [-n N]               a pane's last N lines (80)
+#   tp run [-t P] [-w SECS] CMD         type CMD + Enter into a shell pane, wait until the shell
+#                                       is back (60s), print the output
+#   tp keys [-t P] KEY...               tmux key names (Enter, C-c, Up, q), then the pane's tail
+#   tp text [-t P] TEXT                 type TEXT literally, no Enter
+#   tp window [-n NAME] [-c DIR] [CMD]  new window in this session, CMD typed into it; focus stays
+#   tp split [-t P] [-v] [-c DIR] [CMD] split P side by side (-v: stacked), CMD typed into it
+#   tp focus P                          show P to the user (select its window and pane)
+#   tp hook prompt                      UserPromptSubmit hook: `tp ctx` in a <tmux> block
+# P is a pane id (%12), a window (2, or its name) or window.pane (2.1) in this session.
+# Default P: the pane the user was last in, beside Claude or where they pressed the key from.
+set -eu
+
+die() { echo "tp: $*" >&2; exit 1; }
+SELF=${TMUX_PANE:-}
+[ -n "$SELF" ] || die "not inside tmux"
+SESS=$(tmux display -p -t "$SELF" '#{session_id}')
+
+is_shell() { case ${1#-} in zsh|bash|sh|dash|fish|ksh) return 0 ;; esac; return 1; }
+in_session() { [ "$(tmux display -p -t "$1" '#{session_id}' 2>/dev/null)" = "$SESS" ]; }
+usable() { [ -n "$1" ] && [ "$1" != "$SELF" ] && in_session "$1"; }
+
+default_target() {
+  win=$(tmux display -p -t "$SELF" '#{window_id}')
+  # Beside Claude: the pane with focus, or the one the user came from to talk to Claude.
+  t=$(tmux list-panes -t "$win" -F '#{pane_active} #{pane_id}' | awk '$1 == 1 { print $2 }')
+  usable "$t" && { echo "$t"; return; }
+  t=$(tmux list-panes -t "$win" -F '#{pane_last} #{pane_id}' | awk '$1 == 1 { print $2 }')
+  usable "$t" && { echo "$t"; return; }
+  # Hidden: wherever F6 was last pressed, else what the session is showing.
+  t=$(tmux show-options -qv -t "$SESS" @ctl-target)
+  usable "$t" && { echo "$t"; return; }
+  t=$(tmux display -p -t "$SESS" '#{pane_id}')
+  usable "$t" && { echo "$t"; return; }
+  return 1
+}
+
+resolve() {
+  case $1 in
+    %*) id=$1 ;;
+    *) id=$(tmux display -p -t "$SESS:$1" '#{pane_id}' 2>/dev/null) || die "no pane '$1' in this session" ;;
+  esac
+  in_session "$id" || die "'$1' is not a pane in this session"
+  [ "$id" != "$SELF" ] || die "'$1' is the Claude pane itself"
+  echo "$id"
+}
+
+# Last N non-trailing-blank lines of a pane, scrollback included.
+tail_of() {
+  tmux capture-pane -p -J -t "$1" -S "-$2" |
+    awk '{ l[NR] = $0 } NF { last = NR } END { for (i = 1; i <= last; i++) print l[i] }' |
+    tail -n "$2"
+}
+
+ctx() {
+  n=$1
+  t=$(default_target) || t=
+  name=$(tmux display -p -t "$SESS" '#{session_name}')
+  echo "<tmux session=\"$name\" target=${t:-none}>"
+  echo "  w.p id    window           command      cwd   (* = window on screen, > = target)"
+  tmux list-panes -s -t "$SESS" -F \
+    "#{?#{==:#{pane_id},$t},>,#{?window_active,*, }} #{window_index}.#{pane_index} #{p5:pane_id} #{p16:#{=16:window_name}} #{p12:pane_current_command} #{pane_current_path}#{?#{==:#{pane_id},$SELF},  (you: Claude),}" |
+    sed "s|$HOME|~|"
+  if [ -n "$t" ]; then
+    echo "--- $t, last $n lines ---"
+    tail_of "$t" "$n"
+  fi
+  echo "</tmux>"
+}
+
+target() { # -t value or default
+  if [ -n "$1" ]; then resolve "$1"; else default_target || die "no target pane; pass -t"; fi
+}
+
+cmd=${1:-}
+[ $# -gt 0 ] && shift
+t= n= w=60 name= dir= vert=
+while getopts t:n:w:c:v opt; do
+  case $opt in
+    t) t=$OPTARG ;; n) case $cmd in window) name=$OPTARG ;; *) n=$OPTARG ;; esac ;;
+    w) w=$OPTARG ;; c) dir=$OPTARG ;; v) vert=1 ;; *) exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+case $cmd in
+  ctx) ctx "${n:-40}" ;;
+
+  show)
+    p=$(target "$t")
+    tail_of "$p" "${n:-80}" ;;
+
+  run)
+    [ $# -gt 0 ] || die "run: no command"
+    p=$(target "$t")
+    c=$(tmux display -p -t "$p" '#{pane_current_command}')
+    is_shell "$c" || die "$p is running $c, not at a shell prompt (use tp keys)"
+    [ "$(tmux display -p -t "$p" '#{pane_in_mode}')" = 1 ] && tmux send-keys -t "$p" -X cancel
+    set -- "$*" $(tmux display -p -t "$p" '#{history_size} #{cursor_y}')
+    from=$(($2 + $3))
+    tmux send-keys -t "$p" -l -- "$1"
+    tmux send-keys -t "$p" Enter
+    # Done when the shell is in the foreground again and the screen has stopped changing.
+    sleep 0.3
+    start=$(date +%s) prev= done=
+    while :; do
+      if is_shell "$(tmux display -p -t "$p" '#{pane_current_command}')"; then
+        snap=$(tmux capture-pane -p -t "$p" | cksum)
+        [ "$snap" = "$prev" ] && { done=1; break; }
+        prev=$snap
+      else
+        prev=
+      fi
+      [ $(($(date +%s) - start)) -ge "$w" ] && break
+      sleep 0.3
+    done
+    set -- $(tmux display -p -t "$p" '#{history_size} #{cursor_y}')
+    s=$((from - $1)); [ "$s" -lt "-$1" ] && s="-$1"
+    out=$(tmux capture-pane -p -J -t "$p" -S "$s" -E "$2" |
+      awk '{ l[NR] = $0 } NF { last = NR } END { for (i = 1; i <= last; i++) print l[i] }')
+    lines=$(printf '%s\n' "$out" | wc -l | tr -d ' ')
+    [ "$lines" -gt 150 ] && echo "[... $((lines - 150)) earlier lines; tp show -t $p -n N for more]"
+    printf '%s\n' "$out" | tail -n 150
+    [ -n "$done" ] || echo "[still running after ${w}s in $p; check later with tp show -t $p]" ;;
+
+  keys)
+    [ $# -gt 0 ] || die "keys: no keys"
+    p=$(target "$t")
+    tmux send-keys -t "$p" "$@"
+    sleep 0.4
+    tail_of "$p" "${n:-30}" ;;
+
+  text)
+    [ $# -gt 0 ] || die "text: no text"
+    p=$(target "$t")
+    tmux send-keys -t "$p" -l -- "$*" ;;
+
+  window|split)
+    if [ "$cmd" = window ]; then
+      [ -n "$dir" ] || dir=$(tmux display -p -t "$(default_target || echo "$SESS")" '#{pane_current_path}')
+      p=$(tmux new-window -d -t "$SESS:" ${name:+-n "$name"} -c "$dir" -P -F '#{pane_id}')
+    else
+      src=$(target "$t")
+      [ -n "$dir" ] || dir=$(tmux display -p -t "$src" '#{pane_current_path}')
+      how=-h; [ -z "$vert" ] || how=-v
+      p=$(tmux split-window -d -t "$src" "$how" -c "$dir" -P -F '#{pane_id}')
+    fi
+    if [ $# -gt 0 ]; then
+      sleep 0.3 # let the shell draw its prompt first
+      tmux send-keys -t "$p" -l -- "$*"
+      tmux send-keys -t "$p" Enter
+    fi
+    tmux display -p -t "$p" 'created #{pane_id} (window #{window_index} #{window_name})' ;;
+
+  focus)
+    [ $# -gt 0 ] || [ -n "$t" ] || die "focus: which pane?"
+    p=$(resolve "${1:-$t}")
+    tmux select-window -t "$p" \; select-pane -t "$p" ;;
+
+  hook)
+    cat >/dev/null # the hook's JSON input is not needed
+    ctx 40 2>/dev/null || true ;;
+
+  *) sed -n '2,15s/^# \{0,1\}//p' "$0"; [ -z "$cmd" ] || exit 2 ;;
+esac

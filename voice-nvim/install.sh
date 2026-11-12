@@ -26,8 +26,8 @@ else
 fi
 
 mkdir -p "$BIN"
-for cmd in claude-voice nv voice-pane; do ln -sf "$ROOT/bin/$cmd" "$BIN/$cmd"; done
-echo "linked claude-voice, nv, voice-pane into $BIN"
+for cmd in claude-voice claude-ctl ctl-pane nv tp voice-pane; do ln -sf "$ROOT/bin/$cmd" "$BIN/$cmd"; done
+echo "linked claude-voice, claude-ctl, ctl-pane, nv, tp, voice-pane into $BIN"
 case ":$PATH:" in *":$BIN:"*) ;; *) echo "note: $BIN is not on your PATH" ;; esac
 
 "$ROOT/test/smoke.sh"
