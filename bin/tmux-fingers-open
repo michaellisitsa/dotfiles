@@ -3,7 +3,7 @@
 #
 # Wired to tmux-fingers' SHIFT action (@fingers-shift-action). tmux-fingers
 # pipes the selected match to this command on STDIN, e.g.
-#   kogan3/apps/k3/products/mappings.py|569
+#   src/app/models/user.py|569
 # (env also carries $MODIFIER=shift and $HINT=<hint letter>).
 #
 # Opens nvim in a new tmux window whose cwd is the active pane's cwd, so

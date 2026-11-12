@@ -2,7 +2,7 @@
 # tmux-thumbs-open — open a `path|line` citation (or plain path) in nvim.
 #
 # Called by tmux-thumbs' UPPERCASE (upcase) hint action with the selected
-# match as $1, e.g.  kogan3/apps/k3/products/mappings.py|569
+# match as $1, e.g.  src/app/models/user.py|569
 #
 # Opens nvim in a new tmux window whose cwd is the active pane's cwd, so
 # repo-root-relative citations resolve when you're sitting at the repo root.
