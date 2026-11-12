@@ -8,7 +8,11 @@ keymap('n', '<Esc>', '<cmd>nohlsearch<CR>')
 keymap('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 keymap('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-keymap('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+-- C-h/j/k/l move across nvim splits AND tmux panes (tmux half lives in
+-- .tmux.conf via TPM). Own mappings so <C-l> can keep the multicursor clear.
+vim.g.tmux_navigator_no_mappings = 1
+vim.pack.add { 'https://github.com/christoomey/vim-tmux-navigator' }
+keymap('n', '<C-h>', '<cmd>TmuxNavigateLeft<cr>', { desc = 'Move focus to the left window/tmux pane' })
 -- nvim 0.13's default <C-L> also removes |multicursor|s (|CTRL-L-default|,
 -- |mcursor-clear|), which this map shadowed. Cursors are extmarks in the
 -- "nvim.multicursor" namespace, so clear them when the buffer has any and
@@ -20,11 +24,10 @@ keymap('n', '<C-l>', function()
 		vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
 		return
 	end
-	-- preserve [count], like the plain <C-w><C-l> this replaced (:h :wincmd)
-	vim.cmd((vim.v.count ~= 0 and vim.v.count or '') .. 'wincmd l')
-end, { desc = 'Clear multicursors, else move focus to the right window' })
-keymap('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-keymap('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+	vim.cmd('TmuxNavigateRight')
+end, { desc = 'Clear multicursors, else move focus to the right window/tmux pane' })
+keymap('n', '<C-j>', '<cmd>TmuxNavigateDown<cr>', { desc = 'Move focus to the lower window/tmux pane' })
+keymap('n', '<C-k>', '<cmd>TmuxNavigateUp<cr>', { desc = 'Move focus to the upper window/tmux pane' })
 
 keymap('x', 'p', '"_dP', { desc = 'Paste over selection without clobbering register' })
 
