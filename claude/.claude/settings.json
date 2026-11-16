@@ -1,6 +1,48 @@
 {
   "model": "opus",
-  "hooks": {},
+  "permissions": {
+    "allow": [
+      "Bash(nv)",
+      "Bash(nv *)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/nv\" hook prompt",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/nv\" hook pre",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$HOME/.local/bin/nv\" hook post",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "jq -r '\"[\\(.model.display_name)] \\(.context_window.used_percentage // 0)% context\"'"
@@ -15,7 +57,7 @@
     "hiroppy": {
       "source": {
         "source": "directory",
-        "path": "/Users/michael.lisitsa/.tmux/plugins/tmux-agent-sidebar"
+        "path": "~/.tmux/plugins/tmux-agent-sidebar"
       }
     }
   },

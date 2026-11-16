@@ -196,12 +196,10 @@ end
 local function hook(event)
   local input = read_json()
   local t = resolve()
+  -- Hooks run in every Claude session; outside tmux the lone Neovim may be an unrelated editor.
+  if t and t.via == 'only Neovim running' then t = nil end
   if event == 'prompt' then
-    if not t then
-      emit('<nvim>no Neovim found in this tmux window</nvim>')
-    else
-      emit(call(t.chan, 'ctx', { radius = tonumber(vim.env.NV_HOOK_RADIUS) or 20 }).text)
-    end
+    if t then emit(call(t.chan, 'ctx', { radius = tonumber(vim.env.NV_HOOK_RADIUS) or 5 }).text) end
     return
   end
   if not t then return end

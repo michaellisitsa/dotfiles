@@ -22,22 +22,6 @@
           { "type": "command", "command": "'@TP@' hook prompt", "timeout": 3 }
         ]
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Read|Edit|Write|MultiEdit",
-        "hooks": [
-          { "type": "command", "command": "'@NV@' hook pre", "timeout": 3 }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          { "type": "command", "command": "'@NV@' hook post", "timeout": 3 }
-        ]
-      }
     ]
   }
 }

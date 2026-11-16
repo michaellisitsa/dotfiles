@@ -8,11 +8,11 @@ Drive Neovim by talking to Claude Code. Claude runs in a tmux pane next to your 
 speak ─▶ Claude Code /voice (hold mode) ─▶ transcript in prompt, Enter to send
           │
           ├─ UserPromptSubmit hook: nv hook prompt
-          │     appends an <nvim> snapshot: file, mode, cursor, ±20 visible lines,
+          │     appends an <nvim> snapshot: file, mode, cursor, ±5 visible lines,
           │     word under cursor, selection, diagnostics, open buffers
           │
           ▼
-   Claude (Opus 5.5, low effort, auto mode)
+   Claude (any session, nvim skill)
           ├─ default: Bash `nv keys|cmd|lua|input '…'` ─RPC─▶ your nvim
           │     every edit, jump, format, rename happens there (in its undo history);
           │     the call returns the new snapshot, so one round trip per utterance
@@ -37,31 +37,22 @@ You'll need Claude Code signed in with your claude.ai account. Voice doesn't wor
 
 ## Use
 
-In the tmux window where Neovim is running, run `voice-pane` from a shell. It starts Claude in a split beside the editor and leaves your focus where it is. It also tags that pane and binds **F5** in your running tmux server, with no prefix. Nothing is written to your tmux.conf, and running `voice-pane` again after a tmux restart re-creates the binding.
+Start `claude` in any pane of the tmux session that has Neovim (e.g. a split with `prefix %`). Nothing else is needed:
 
-- **F5** from anywhere in the tmux session: jumps to the Claude pane. **F5** there jumps back to the pane you came from.
+- The `nv` hooks are in the global `~/.claude/settings.json`, so every session gets the `<nvim>` snapshot (5 lines either side of the cursor) and the buffer save/reload around edits. When there is no Neovim in the tmux session they print nothing.
+- How to drive Neovim is the `nvim` skill (`~/.dotfiles/claude/.claude/skills/nvim/SKILL.md`, stowed into `~/.claude/skills/`), which sessions load on demand. Dictation rules are in the global `CLAUDE.md`.
 - In the Claude pane, **hold F4** (Claude Code's push-to-talk, rebound from Space in `~/.claude/keybindings.json`) and speak; **release** to stop. The transcript is inserted into the prompt without sending (hold mode, no `autoSubmit`), so review it and press Enter to send.
 - Things you can say: "go to line forty two", "rename this to camel user record", "delete this function", "add a null check before the fetch", "open the users controller", "fix the type errors in view", "undo that".
 - "Undo" reverts Claude's file edits as well. The reload is in Neovim's undo history (`'undoreload'`), so `u` restores the previous version and `:w` puts the disk back in sync. The prompt already tells Claude to do both.
 
-Map F4 and F5 to Glove80 thumb keys. They must reach the terminal as real function keys, not as macOS media keys.
+Map F4 to a Glove80 thumb key. It must reach the terminal as a real function key, not a macOS media key.
 
 ## Tuning
 
 | | |
 |---|---|
-| `VOICE_MODEL` | default `claude-opus-5-5`. Switch mid-session with `/model` (e.g. Haiku for lower latency), or `/fast` for Opus fast mode, which a Team admin may need to enable. |
-| `VOICE_EFFORT` | default `low` |
-| `VOICE_PERMISSION_MODE` | default `auto`: Claude runs what it judges safe without a keypress and asks about the rest; git and `u` are the safety net. `acceptEdits` auto-approves only file edits; `manual` prompts for everything. |
-| `VOICE_CHROME` | default `1`: starts Claude with `--chrome` (Claude in Chrome), so it can also drive your running Chrome through the extension. `0` leaves it off. |
-| `NV_HOOK_RADIUS` | lines either side of the cursor in the per-prompt snapshot. Default 20, and never more than what's visible. |
+| `NV_HOOK_RADIUS` | lines either side of the cursor in the per-prompt snapshot. Default 5, and never more than what's visible. |
 | `NV_SOCKET` | pin a specific Neovim, e.g. one started with `nvim --listen /tmp/nvim` |
-| `VOICE_KEY` | tmux talk key bound by `voice-pane`, default `F5` |
-| `VOICE_PANE_SIZE` | width of the Claude pane, default `38%` |
-
-`bin/voice-talk` sends Space because that is Claude Code's default dictation key. If you rebind `voice:pushToTalk` in `~/.claude/keybindings.json`, change the `send-keys` key in `voice-talk` to match.
-
-The prompt Claude gets is `claude/voice-prompt.md`. Hooks and permissions are in `claude/settings.template.json`. The launcher fills the absolute path of `nv` into both each time it starts, so the repo can live anywhere.
 
 ## nv
 
@@ -89,7 +80,7 @@ One Claude per tmux session that can see and act on every pane in that session, 
 - Claude acts through `tp`, which types into your panes so you see the commands and they go into your shell history. `tp` refuses panes in other sessions, and Claude's settings deny raw `tmux`. That deny is a prefix rule, not a sandbox. `nv` is allowed too, for when the target is Neovim.
 - If the tmux server stops, Claude stops with it. The next F6 starts a fresh one. To pick the old conversation up, run `/resume` in it.
 
-The prompt is `claude/ctl-prompt.md` and the settings are `claude/ctl-settings.template.json`. It takes the same `VOICE_*` variables as `claude-voice`, and `CTL_PANE_SIZE` sets the width (default 38%).
+The prompt is `claude/ctl-prompt.md` and the settings are `claude/ctl-settings.template.json`. `VOICE_MODEL` (default `claude-opus-5-5`), `VOICE_EFFORT` (default `low`), `VOICE_PERMISSION_MODE` (default `auto`) and `VOICE_CHROME` (default `1`, starts with `--chrome`) tune its launch, and `CTL_PANE_SIZE` sets the width (default 38%).
 
 ```
 tp ctx [-n N]                       session panes + target's last N lines

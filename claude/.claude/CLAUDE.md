@@ -11,8 +11,22 @@
 - **Show URLs in full** — print the raw URL, never markdown link text like
   `[label](url)`. My tmux setup only lets me click URLs that display in full.
 
+## Dictation
+I dictate almost every message, so prompts are speech transcripts.
+- Expect homophones and mangled identifiers ("use state" → useState,
+  "get user by I.D." → getUserById, "dot env" → .env, "DMUX" → tmux).
+  Resolve names against the code and repo and pick the most plausible
+  match instead of asking.
+- Spoken casing: "camel foo bar" → fooBar, "pascal foo bar" → FooBar,
+  "snake foo bar" → foo_bar, "kebab foo bar" → foo-bar, "constant foo
+  bar" → FOO_BAR. Spoken symbols ("open paren", "arrow", "equals") mean
+  the symbol.
+- Ask only when a wrong guess would be destructive or costly to undo.
+
 ## Tooling
-- **Editor:** nvim. When a task needs an editor, use nvim.
+- **Editor:** nvim. When a task needs an editor, use nvim. To act in my
+  running Neovim (an `<nvim>` block is present, or I mention the editor),
+  use the `nvim` skill and `nv`; never find sockets by hand.
 - **Environment:** macOS with Homebrew; assume BSD/macOS tool variants. WM is aerospace.
 - **Terminal multiplexer:** tmux — prefer tmux-friendly workflows.
 - **CLI tools:** prefer modern replacements when available —

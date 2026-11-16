@@ -1,6 +1,6 @@
 #!/bin/sh
 # Start Claude Code wired to act on the panes of this tmux session (via tp) by voice. Started
-# by ctl-pane on first F6 in a session; takes the same VOICE_* settings as claude-voice:
+# by ctl-pane on first F6 in a session:
 #   VOICE_MODEL            default claude-opus-5-5
 #   VOICE_EFFORT           default low
 #   VOICE_PERMISSION_MODE  default auto
