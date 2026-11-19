@@ -64,6 +64,8 @@ nv input KEYS       async, as if typed (pickers, prompts)
 nv lua CODE         Lua inside Neovim, result printed
 nv reload [FILE]    re-read buffers changed on disk (never touches unsaved ones)
 nv sync FILE        write FILE's buffer if unsaved
+nv annotate FILE LINE TEXT   virtual-line note under LINE (file untouched)
+nv annotate --clear [FILE]   remove notes from FILE, or from every buffer
 nv where            which Neovim it would talk to, and why
 ```
 

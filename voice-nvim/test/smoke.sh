@@ -39,6 +39,12 @@ out=$("$NV" cmd 'echo "hello"');          check "cmd output"                    
 out=$("$NV" cmd 'nosuchcommand');         check "cmd error reported"             "$out" 'error: E492'
 out=$("$NV" lua 'vim.api.nvim_buf_line_count(0)' -q); check "lua result"         "$out" '5'
 out=$("$NV" input 'gg0' -r 1);            check "input (async)"                  "$out" 'cursor=1:1'
+marks='#vim.api.nvim_buf_get_extmarks(0, vim.api.nvim_create_namespace("nv-annotate"), 0, -1, {})'
+out=$("$NV" annotate "$FILE" 2 'fetch can throw'); check "annotate"               "$out" 'annotated'
+out=$("$NV" lua "$marks" -q);             check "annotate sets extmark"          "$out" '1'
+out=$("$NV" annotate "$FILE" 99 'x');     check "annotate line out of range"     "$out" 'out of range (1-5)'
+out=$("$NV" annotate --clear);            check "annotate --clear"               "$out" 'cleared 1 annotation(s)'
+out=$("$NV" lua "$marks" -q);             check "clear removes extmarks"         "$out" '0'
 
 # Hooks: Claude reads/edits the file while the buffer has unsaved changes.
 "$NV" keys 'Gox<Esc>' -q

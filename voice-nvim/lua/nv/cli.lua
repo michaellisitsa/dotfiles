@@ -10,7 +10,9 @@ nv - drive the Neovim in this tmux window over RPC
   nv lua CODE         run Lua inside Neovim and print the result
   nv reload [FILE]    re-read buffers changed on disk (never touches unsaved ones)
   nv sync FILE        write FILE's buffer if it has unsaved changes
-  nv where            show which Neovim nv would talk to
+  nv annotate FILE LINE TEXT   virtual-line note under LINE (file untouched)
+  nv annotate --clear [FILE]   remove notes from FILE, or from every buffer
+  nv where           show which Neovim nv would talk to
   nv hook EVENT       Claude Code hook entry (prompt | pre | post), reads JSON on stdin
 
 keys/cmd/input/lua print the new snapshot afterwards (radius 8; -r N to change, -q to skip).
@@ -260,6 +262,14 @@ elseif sub == 'reload' then
 elseif sub == 'sync' then
   if text == '' then die('usage: nv sync FILE') end
   finish(call(need(), 'sync', { path = vim.fn.fnamemodify(text, ':p') }))
+elseif sub == 'annotate' then
+  if rest[1] == '--clear' then
+    finish(call(need(), 'annotate', { clear = true, path = rest[2] and vim.fn.fnamemodify(rest[2], ':p') or nil }))
+  elseif #rest < 3 or not tonumber(rest[2]) then
+    die('usage: nv annotate FILE LINE TEXT  |  nv annotate --clear [FILE]')
+  else
+    finish(call(need(), 'annotate', { path = vim.fn.fnamemodify(rest[1], ':p'), line = rest[2], text = table.concat(rest, ' ', 3) }))
+  end
 elseif sub == 'where' then
   local t = resolve()
   if not t then die('no Neovim found in this tmux window') end

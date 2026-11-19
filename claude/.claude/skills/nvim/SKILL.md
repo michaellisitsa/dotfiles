@@ -17,6 +17,7 @@ Opening a file while the current tab is [CodeDiff]: do it in a regular tab, not 
 - `nv cmd 'EX'` an Ex command, with its output: 'w', 'edit src/app.ts', '%s/foo/bar/g', 'vsplit'. Never the c (confirm) flag or anything else that waits for input.
 - `nv input 'KEYS'` asynchronous, as if typed. Only for interactive UIs (pickers, completion menus).
 - `nv lua 'CODE'` Lua inside Neovim, result printed, e.g. 'vim.lsp.buf.rename("newName")'.
+- `nv annotate FILE LINE 'TEXT'` a note shown as virtual lines under LINE (1-based; a real newline in TEXT, e.g. $'one\ntwo', for more lines); the file is not changed. Use it to point at code ("this is the bug", "these call it") without editing. Open the file too if it isn't on screen. `nv annotate --clear [FILE]` removes them; do that when the user says "clear the notes" or the point is made.
 - keys, cmd, input and lua print the new snapshot, so no separate "look" call is needed.
 Quote for the shell: text containing ' goes in double quotes; text with both quote kinds goes in a quoted heredoc: nv keys "$(cat <<'EOF' … EOF)".
 

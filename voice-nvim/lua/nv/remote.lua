@@ -278,6 +278,38 @@ function M.reload(opts)
   return { text = '' }
 end
 
+local ANNOTATE_NS = api.nvim_create_namespace('nv-annotate')
+
+-- Show text as virtual lines under `line` (1-based) of `path`, loading the file if no buffer
+-- has it. Extmarks follow edits and never change the file. `clear` removes them (one file or all).
+function M.annotate(opts)
+  if opts.clear then
+    local bufs = opts.path and { find_buf(opts.path) } or api.nvim_list_bufs()
+    local n = 0
+    for _, b in ipairs(bufs) do
+      if api.nvim_buf_is_loaded(b) then
+        n = n + #api.nvim_buf_get_extmarks(b, ANNOTATE_NS, 0, -1, {})
+        api.nvim_buf_clear_namespace(b, ANNOTATE_NS, 0, -1)
+      end
+    end
+    return { text = 'cleared ' .. n .. ' annotation(s)' }
+  end
+  local b = find_buf(opts.path)
+  if not b then
+    if fn.filereadable(opts.path) == 0 then return { text = 'error: no such file: ' .. rel(opts.path), err = true } end
+    b = fn.bufadd(opts.path)
+    fn.bufload(b)
+  end
+  local line, count = tonumber(opts.line), api.nvim_buf_line_count(b)
+  if not line or line < 1 or line > count then
+    return { text = string.format('error: line %s out of range (1-%d)', tostring(opts.line), count), err = true }
+  end
+  local virt = {}
+  for l in ((opts.text or '') .. '\n'):gmatch('(.-)\n') do virt[#virt + 1] = { { l, 'DiagnosticInfo' } } end
+  api.nvim_buf_set_extmark(b, ANNOTATE_NS, line - 1, 0, { virt_lines = virt })
+  return { text = 'annotated ' .. rel(api.nvim_buf_get_name(b)) .. ':' .. line }
+end
+
 function M.info()
   return { pid = fn.getpid(), uis = #api.nvim_list_uis() }
 end
